@@ -244,7 +244,7 @@ struct TodayConnectCard: View {
             Text("Connect your AI assistant")
                 .font(.title3Semibold)
                 .foregroundStyle(.ink)
-            Text("Healthy Eating gets your meals from the chat you already use. Add this URL as a connector in Claude or ChatGPT.")
+            Text("Healthy Eating gets your meals from the chat you already use. Add this URL to Claude as a connector or to ChatGPT as a plugin.")
                 .font(.callout)
                 .foregroundStyle(.ink)
             if let server {

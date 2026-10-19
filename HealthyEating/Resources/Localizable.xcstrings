@@ -138,10 +138,10 @@
     "About the same" : {
 
     },
-    "Add Healthy Eating to the assistant you already use. Your chats stay the same." : {
+    "Accept the risk warning and select Create as a plugin." : {
 
     },
-    "Add a custom connector and paste the URL." : {
+    "Add Healthy Eating to the assistant you already use. Your chats stay the same." : {
 
     },
     "Add a remote MCP server with the URL above." : {
@@ -150,7 +150,7 @@
     "Add another" : {
 
     },
-    "Add this URL as a connector in your assistant:" : {
+    "Add this URL to your assistant (a connector in Claude, a plugin in ChatGPT):" : {
 
     },
     "Address" : {
@@ -311,6 +311,9 @@
     "Couldn’t load this" : {
 
     },
+    "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. Saving meals needs a ChatGPT Business, Enterprise or Edu workspace that allows custom MCP servers." : {
+
+    },
     "Day" : {
 
     },
@@ -419,7 +422,7 @@
     "Healthy Eating for iOS" : {
 
     },
-    "Healthy Eating gets your meals from the chat you already use. Add this URL as a connector in Claude or ChatGPT." : {
+    "Healthy Eating gets your meals from the chat you already use. Add this URL to Claude as a connector or to ChatGPT as a plugin." : {
 
     },
     "Healthy Eating is the app plus a PostgreSQL database on any server you control. Setup takes about 15 minutes." : {
@@ -437,10 +440,13 @@
     "History" : {
 
     },
-    "In ChatGPT, open Settings › Connectors." : {
+    "In Claude, open Settings › Connectors." : {
 
     },
-    "In Claude, open Settings › Connectors." : {
+    "In a new chat, type @, choose Healthy Eating and send your meal." : {
+
+    },
+    "In a web browser, open chatgpt.com and go to Plugins." : {
 
     },
     "It" : {
@@ -641,13 +647,13 @@
     "See trends here" : {
 
     },
+    "Select +, then Add custom MCP server, and paste the URL." : {
+
+    },
     "Selected" : {
 
     },
     "Send a meal to your assistant. It appears here a few seconds after the assistant saves it." : {
-
-    },
-    "Send your first meal in any chat or project." : {
 
     },
     "Send your first meal in any chat." : {

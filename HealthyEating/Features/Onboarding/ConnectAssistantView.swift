@@ -1,7 +1,9 @@
 import SwiftUI
 
 /// The AI assistants with written connection steps. Menu names must be checked against current
-/// Claude and ChatGPT releases.
+/// Claude and ChatGPT releases. ChatGPT steps follow OpenAI's help article "Connecting custom MCP
+/// servers in ChatGPT" (checked 2026-10-19): custom MCP servers are added on chatgpt.com under
+/// Plugins, not in the apps, and write tools need a Business, Enterprise or Edu workspace.
 enum AssistantKind: String, CaseIterable, Identifiable {
     case claude, chatGPT, other
 
@@ -23,15 +25,26 @@ enum AssistantKind: String, CaseIterable, Identifiable {
              "Sign in with the same account you use here.",
              "Send your first meal in any chat."]
         case .chatGPT:
-            ["In ChatGPT, open Settings › Connectors.",
-             "Add a custom connector and paste the URL.",
+            ["In a web browser, open chatgpt.com and go to Plugins.",
+             "Select +, then Add custom MCP server, and paste the URL.",
+             "Accept the risk warning and select Create as a plugin.",
              "Sign in with the same account you use here.",
-             "Send your first meal in any chat or project."]
+             "In a new chat, type @, choose Healthy Eating and send your meal."]
         case .other:
             ["Open your assistant’s MCP or connector settings.",
              "Add a remote MCP server with the URL above.",
              "Finish the sign-in in your browser.",
              "Ask it to log a meal."]
+        }
+    }
+
+    /// What the assistant needs before the steps work, shown under them.
+    var note: LocalizedStringKey? {
+        switch self {
+        case .chatGPT:
+            "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. Saving meals needs a ChatGPT Business, Enterprise or Edu workspace that allows custom MCP servers."
+        case .claude, .other:
+            nil
         }
     }
 }
@@ -112,6 +125,13 @@ struct ConnectionSteps: View {
                     }
                     .accessibilityElement(children: .combine)
                 }
+            }
+
+            if let note = assistant.note {
+                Text(note)
+                    .font(.footnote)
+                    .foregroundStyle(.inkMuted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

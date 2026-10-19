@@ -39,7 +39,7 @@ struct ConnectedAssistantsView: View {
                 if let server = app.server {
                     Section {
                         VStack(alignment: .leading, spacing: Spacing.s2) {
-                            Text("Add this URL as a connector in your assistant:").foregroundStyle(.ink)
+                            Text("Add this URL to your assistant (a connector in Claude, a plugin in ChatGPT):").foregroundStyle(.ink)
                             CopyField(value: server.mcpURL.absoluteString)
                         }
                     } header: {
