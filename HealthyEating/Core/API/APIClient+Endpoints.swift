@@ -103,6 +103,11 @@ nonisolated extension APIClient {
 
     // MARK: Account
 
+    func account() async throws(APIError) -> Account {
+        let dto = try await send(Request(path: "me"), as: MeDTO.self)
+        return Account(displayName: dto.displayName, email: dto.email, linkedLogins: dto.linkedLogins)
+    }
+
     func settings() async throws(APIError) -> UserSettings {
         Self.settings(try await send(Request(path: "me/settings"), as: SettingsDTO.self))
     }

@@ -14,7 +14,14 @@ final class AppModel {
     private(set) var sessionEndedMessage: String?
     /// Calm mode hides calories everywhere.
     var calmMode: Bool {
-        didSet { defaults.set(calmMode, forKey: Keys.calmMode) }
+        didSet {
+            defaults.set(calmMode, forKey: Keys.calmMode)
+            // Also stored on the server, so it follows the person to another device.
+            if let data, oldValue != calmMode {
+                let calm = calmMode
+                Task { _ = try? await data.updateSettings(.init(calmMode: calm)) }
+            }
+        }
     }
 
     @ObservationIgnored private let defaults: UserDefaults
@@ -94,6 +101,21 @@ final class AppModel {
         data = usesSampleData ? SampleDataSource() : APIClient(server: server, auth: session)
     }
 
+    /// Sends the device's time zone when the server has none yet, so local days match the
+    /// person's days. A different stored time zone is kept (the person may have chosen it);
+    /// Settings offers to switch.
+    func syncTimeZoneIfNeeded(device: TimeZone = .current) async {
+        guard let data else { return }
+        do throws(APIError) {
+            let settings = try await data.settings()
+            if settings.timeZone == nil {
+                _ = try await data.updateSettings(.init(timeZone: .some(device.identifier)))
+            }
+        } catch {
+            handle(error)
+        }
+    }
+
     /// Call with every API error a screen gets: an ended session returns to onboarding.
     func handle(_ error: APIError) {
         if error == .sessionExpired { sessionEnded() }
@@ -128,6 +150,12 @@ final class AppModel {
     /// Revokes the session on the server, forgets the tokens and returns to Welcome.
     func signOut() async {
         await authSession?.signOut()
+        reset()
+    }
+
+    /// The account is gone from the server: forget the tokens (nothing left to revoke).
+    func accountDeleted() async {
+        if let server { credentials.delete(for: server) }
         reset()
     }
 

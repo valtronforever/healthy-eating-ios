@@ -1,5 +1,26 @@
 import Foundation
 
+/// The signed-in account (`GET /api/v1/me`).
+nonisolated struct Account: Sendable, Equatable {
+    var displayName: String?
+    var email: String?
+    /// Social logins linked to the account: "google", "microsoft", "apple" (or "dev").
+    var linkedLogins: [String]
+
+    /// "Google and Apple" for the account row.
+    var loginsText: String {
+        let names = linkedLogins.map { login -> String in
+            switch login {
+            case "google": "Google"
+            case "microsoft": "Microsoft"
+            case "apple": "Apple"
+            default: login.capitalized
+            }
+        }
+        return names.formatted(.list(type: .and))
+    }
+}
+
 /// A day's totals and completeness, computed by the backend (`GET /api/v1/days`).
 nonisolated struct DayTotals: Identifiable, Hashable, Sendable {
     /// The local day, as midnight in the device calendar.

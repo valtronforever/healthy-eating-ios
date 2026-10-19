@@ -71,6 +71,10 @@ actor SampleDataSource: NutritionDataSource {
             change: change)
     }
 
+    func account() -> Account {
+        Account(displayName: "Alex Kim", email: "alex@example.com", linkedLogins: ["google", "apple"])
+    }
+
     func settings() -> UserSettings { userSettings }
 
     func updateSettings(_ change: APIClient.SettingsChange) -> UserSettings {

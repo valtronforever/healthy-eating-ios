@@ -20,6 +20,7 @@ struct RootView: View {
     var body: some View {
         if model.hasCompletedOnboarding {
             MainTabView()
+                .task { await model.syncTimeZoneIfNeeded() }
         } else {
             OnboardingFlow()
         }

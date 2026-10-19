@@ -251,6 +251,20 @@ nonisolated struct RevokeDTO: Decodable, Sendable {
     }
 }
 
+nonisolated struct MeDTO: Decodable, Sendable {
+    let id: UUID
+    let displayName: String?
+    let email: String?
+    let linkedLogins: [String]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case displayName = "display_name"
+        case email
+        case linkedLogins = "linked_logins"
+    }
+}
+
 /// Field names of request bodies, checked against the contract like the response keys.
 nonisolated enum RequestFields {
     static let mealUpdate = ["dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g", "eaten_at"]

@@ -212,6 +212,7 @@ struct APIContractTests {
         ("ConnectionResponse", ConnectionDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ConnectionsResponse", ConnectionsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("RevokeResponse", RevokeDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("MeResponse", MeDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MealUpdate", RequestFields.mealUpdate),
         ("SettingsUpdate", RequestFields.settingsUpdate),
         ("DayStatusUpdate", RequestFields.dayStatusUpdate),

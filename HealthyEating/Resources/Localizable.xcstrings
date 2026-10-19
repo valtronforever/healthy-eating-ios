@@ -14,6 +14,16 @@
         }
       }
     },
+    "%@ can no longer save meals to %@. Meals it already saved stay." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ can no longer save meals to %2$@. Meals it already saved stay."
+          }
+        }
+      }
+    },
     "%@ grams" : {
 
     },
@@ -137,6 +147,12 @@
     "Add a remote MCP server with the URL above." : {
 
     },
+    "Add another" : {
+
+    },
+    "Add this URL as a connector in your assistant:" : {
+
+    },
     "Address" : {
 
     },
@@ -190,6 +206,9 @@
     "Baseline" : {
 
     },
+    "CSV (ZIP)" : {
+
+    },
     "Calm mode" : {
 
     },
@@ -235,6 +254,9 @@
     "Choose Add custom connector and paste the URL." : {
 
     },
+    "City or region" : {
+
+    },
     "Claude" : {
 
     },
@@ -256,10 +278,16 @@
     "Connect your AI assistant" : {
 
     },
+    "Connected assistants" : {
+
+    },
     "Connection URL" : {
 
     },
     "Connection steps" : {
+
+    },
+    "Connections" : {
 
     },
     "Continue" : {
@@ -289,6 +317,12 @@
     "Day marked as complete" : {
 
     },
+    "Day marks" : {
+
+    },
+    "Days on your server are counted in this time zone." : {
+
+    },
     "Delete account" : {
 
     },
@@ -296,6 +330,9 @@
 
     },
     "Delete this meal?" : {
+
+    },
+    "Delete your account?" : {
 
     },
     "Details: %@" : {
@@ -319,6 +356,9 @@
     "End" : {
 
     },
+    "Energy" : {
+
+    },
     "Enter an address like https://food.example.com" : {
 
     },
@@ -331,6 +371,12 @@
     "Estimated" : {
 
     },
+    "Export data" : {
+
+    },
+    "Export data first" : {
+
+    },
     "Fat" : {
 
     },
@@ -338,6 +384,9 @@
 
     },
     "Free and open source (MIT)" : {
+
+    },
+    "From" : {
 
     },
     "Get started" : {
@@ -350,6 +399,9 @@
 
     },
     "Healthy Eating app icon" : {
+
+    },
+    "Healthy Eating for iOS" : {
 
     },
     "Healthy Eating gets your meals from the chat you already use. Add this URL as a connector in Claude or ChatGPT." : {
@@ -376,10 +428,22 @@
     "In Claude, open Settings › Connectors." : {
 
     },
+    "It" : {
+
+    },
+    "It can’t be undone. Meals you logged elsewhere, for example in a ChatGPT project or a spreadsheet, are not touched." : {
+
+    },
     "It is removed from your history and averages. This can’t be undone." : {
 
     },
     "I’ve connected it" : {
+
+    },
+    "JSON" : {
+
+    },
+    "JSON, CSV" : {
 
     },
     "Last meal saved %@" : {
@@ -394,6 +458,12 @@
           }
         }
       }
+    },
+    "Last used %@" : {
+
+    },
+    "Leave a field empty for an open range. Your days are shown against these ranges, never judged by them." : {
+
     },
     "Loading" : {
 
@@ -411,6 +481,9 @@
 
     },
     "Low confidence" : {
+
+    },
+    "MIT License. The source code and the license text are on GitHub." : {
 
     },
     "Mark day as complete" : {
@@ -464,10 +537,22 @@
     "Not marked" : {
 
     },
+    "Not set" : {
+
+    },
+    "Not used yet" : {
+
+    },
+    "Nothing is connected yet." : {
+
+    },
     "Nutrition" : {
 
     },
     "Offline" : {
+
+    },
+    "Open" : {
 
     },
     "Open day" : {
@@ -477,6 +562,9 @@
 
     },
     "Open your assistant’s MCP or connector settings." : {
+
+    },
+    "Open-source licenses" : {
 
     },
     "Other" : {
@@ -517,6 +605,15 @@
     "Retry" : {
 
     },
+    "Revoke" : {
+
+    },
+    "Revoke %@?" : {
+
+    },
+    "Revoking signs that assistant out of your server. Meals it already saved stay, and you can connect it again at any time." : {
+
+    },
     "Running your own?" : {
 
     },
@@ -527,6 +624,9 @@
 
     },
     "See trends here" : {
+
+    },
+    "Selected" : {
 
     },
     "Send your first meal in any chat or project." : {
@@ -542,6 +642,9 @@
 
     },
     "Server address" : {
+
+    },
+    "Set" : {
 
     },
     "Settings" : {
@@ -563,6 +666,9 @@
 
     },
     "Sign-in was cancelled." : {
+
+    },
+    "Signed in with %@" : {
 
     },
     "Signing in" : {
@@ -592,10 +698,22 @@
     "Target low" : {
 
     },
+    "Target ranges" : {
+
+    },
     "Target up to %@" : {
 
     },
+    "Targets and settings" : {
+
+    },
     "Tell Claude or ChatGPT what you ate. Nothing new to learn." : {
+
+    },
+    "The app contains no third-party code: it uses only Apple’s frameworks. Your server runs the open-source Healthy Eating backend, also MIT." : {
+
+    },
+    "The start of a range can’t be above its end." : {
 
     },
     "This address does not look like a Healthy Eating server. Check the address." : {
@@ -604,10 +722,25 @@
     "This day" : {
 
     },
+    "This deletes your account and everything stored for it on %@:" : {
+
+    },
+    "This iPhone · now" : {
+
+    },
     "This item is no longer on your server." : {
 
     },
+    "This signs this iPhone out of %@. Your data stays on your server." : {
+
+    },
     "Time" : {
+
+    },
+    "Time zone" : {
+
+    },
+    "To" : {
 
     },
     "Today" : {
@@ -625,10 +758,22 @@
     "Try this first message" : {
 
     },
+    "Type DELETE to confirm" : {
+
+    },
     "Undo" : {
 
     },
+    "Units and targets" : {
+
+    },
+    "Unnamed assistant" : {
+
+    },
     "Use an https address" : {
+
+    },
+    "Use this iPhone’s time zone" : {
 
     },
     "Values" : {
@@ -653,6 +798,12 @@
 
     },
     "You sign in on your server’s page. An account is created the first time." : {
+
+    },
+    "Your account" : {
+
+    },
+    "Your data" : {
 
     },
     "Your data is safe on your server." : {
@@ -688,6 +839,9 @@
     "g" : {
       "comment" : "Unit symbol for grams"
     },
+    "github.com/valtronforever/healthy-eating-ios" : {
+
+    },
     "just now" : {
 
     },
@@ -713,6 +867,9 @@
 
     },
     "partial, left out of the average" : {
+
+    },
+    "this assistant" : {
 
     },
     "today" : {
