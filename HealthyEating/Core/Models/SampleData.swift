@@ -52,6 +52,11 @@ nonisolated enum SampleData {
         .none, .none, .complete, .complete, .partial, .complete, .complete, .complete, .partial,
     ]
 
+    /// The board's state for a past day of any month, by its day number.
+    static func pastState(dayOfMonth day: Int) -> DayState {
+        monthPattern[(day - 1) % monthPattern.count]
+    }
+
     /// Day states for the month containing `now`: days after today are `future`, today is partial.
     static func monthStates(now: Date = .now) -> [Int: DayState] {
         let todayDay = calendar.component(.day, from: now)

@@ -159,17 +159,7 @@ struct TodayView: View {
     }
 
     private func summary(_ snapshot: TodayModel.Snapshot) -> some View {
-        let day = snapshot.day
-        let targets = snapshot.settings.targets
-        let macros = [(Macro.protein, NutrientField.protein), (.fat, .fat), (.carbs, .carbohydrates)].map { macro, field in
-            MacroProgress(
-                macro: macro,
-                value: day.map { macro == .protein ? $0.proteinG : macro == .fat ? $0.fatG : $0.carbohydratesG } ?? 0,
-                min: targets[field]?.min, max: targets[field]?.max)
-        }
-        return SummaryCard(
-            kcal: day?.caloriesKcal ?? 0, kcalTarget: targets[.calories] ?? TargetRange(),
-            macros: macros, energyUnit: snapshot.settings.energyUnit, calm: app.calmMode)
+        DaySummaryCard(day: snapshot.day, settings: snapshot.settings, calm: app.calmMode)
     }
 
     private func integrationLine(_ integration: IntegrationState) -> some View {

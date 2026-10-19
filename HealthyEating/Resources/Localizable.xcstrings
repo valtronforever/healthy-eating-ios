@@ -26,12 +26,25 @@
     "%@ kilojoules" : {
 
     },
+    "%@ of calories estimated" : {
+
+    },
     "%@ · %@ · via %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ · %2$@ · via %3$@"
+          }
+        }
+      }
+    },
+    "%@ · %lld meals" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$lld meals"
           }
         }
       }
@@ -84,16 +97,6 @@
     },
     "%lld min ago" : {
 
-    },
-    "%lld of %lld meals estimated" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld of %2$lld meals estimated"
-          }
-        }
-      }
     },
     "11 g lower" : {
 
@@ -226,6 +229,9 @@
 
     },
     "Complete days count in your averages." : {
+
+    },
+    "Complete: every meal of the day is logged. Partial: some are missing. Your averages use complete days once you mark one." : {
 
     },
     "Connect your AI assistant" : {
@@ -391,6 +397,9 @@
     "Mark day as complete" : {
 
     },
+    "Mark this day" : {
+
+    },
     "Meal" : {
 
     },
@@ -404,6 +413,12 @@
 
     },
     "Medium confidence" : {
+
+    },
+    "Next month" : {
+
+    },
+    "No meals logged on this day." : {
 
     },
     "No meals received yet" : {
@@ -421,10 +436,16 @@
     "Not logged" : {
 
     },
+    "Not marked" : {
+
+    },
     "Nutrition" : {
 
     },
     "Offline" : {
+
+    },
+    "Open day" : {
 
     },
     "Open source and self-hosted. No ads, no tracking." : {
@@ -457,6 +478,9 @@
 
     },
     "Portion" : {
+
+    },
+    "Previous month" : {
 
     },
     "Protein" : {
@@ -550,6 +574,9 @@
 
     },
     "This address does not look like a Healthy Eating server. Check the address." : {
+
+    },
+    "This day" : {
 
     },
     "This item is no longer on your server." : {
@@ -646,9 +673,6 @@
       "comment" : "Unit symbol for kilocalories"
     },
     "kcal so far" : {
-
-    },
-    "kcal · %lld meals" : {
 
     },
     "kg trend" : {

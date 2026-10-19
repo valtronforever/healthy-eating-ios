@@ -5,7 +5,8 @@ import Foundation
 /// screenshots) and in previews. Contains no logic the backend owns beyond simple sums.
 actor SampleDataSource: NutritionDataSource {
     private var todayMeals: [Meal] = SampleData.meals
-    private var marks: [Date: DayMark] = [:]
+    /// Marks the person set; an explicit nil means "not marked" (overrides the board pattern).
+    private var marks: [Date: DayMark?] = [:]
     private var userSettings = UserSettings(
         timeZone: TimeZone.current.identifier, energyUnit: .kcal, calmMode: false,
         targets: [
@@ -97,7 +98,7 @@ actor SampleDataSource: NutritionDataSource {
     }
 
     func setMark(_ mark: DayMark?, on day: Date) {
-        marks[calendar.startOfDay(for: day)] = mark
+        marks[calendar.startOfDay(for: day)] = .some(mark)
     }
 
     func update(_ id: UUID, with edit: APIClient.MealEdit) throws(APIError) -> (meal: Meal, warnings: [String]) {
@@ -140,8 +141,7 @@ actor SampleDataSource: NutritionDataSource {
     // MARK: Helpers
 
     private func pastState(_ day: Date) -> DayState {
-        let states = SampleData.monthStates(now: day)
-        return states[calendar.component(.day, from: day)] ?? .none
+        SampleData.pastState(dayOfMonth: calendar.component(.day, from: day))
     }
 
     private func totals(for day: Date) -> DayTotals {
@@ -153,7 +153,8 @@ actor SampleDataSource: NutritionDataSource {
         let meals = meals(on: day)
         let kcal = meals.map(\.caloriesKcal).reduce(0, +)
         let estimated = meals.filter { $0.estimatedFields.contains(.calories) }.map(\.caloriesKcal).reduce(0, +)
-        let mark = marks[day] ?? (day < today ? (pastState(day) == .complete ? .complete : nil) : nil)
+        let pattern: DayMark? = day < today ? (pastState(day) == .complete ? .complete : pastState(day) == .partial ? .partial : nil) : nil
+        let mark: DayMark? = marks.keys.contains(day) ? (marks[day] ?? nil) : pattern
         return DayTotals(
             date: day, mealCount: meals.count, caloriesKcal: kcal, proteinG: meals.map(\.proteinG).reduce(0, +),
             fatG: meals.map(\.fatG).reduce(0, +), carbohydratesG: meals.map(\.carbohydratesG).reduce(0, +),

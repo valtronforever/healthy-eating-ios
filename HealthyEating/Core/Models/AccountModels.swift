@@ -18,11 +18,14 @@ nonisolated struct DayTotals: Identifiable, Hashable, Sendable {
 
     var id: Date { date }
 
-    /// The calendar shape: complete, partial or not logged.
+    /// The calendar shape. A marked day shows its mark. An unmarked day with meals looks complete
+    /// when it counts for averages (the person never marks days) and partial when it does not
+    /// (once they mark days, unmarked ones are left out).
     var state: DayState {
         if status == .complete { return .complete }
         if status == .partial { return .partial }
-        return mealCount > 0 ? .partial : .none
+        guard mealCount > 0 else { return .none }
+        return counted ? .complete : .partial
     }
 }
 
