@@ -22,6 +22,16 @@ struct NutritionFormatTests {
         #expect(NutrientUnit.kilojoules.spokenValue("5,021") == "5,021 kilojoules")
     }
 
+    @Test func targetsMayHaveOpenBounds() {
+        #expect(NutritionFormat.target(min: 110, max: 140, .grams, locale: us) == "Target 110–140 g")
+        #expect(NutritionFormat.target(min: 110, max: nil, .grams, locale: us) == "Target at least 110 g")
+        #expect(NutritionFormat.target(min: nil, max: 80, .grams, locale: us) == "Target up to 80 g")
+        #expect(NutritionFormat.target(min: nil, max: nil, .grams, locale: us) == "No target")
+        #expect(NutritionFormat.shortTarget(min: 110, max: 140, locale: us) == "110–140")
+        #expect(NutritionFormat.spokenTarget(value: 77, min: 110, max: nil, unit: .grams, locale: us)
+            == "77 grams, target at least 110 grams")
+    }
+
     @Test func formatsTheMealMacroLine() {
         #expect(NutritionFormat.macroLine(protein: 46, fat: 18, carbs: 62, locale: us) == "P 46 g · F 18 g · C 62 g")
     }
@@ -65,5 +75,14 @@ struct SampleDataTests {
             #expect(Calendar.current.isDateInToday(days.last?.date ?? .distantPast))
             #expect(days.allSatisfy { $0.state != .none || $0.kcal == 0 })
         }
+    }
+}
+
+struct TrendWordingTests {
+    @Test func changesAreLowerHigherOrAboutTheSame() {
+        #expect(TrendsView.energyChange(-70, unit: .kcal).hasSuffix("lower"))
+        #expect(TrendsView.energyChange(12, unit: .kcal) == "About the same")
+        #expect(TrendsView.gramChange(6).hasSuffix("higher"))
+        #expect(TrendsView.gramChange(-1.4) == "About the same")
     }
 }

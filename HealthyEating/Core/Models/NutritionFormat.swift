@@ -96,6 +96,16 @@ nonisolated enum NutritionFormat {
         }
     }
 
+    /// The compact target next to an average (Trends): "110–140", "at least 110", "up to 80".
+    static func shortTarget(min: Double?, max: Double?, locale: Locale = .current) -> String {
+        switch (min, max) {
+        case let (low?, high?): range(low, high, locale: locale)
+        case let (low?, nil): String(localized: "at least \(number(low, locale: locale))")
+        case let (nil, high?): String(localized: "up to \(number(high, locale: locale))")
+        case (nil, nil): ""
+        }
+    }
+
     /// VoiceOver phrase for a value and a target whose bounds may be open.
     static func spokenTarget(value: Double, min: Double?, max: Double?, unit: NutrientUnit, locale: Locale = .current) -> String {
         let spokenValue = unit.spokenValue(number(value, locale: locale))

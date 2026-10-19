@@ -17,6 +17,9 @@
     "%@ grams" : {
 
     },
+    "%@ higher" : {
+
+    },
     "%@ kilocalories" : {
 
     },
@@ -24,6 +27,9 @@
 
     },
     "%@ kilojoules" : {
+
+    },
+    "%@ lower" : {
 
     },
     "%@ of calories estimated" : {
@@ -155,12 +161,25 @@
     "Average per day" : {
 
     },
-    "Averages use %lld of %lld days (%lld partial or not logged days left out)." : {
+    "Averages appear here once meals arrive from your assistant." : {
+
+    },
+    "Averages use %lld of %lld days (%lld partial or not logged days left out). Today counts once you mark it complete." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Averages use %1$lld of %2$lld days (%3$lld partial or not logged days left out)."
+            "value" : "Averages use %1$lld of %2$lld days (%3$lld partial or not logged days left out). Today counts once you mark it complete."
+          }
+        }
+      }
+    },
+    "Averages use %lld of %lld days: the days marked complete (%lld partial, unmarked or not logged days left out)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Averages use %1$lld of %2$lld days: the days marked complete (%3$lld partial, unmarked or not logged days left out)."
           }
         }
       }
@@ -418,6 +437,9 @@
     "Next month" : {
 
     },
+    "No days to show yet" : {
+
+    },
     "No meals logged on this day." : {
 
     },
@@ -431,6 +453,9 @@
 
     },
     "No target" : {
+
+    },
+    "Not enough counted days in the previous %lld days to compare." : {
 
     },
     "Not logged" : {
@@ -654,6 +679,9 @@
     "Zero" : {
 
     },
+    "at least %@" : {
+
+    },
     "complete" : {
 
     },
@@ -688,6 +716,9 @@
 
     },
     "today" : {
+
+    },
+    "up to %@" : {
 
     },
     "via %@" : {
