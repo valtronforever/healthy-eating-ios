@@ -1,9 +1,19 @@
 import SwiftUI
 
-/// B3 Meal detail (read-only for now): provenance, confidence with its one-line reason, nutrition
-/// and which assistant saved the meal. Edit (B4) and delete need backend endpoints first.
+/// B3 Meal detail: provenance per value, confidence with its one-line reason, nutrition, which
+/// assistant saved the meal, Edit (B4) and Delete with a confirmation.
 struct MealDetailView: View {
-    let meal: Meal
+    @State var meal: Meal
+    /// Called after the meal was changed or deleted, so the list reloads.
+    var onChange: () -> Void = {}
+
+    @Environment(AppModel.self) private var app
+    @Environment(\.dismiss) private var dismiss
+    @State private var editing = false
+    @State private var confirmingDelete = false
+    @State private var isDeleting = false
+    @State private var error: APIError?
+    @State private var warnings: [String] = []
 
     var body: some View {
         List {
@@ -19,6 +29,13 @@ struct MealDetailView: View {
                 }
                 .padding(.horizontal, Spacing.s1)
                 .plainListRow()
+
+                if let error {
+                    Banner(kind: .error, message: error.message, detail: error.detail).plainListRow()
+                }
+                ForEach(warnings, id: \.self) { warning in
+                    Banner(kind: .info, message: warning).plainListRow()
+                }
 
                 VStack(alignment: .leading, spacing: Spacing.s3) {
                     FlowLayout(horizontalSpacing: Spacing.s3) {
@@ -39,12 +56,12 @@ struct MealDetailView: View {
             .listSectionSpacing(Spacing.s3)
 
             Section {
-                valueRow("Calories", NutritionFormat.value(meal.caloriesKcal, .kcal))
-                valueRow("Protein", NutritionFormat.value(meal.proteinG, .grams))
-                valueRow("Fat", NutritionFormat.value(meal.fatG, .grams))
-                valueRow("Carbohydrates", NutritionFormat.value(meal.carbohydratesG, .grams))
+                valueRow("Calories", NutritionFormat.value(meal.caloriesKcal, .kcal), field: .calories)
+                valueRow("Protein", NutritionFormat.value(meal.proteinG, .grams), field: .protein)
+                valueRow("Fat", NutritionFormat.value(meal.fatG, .grams), field: .fat)
+                valueRow("Carbohydrates", NutritionFormat.value(meal.carbohydratesG, .grams), field: .carbohydrates)
                 if let portion = meal.portionGrams {
-                    valueRow("Portion", NutritionFormat.value(portion, .grams))
+                    valueRow("Portion", NutritionFormat.value(portion, .grams), field: nil)
                 }
             } header: {
                 Text("Nutrition").sectionTextStyle()
@@ -62,25 +79,60 @@ struct MealDetailView: View {
                 Text("Source").sectionTextStyle()
             }
             .listRowBackground(Color.surface)
+
+            Section {
+                Button("Delete meal") { confirmingDelete = true }
+                    .buttonStyle(.action(.destructive))
+                    .disabled(isDeleting)
+                    .plainListRow()
+            }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .background(Color.bg)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Edit") { editing = true }
+            }
+        }
+        .sheet(isPresented: $editing) {
+            MealEditView(meal: meal) { updated, warnings in
+                meal = updated
+                self.warnings = warnings
+                error = nil
+                onChange()
+            }
+        }
+        .confirmationDialog("Delete this meal?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+            Button("Delete meal", role: .destructive) { Task { await delete() } }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("It is removed from your history and averages. This can’t be undone.")
+        }
     }
 
     private var subtitle: String {
         let time = meal.eatenAt.formatted(date: .omitted, time: .shortened)
-        guard let portion = meal.portionGrams else {
-            return String(localized: "\(time) · via \(meal.assistant)")
+        let calendar = Calendar.current
+        let when: String
+        if calendar.isDateInToday(meal.eatenAt) {
+            when = String(localized: "Today, \(time)")
+        } else if calendar.isDateInYesterday(meal.eatenAt) {
+            when = String(localized: "Yesterday, \(time)")
+        } else {
+            when = meal.eatenAt.formatted(.dateTime.month(.abbreviated).day().hour().minute())
         }
-        return String(localized: "\(time) · \(NutritionFormat.value(portion, .grams)) · via \(meal.assistant)")
+        guard let portion = meal.portionGrams else {
+            return String(localized: "\(when) · via \(meal.assistant)")
+        }
+        return String(localized: "\(when) · \(NutritionFormat.value(portion, .grams)) · via \(meal.assistant)")
     }
 
-    private func valueRow(_ title: LocalizedStringKey, _ value: String) -> some View {
+    private func valueRow(_ title: LocalizedStringKey, _ value: String, field: NutrientField?) -> some View {
         LabeledContent {
             HStack(spacing: Spacing.s2) {
-                if meal.provenance == .estimated {
+                if let field, meal.estimatedFields.contains(field) {
                     Image(systemName: "plusminus")
                         .imageScale(.small)
                         .foregroundStyle(.inkMuted)
@@ -95,16 +147,38 @@ struct MealDetailView: View {
             Text(title).foregroundStyle(.ink)
         }
     }
+
+    private func delete() async {
+        guard let data = app.data else { return }
+        isDeleting = true
+        defer { isDeleting = false }
+        do throws(APIError) {
+            try await data.deleteMeal(meal.id)
+            onChange()
+            dismiss()
+        } catch .notFound {
+            onChange()
+            dismiss()
+        } catch {
+            self.error = error
+            app.handle(error)
+        }
+    }
 }
 
 #Preview("Light") {
     NavigationStack { MealDetailView(meal: SampleData.meals[1]) }
+        .environment(AppModel(defaults: .preview, arguments: [AppModel.LaunchArgument.skipOnboarding]))
 }
 
 #Preview("Dark") {
-    NavigationStack { MealDetailView(meal: SampleData.meals[1]) }.preferredColorScheme(.dark)
+    NavigationStack { MealDetailView(meal: SampleData.meals[1]) }
+        .environment(AppModel(defaults: .preview, arguments: [AppModel.LaunchArgument.skipOnboarding]))
+        .preferredColorScheme(.dark)
 }
 
 #Preview("AX5") {
-    NavigationStack { MealDetailView(meal: SampleData.meals[1]) }.environment(\.dynamicTypeSize, .accessibility5)
+    NavigationStack { MealDetailView(meal: SampleData.meals[1]) }
+        .environment(AppModel(defaults: .preview, arguments: [AppModel.LaunchArgument.skipOnboarding]))
+        .environment(\.dynamicTypeSize, .accessibility5)
 }

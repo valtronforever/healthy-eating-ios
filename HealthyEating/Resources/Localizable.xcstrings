@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "%@ at %@" : {
       "localizations" : {
         "en" : {
@@ -177,6 +180,9 @@
     "Calories per day, last %lld days" : {
 
     },
+    "Cancel" : {
+
+    },
     "Can’t reach %@" : {
 
     },
@@ -261,13 +267,28 @@
     "Delete account" : {
 
     },
+    "Delete meal" : {
+
+    },
+    "Delete this meal?" : {
+
+    },
     "Details: %@" : {
+
+    },
+    "Dish name" : {
 
     },
     "Display and privacy" : {
 
     },
     "Done" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit meal" : {
 
     },
     "End" : {
@@ -330,6 +351,9 @@
     "In Claude, open Settings › Connectors." : {
 
     },
+    "It is removed from your history and averages. This can’t be undone." : {
+
+    },
     "I’ve connected it" : {
 
     },
@@ -365,6 +389,9 @@
 
     },
     "Mark day as complete" : {
+
+    },
+    "Meal" : {
 
     },
     "Meals" : {
@@ -442,6 +469,9 @@
 
     },
     "Running your own?" : {
+
+    },
+    "Save" : {
 
     },
     "Saved by" : {
@@ -525,7 +555,13 @@
     "This item is no longer on your server." : {
 
     },
+    "Time" : {
+
+    },
     "Today" : {
+
+    },
+    "Today, %@" : {
 
     },
     "Trend" : {
@@ -543,6 +579,12 @@
     "Use an https address" : {
 
     },
+    "Values" : {
+
+    },
+    "Values you change are saved as your numbers." : {
+
+    },
     "Weekly averages, target ranges and which values were estimated." : {
 
     },
@@ -553,6 +595,9 @@
 
     },
     "Weight" : {
+
+    },
+    "Yesterday, %@" : {
 
     },
     "You sign in on your server’s page. An account is created the first time." : {

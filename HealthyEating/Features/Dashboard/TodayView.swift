@@ -64,7 +64,7 @@ struct TodayView: View {
                 .background(Color.bg)
                 .navigationTitle("Today")
                 .navigationDestination(for: Meal.self) { meal in
-                    MealDetailView(meal: meal)
+                    MealDetailView(meal: meal) { Task { await reload() } }
                 }
         }
         .task { await reload() }
