@@ -46,6 +46,8 @@ jobs:
           xcrun simctl list devices | grep "$udid"
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
 
+      # Simulator builds sign ad hoc ("Sign to Run Locally"), which needs no certificate.
+      # Keep signing on: unsigned apps get no Keychain access, and the Keychain tests fail.
       - name: Build and test (warnings are errors)
         run: |
           set -o pipefail
@@ -55,8 +57,7 @@ jobs:
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult \
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
-            GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-            CODE_SIGNING_ALLOWED=NO
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
       - name: Upload test results
         if: failure()
