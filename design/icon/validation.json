@@ -1,0 +1,45 @@
+{
+  "selected_concept": "R4 / Fork + knife conversation",
+  "utensil_bounds": [
+    376,
+    336,
+    648,
+    616
+  ],
+  "utensil_center": [
+    512,
+    476
+  ],
+  "owner_selected_on": "2026-10-18",
+  "tinted_bubble_interior_transparent": true,
+  "svg_files_checked": [
+    "icon/app-icon-dark.svg",
+    "icon/app-icon-tinted.svg",
+    "icon/app-icon.svg",
+    "icon/concepts/01-bowl-in-conversation.svg",
+    "icon/concepts/02-talking-plate.svg",
+    "icon/concepts/03-leaf-in-a-bubble.svg",
+    "icon/concepts/04-steam-conversation.svg",
+    "icon/concepts/05-conversation-bowl.svg",
+    "icon/concepts/06-seed-exchange.svg",
+    "icon/concepts/07-shared-table.svg",
+    "icon/concepts/08-fork-conversation.svg",
+    "icon/concepts/09-quiet-bowl.svg",
+    "icon/concepts/10-personal-table.svg",
+    "icon/layers/background.svg",
+    "icon/layers/foreground.svg",
+    "icon/refinements/r1-plate-simplified.svg",
+    "icon/refinements/r2-bowl-flat-rim.svg",
+    "icon/refinements/r3-bowl-curved-rim.svg",
+    "icon/refinements/r4-fork-+-knife-conversation.svg"
+  ],
+  "pdf_pages": 16,
+  "master_size": [
+    1024,
+    1024
+  ],
+  "default_and_dark_opaque": true,
+  "tinted_has_transparency_and_grayscale": true,
+  "application_build": "Not available: no Xcode project",
+  "device_validation": "Pending"
+}
