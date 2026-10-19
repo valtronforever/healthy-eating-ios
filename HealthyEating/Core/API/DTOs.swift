@@ -1,0 +1,260 @@
+import Foundation
+
+// Codable mirrors of the backend's /api/v1 schemas (openapi.json). Coding keys are spelled out
+// so `APIContractTests` can check them against the contract. Views never see these types:
+// `APIClient` maps them to domain models.
+
+nonisolated struct MealDTO: Decodable, Sendable {
+    let id: UUID
+    let dishName: String
+    let description: String?
+    let eatenAt: Date
+    let localDate: String
+    let portionGrams: Double?
+    let caloriesKcal: Double
+    let proteinG: Double
+    let fatG: Double
+    let carbohydratesG: Double
+    let source: String
+    let sourceNote: String?
+    let estimatedFields: [String]
+    let confidence: String
+    let clientName: String?
+    let createdAt: Date
+    let updatedAt: Date
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case dishName = "dish_name"
+        case description
+        case eatenAt = "eaten_at"
+        case localDate = "local_date"
+        case portionGrams = "portion_grams"
+        case caloriesKcal = "calories_kcal"
+        case proteinG = "protein_g"
+        case fatG = "fat_g"
+        case carbohydratesG = "carbohydrates_g"
+        case source
+        case sourceNote = "source_note"
+        case estimatedFields = "estimated_fields"
+        case confidence
+        case clientName = "client_name"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+nonisolated struct MealListDTO: Decodable, Sendable {
+    let meals: [MealDTO]
+    let nextCursor: String?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case meals
+        case nextCursor = "next_cursor"
+    }
+}
+
+nonisolated struct MealUpdateResponseDTO: Decodable, Sendable {
+    let meal: MealDTO
+    let warnings: [String]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case meal, warnings
+    }
+}
+
+nonisolated struct DaySummaryDTO: Decodable, Sendable {
+    let date: String
+    let mealCount: Int
+    let caloriesKcal: Double
+    let proteinG: Double
+    let fatG: Double
+    let carbohydratesG: Double
+    let estimatedCaloriesShare: Double?
+    let status: String?
+    let statusSetBy: String?
+    let counted: Bool
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case date
+        case mealCount = "meal_count"
+        case caloriesKcal = "calories_kcal"
+        case proteinG = "protein_g"
+        case fatG = "fat_g"
+        case carbohydratesG = "carbohydrates_g"
+        case estimatedCaloriesShare = "estimated_calories_share"
+        case status
+        case statusSetBy = "status_set_by"
+        case counted
+    }
+}
+
+nonisolated struct DaysDTO: Decodable, Sendable {
+    let days: [DaySummaryDTO]
+    let countingRule: String
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case days
+        case countingRule = "counting_rule"
+    }
+}
+
+nonisolated struct DayStatusDTO: Decodable, Sendable {
+    let date: String
+    let status: String
+    let setBy: String
+    let updatedAt: Date
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case date, status
+        case setBy = "set_by"
+        case updatedAt = "updated_at"
+    }
+}
+
+nonisolated struct NutrientsDTO: Decodable, Sendable {
+    let caloriesKcal: Double
+    let proteinG: Double
+    let fatG: Double
+    let carbohydratesG: Double
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case caloriesKcal = "calories_kcal"
+        case proteinG = "protein_g"
+        case fatG = "fat_g"
+        case carbohydratesG = "carbohydrates_g"
+    }
+}
+
+nonisolated struct PeriodDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let countedDays: Int
+    let loggedDays: Int
+    let averages: NutrientsDTO?
+    let estimatedCaloriesShare: Double?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case countedDays = "counted_days"
+        case loggedDays = "logged_days"
+        case averages
+        case estimatedCaloriesShare = "estimated_calories_share"
+    }
+}
+
+nonisolated struct TrendsDTO: Decodable, Sendable {
+    let windowDays: Int
+    let countingRule: String
+    let current: PeriodDTO
+    let previous: PeriodDTO
+    let change: NutrientsDTO?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case windowDays = "window_days"
+        case countingRule = "counting_rule"
+        case current, previous, change
+    }
+}
+
+nonisolated struct TargetRangeDTO: Codable, Sendable {
+    let min: Double?
+    let max: Double?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case min, max
+    }
+}
+
+nonisolated struct TargetsDTO: Decodable, Sendable {
+    let caloriesKcal: TargetRangeDTO?
+    let proteinG: TargetRangeDTO?
+    let fatG: TargetRangeDTO?
+    let carbohydratesG: TargetRangeDTO?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case caloriesKcal = "calories_kcal"
+        case proteinG = "protein_g"
+        case fatG = "fat_g"
+        case carbohydratesG = "carbohydrates_g"
+    }
+}
+
+nonisolated struct SettingsDTO: Decodable, Sendable {
+    let timezone: String?
+    let energyUnit: String
+    let calmMode: Bool
+    let targets: TargetsDTO
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case timezone
+        case energyUnit = "energy_unit"
+        case calmMode = "calm_mode"
+        case targets
+    }
+}
+
+nonisolated struct IntegrationStatusDTO: Decodable, Sendable {
+    let lastMealSavedAt: Date?
+    let lastClientName: String?
+    let mealsToday: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case lastMealSavedAt = "last_meal_saved_at"
+        case lastClientName = "last_client_name"
+        case mealsToday = "meals_today"
+    }
+}
+
+nonisolated struct GrantDTO: Decodable, Sendable {
+    let grantId: UUID
+    let createdAt: Date
+    let lastUsedAt: Date?
+    let current: Bool
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case grantId = "grant_id"
+        case createdAt = "created_at"
+        case lastUsedAt = "last_used_at"
+        case current
+    }
+}
+
+nonisolated struct ConnectionDTO: Decodable, Sendable {
+    let clientId: String
+    let name: String?
+    let kind: String
+    let grants: [GrantDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case clientId = "client_id"
+        case name, kind, grants
+    }
+}
+
+nonisolated struct ConnectionsDTO: Decodable, Sendable {
+    let connections: [ConnectionDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case connections
+    }
+}
+
+nonisolated struct RevokeDTO: Decodable, Sendable {
+    let grantId: UUID
+    let signedOut: Bool
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case grantId = "grant_id"
+        case signedOut = "signed_out"
+    }
+}
+
+/// Field names of request bodies, checked against the contract like the response keys.
+nonisolated enum RequestFields {
+    static let mealUpdate = ["dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g", "eaten_at"]
+    static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets"]
+    static let dayStatusUpdate = ["status"]
+    static let deleteAccount = ["confirm"]
+}

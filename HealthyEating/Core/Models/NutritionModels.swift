@@ -34,6 +34,14 @@ nonisolated enum DayState: String, Sendable {
     case complete, partial, none, future
 }
 
+/// The four values every meal has, with the backend's field names.
+nonisolated enum NutrientField: String, Sendable, CaseIterable, Codable {
+    case calories = "calories_kcal"
+    case protein = "protein_g"
+    case fat = "fat_g"
+    case carbohydrates = "carbohydrates_g"
+}
+
 /// One logged meal, as the backend stores it (`meals` table).
 nonisolated struct Meal: Identifiable, Hashable, Sendable {
     let id: UUID
@@ -44,13 +52,49 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var fatG: Double
     var carbohydratesG: Double
     var portionGrams: Double?
-    var provenance: Provenance
-    /// Only set for estimated meals.
+    /// Values the assistant estimated; the others came from the person's own calculation.
+    var estimatedFields: Set<NutrientField>
+    /// How sure the assistant was. Only shown for estimated values.
     var confidence: Confidence?
     /// The assistant that saved the meal, as plain text ("Claude", "ChatGPT").
     var assistant: String
-    /// One-line explanation of an estimate, from the backend.
+    /// Where existing numbers came from, or a one-line explanation of an estimate.
     var sourceNote: String?
+
+    /// "Estimated" as soon as one value was estimated; "Your numbers" otherwise.
+    var provenance: Provenance { estimatedFields.isEmpty ? .user : .estimated }
+
+    init(
+        id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
+        carbohydratesG: Double, portionGrams: Double?, estimatedFields: Set<NutrientField>,
+        confidence: Confidence?, assistant: String, sourceNote: String?
+    ) {
+        self.id = id
+        self.eatenAt = eatenAt
+        self.dishName = dishName
+        self.caloriesKcal = caloriesKcal
+        self.proteinG = proteinG
+        self.fatG = fatG
+        self.carbohydratesG = carbohydratesG
+        self.portionGrams = portionGrams
+        self.estimatedFields = estimatedFields
+        self.confidence = confidence
+        self.assistant = assistant
+        self.sourceNote = sourceNote
+    }
+
+    /// Sample data and previews: every value estimated, or none.
+    init(
+        id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
+        carbohydratesG: Double, portionGrams: Double?, provenance: Provenance, confidence: Confidence?,
+        assistant: String, sourceNote: String?
+    ) {
+        self.init(
+            id: id, eatenAt: eatenAt, dishName: dishName, caloriesKcal: caloriesKcal, proteinG: proteinG,
+            fatG: fatG, carbohydratesG: carbohydratesG, portionGrams: portionGrams,
+            estimatedFields: provenance == .estimated ? Set(NutrientField.allCases) : [],
+            confidence: confidence, assistant: assistant, sourceNote: sourceNote)
+    }
 
     func grams(of macro: Macro) -> Double {
         switch macro {

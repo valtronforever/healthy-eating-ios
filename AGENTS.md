@@ -17,8 +17,8 @@ In v1, food is logged through the MCP server from an LLM client. The app is prim
 
 Status: early v1. The Xcode project, the design system (tokens and components) and the app
 shell exist. Onboarding signs in to a user-entered server with OAuth (A1, A2, the A3 web sheet,
-A4); tokens are in the Keychain. The REST client is not built yet, so the data screens (Today,
-History, Trends) still show `SampleData`.
+A4); tokens are in the Keychain. The REST client (`Core/API`) covers every `/api/v1` operation;
+the data screens (Today, History, Trends) are being moved from `SampleData` to it.
 See the workspace `APP_STATE.md` for what is verified.
 
 `design/` holds the approved app icon package for issue #42 (see `design/README.md`), the
@@ -66,11 +66,12 @@ HealthyEating/
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
-    API/             # (not yet) REST client, DTOs, error mapping
+    API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
     Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
-HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders
+HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
+  Fixtures/openapi.json  # copy of the backend's /api/v1 contract; APIContractTests check the DTOs against it
 HealthyEatingUITests/  # XCUITest: onboarding flow, tabs
 design/tools/generate_design_tokens.py   # tokens.json -> color sets + DesignTokens.generated.swift
 ```
@@ -171,7 +172,9 @@ Notes:
 - DTOs (`Codable`, matching the API) are mapped to domain models in `Core/API`. Views never see DTOs.
 - No force unwraps outside tests. Errors are typed and mapped to user-facing messages in one place.
 - `async`/`await` only; no Combine for new code, no completion-handler APIs.
-- Keep the REST client in sync with the backend's `/api/v1`. If the API needs to change, change the backend first.
+- Keep the REST client in sync with the backend's `/api/v1`. If the API needs to change, change the backend first, then copy its `openapi.json` to `HealthyEatingTests/Fixtures/` and update the DTOs until `APIContractTests` pass.
+- The REST client is hand-written (`URLSession`, no generator): DTOs spell out their snake_case `CodingKeys`, and request bodies send JSON `null` explicitly (`NSNull`) to clear a value; omitting a field means "no change".
+- Tests that use `StubProtocol` go in `extension NetworkTests` (a serialized suite), because the stub has one global handler.
 - Commit messages: imperative mood, short subject line.
 
 ## Do not

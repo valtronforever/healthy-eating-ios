@@ -141,7 +141,11 @@ struct CredentialStoreTests {
     }
 }
 
+/// Every test that uses `StubProtocol` (one global handler) runs inside this suite, one at a time.
 @Suite(.serialized)
+struct NetworkTests {}
+
+extension NetworkTests {
 struct OAuthNetworkTests {
     @Test func discoversRegistersAndExchanges() async throws {
         let session = StubProtocol.session { request in
@@ -245,6 +249,8 @@ struct OAuthNetworkTests {
         _ = try await signIn.signIn(to: server, store: store)
         #expect(StubProtocol.requests.filter { $0.url?.path() == "/register" }.count == 1)
     }
+}
+
 }
 
 /// Plays the server's login page: redirects at once with a code and the request's `state`.
