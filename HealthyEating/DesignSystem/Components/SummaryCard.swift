@@ -5,8 +5,10 @@ import SwiftUI
 /// See design/system/components/SummaryCard.
 struct SummaryCard: View {
     let kcal: Double
-    let kcalTarget: ClosedRange<Double>
+    let kcalTarget: TargetRange
     let macros: [MacroProgress]
+    /// Energy is stored in kcal and shown in the person's unit.
+    var energyUnit: EnergyUnit = .kcal
     /// Calm mode: hides the calorie block, keeps the macros.
     var calm = false
     /// One factual line, for example "Logged 6 of the last 7 days."
@@ -19,9 +21,10 @@ struct SummaryCard: View {
             if !calm {
                 VStack(alignment: .leading, spacing: Spacing.s2) {
                     figure
-                    RangeBand(label: String(localized: "Calories"), value: kcal,
-                              min: kcalTarget.lowerBound, max: kcalTarget.upperBound,
-                              unit: .kcal, compact: true)
+                    RangeBand(label: String(localized: "Calories"), value: energyUnit.amount(fromKcal: kcal),
+                              min: kcalTarget.min.map(energyUnit.amount(fromKcal:)),
+                              max: kcalTarget.max.map(energyUnit.amount(fromKcal:)),
+                              unit: energyUnit.nutrientUnit, compact: true)
                 }
             }
             VStack(alignment: .leading, spacing: Spacing.s4) {
@@ -44,10 +47,10 @@ struct SummaryCard: View {
             ? AnyLayout(VStackLayout(alignment: .leading, spacing: Spacing.s1))
             : AnyLayout(HStackLayout(alignment: .firstTextBaseline, spacing: Spacing.s2))
         return layout {
-            Text(NutritionFormat.number(kcal))
+            Text(NutritionFormat.number(energyUnit.amount(fromKcal: kcal)))
                 .metricFont(.xl)
                 .foregroundStyle(.ink)
-            Text("kcal so far")
+            Text(energyUnit == .kcal ? "kcal so far" : "kJ so far")
                 .font(.subheadline)
                 .foregroundStyle(.inkMuted)
         }

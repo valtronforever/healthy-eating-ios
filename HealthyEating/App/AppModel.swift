@@ -21,6 +21,9 @@ final class AppModel {
     @ObservationIgnored let credentials: CredentialStore
     @ObservationIgnored private let signInProvider: any SignInProviding
     @ObservationIgnored private(set) var authSession: AuthSession?
+    /// Where the screens read and change data: the server, or sample data in UI tests.
+    @ObservationIgnored private(set) var data: (any NutritionDataSource)?
+    @ObservationIgnored private let usesSampleData: Bool
 
     private enum Keys {
         static let serverURL = "serverURL"
@@ -61,6 +64,7 @@ final class AppModel {
         self.defaults = defaults
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
+        self.usesSampleData = placeholders
         if arguments.contains(LaunchArgument.resetOnboarding) {
             for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode] {
                 defaults.removeObject(forKey: key)
@@ -80,14 +84,27 @@ final class AppModel {
         isSignedIn = signedIn
         hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingComplete) && signedIn
         if let storedServer, signedIn {
-            authSession = AuthSession(server: storedServer, store: store)
+            startSession(for: storedServer)
         }
+    }
+
+    private func startSession(for server: ServerAddress) {
+        let session = AuthSession(server: server, store: credentials)
+        authSession = session
+        data = usesSampleData ? SampleDataSource() : APIClient(server: server, auth: session)
+    }
+
+    /// Call with every API error a screen gets: an ended session returns to onboarding.
+    func handle(_ error: APIError) {
+        if error == .sessionExpired { sessionEnded() }
     }
 
     func setServer(_ address: ServerAddress) {
         if address != server {
             isSignedIn = credentials.hasCredentials(for: address)
-            authSession = isSignedIn ? AuthSession(server: address, store: credentials) : nil
+            authSession = nil
+            data = nil
+            if isSignedIn { startSession(for: address) }
         }
         server = address
         defaults.set(address.baseURL.absoluteString, forKey: Keys.serverURL)
@@ -97,7 +114,7 @@ final class AppModel {
     func signIn() async throws(AuthError) {
         guard let server else { throw .notAHealthyEatingServer }
         _ = try await signInProvider.signIn(to: server, store: credentials)
-        authSession = AuthSession(server: server, store: credentials)
+        startSession(for: server)
         sessionEndedMessage = nil
         isSignedIn = true
     }
@@ -123,6 +140,7 @@ final class AppModel {
 
     private func reset() {
         authSession = nil
+        data = nil
         isSignedIn = false
         server = nil
         hasCompletedOnboarding = false

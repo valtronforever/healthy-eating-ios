@@ -43,12 +43,35 @@
         }
       }
     },
+    "%@, no target" : {
+
+    },
     "%@, target %@ to %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@, target %2$@ to %3$@"
+          }
+        }
+      }
+    },
+    "%@, target at least %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, target at least %2$@"
+          }
+        }
+      }
+    },
+    "%@, target up to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, target up to %2$@"
           }
         }
       }
@@ -163,6 +186,9 @@
     "Can’t reach your server. Check that it is running and that you are online." : {
 
     },
+    "Can’t reach your server. Your data is safe on your server." : {
+
+    },
     "Carbohydrates" : {
 
     },
@@ -170,6 +196,12 @@
 
     },
     "Check server address" : {
+
+    },
+    "Check that your server is running and that you are online. Your data is safe on your server." : {
+
+    },
+    "Check the values and try again." : {
 
     },
     "Choose Add custom connector and paste the URL." : {
@@ -214,10 +246,16 @@
     "Copy message" : {
 
     },
+    "Couldn’t load this" : {
+
+    },
     "Day" : {
 
     },
     "Day %lld" : {
+
+    },
+    "Day marked as complete" : {
 
     },
     "Delete account" : {
@@ -295,6 +333,9 @@
     "I’ve connected it" : {
 
     },
+    "Last meal saved %@" : {
+
+    },
     "Last meal saved %@ via %@" : {
       "localizations" : {
         "en" : {
@@ -329,6 +370,9 @@
     "Meals" : {
 
     },
+    "Meals you log in Claude or ChatGPT appear here." : {
+
+    },
     "Medium" : {
 
     },
@@ -339,6 +383,12 @@
 
     },
     "No meals saved in the last 2 days" : {
+
+    },
+    "No meals yet today" : {
+
+    },
+    "No target" : {
 
     },
     "Not logged" : {
@@ -454,7 +504,7 @@
     "Target %@" : {
 
     },
-    "Target %@." : {
+    "Target at least %@" : {
 
     },
     "Target high" : {
@@ -463,10 +513,16 @@
     "Target low" : {
 
     },
+    "Target up to %@" : {
+
+    },
     "Tell Claude or ChatGPT what you ate. Nothing new to learn." : {
 
     },
     "This address does not look like a Healthy Eating server. Check the address." : {
+
+    },
+    "This item is no longer on your server." : {
 
     },
     "Today" : {
@@ -479,6 +535,9 @@
 
     },
     "Try this first message" : {
+
+    },
+    "Undo" : {
 
     },
     "Use an https address" : {
@@ -511,6 +570,12 @@
     "Your server" : {
 
     },
+    "Your server answered in a way this app does not understand. Check that the server and the app are up to date." : {
+
+    },
+    "Your server could not do this right now. Try again in a moment." : {
+
+    },
     "Your session ended. Sign in again to see your data." : {
 
     },
@@ -528,6 +593,9 @@
     },
     "kJ" : {
       "comment" : "Unit symbol for kilojoules"
+    },
+    "kJ so far" : {
+
     },
     "kcal" : {
       "comment" : "Unit symbol for kilocalories"
@@ -557,6 +625,12 @@
 
     },
     "yesterday at %@" : {
+
+    },
+    "your AI assistant" : {
+
+    },
+    "your server" : {
 
     },
     "± marks values %@ estimated. Values you edit become your numbers." : {

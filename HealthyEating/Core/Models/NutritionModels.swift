@@ -109,8 +109,9 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
 nonisolated struct MacroProgress: Identifiable, Hashable, Sendable {
     let macro: Macro
     var value: Double
-    var min: Double
-    var max: Double
+    /// Target bounds; either may be open (nil).
+    var min: Double?
+    var max: Double?
 
     var id: Macro { macro }
 }

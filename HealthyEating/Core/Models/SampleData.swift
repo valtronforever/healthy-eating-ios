@@ -33,7 +33,7 @@ nonisolated enum SampleData {
     ]
 
     static let kcalSoFar: Double = 1200
-    static let kcalTarget: ClosedRange<Double> = 1900...2200
+    static let kcalTarget = TargetRange(min: 1900, max: 2200)
 
     static let macros: [MacroProgress] = [
         MacroProgress(macro: .protein, value: 77, min: 110, max: 140),

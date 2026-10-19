@@ -8,7 +8,7 @@ import SwiftUI
 /// Pair it with the days-counted line. See design/system/components/KcalBarChart.
 struct KcalBarChart: View {
     let days: [KcalDay]
-    let target: ClosedRange<Double>
+    let target: TargetRange
     /// Average from complete days only, computed by the backend.
     var average: Double?
     var scaleMax: Double = 3000
@@ -31,16 +31,22 @@ struct KcalBarChart: View {
 
     private var chart: some View {
         Chart {
-            RectangleMark(
-                xStart: .value("Start", -0.5), xEnd: .value("End", Double(days.count) - 0.5),
-                yStart: .value("Target low", target.lowerBound), yEnd: .value("Target high", target.upperBound))
-                .foregroundStyle(Color.band)
-            RuleMark(y: .value("Target low", target.lowerBound))
-                .foregroundStyle(Color.accent)
-                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
-            RuleMark(y: .value("Target high", target.upperBound))
-                .foregroundStyle(Color.accent)
-                .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+            if target.min != nil || target.max != nil {
+                RectangleMark(
+                    xStart: .value("Start", -0.5), xEnd: .value("End", Double(days.count) - 0.5),
+                    yStart: .value("Target low", target.min ?? 0), yEnd: .value("Target high", target.max ?? scaleMax))
+                    .foregroundStyle(Color.band)
+            }
+            if let low = target.min {
+                RuleMark(y: .value("Target low", low))
+                    .foregroundStyle(Color.accent)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+            }
+            if let high = target.max {
+                RuleMark(y: .value("Target high", high))
+                    .foregroundStyle(Color.accent)
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [4, 3]))
+            }
             RuleMark(y: .value("Baseline", 0))
                 .foregroundStyle(Color.lineStrong)
                 .lineStyle(StrokeStyle(lineWidth: 1))
@@ -155,10 +161,12 @@ struct KcalBarChart: View {
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .stroke(Color.chartFaded, style: StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
             }
-            LegendItem(title: Text("Target \(NutritionFormat.range(target.lowerBound, target.upperBound))")) {
-                Rectangle().fill(Color.band)
-                    .overlay(alignment: .top) { Rectangle().fill(Color.accent).frame(height: 1.5) }
-                    .overlay(alignment: .bottom) { Rectangle().fill(Color.accent).frame(height: 1.5) }
+            if target.min != nil || target.max != nil {
+                LegendItem(title: Text(NutritionFormat.target(min: target.min, max: target.max, .kcal))) {
+                    Rectangle().fill(Color.band)
+                        .overlay(alignment: .top) { Rectangle().fill(Color.accent).frame(height: 1.5) }
+                        .overlay(alignment: .bottom) { Rectangle().fill(Color.accent).frame(height: 1.5) }
+                }
             }
             if let average {
                 LegendItem(title: Text("Average \(NutritionFormat.number(average))")) {
@@ -192,7 +200,7 @@ struct LegendItem<Key: View>: View {
 nonisolated struct KcalChartDescriptor: AXChartDescriptorRepresentable {
     let title: String
     let days: [KcalDay]
-    let target: ClosedRange<Double>
+    let target: TargetRange
     let average: Double?
     let scaleMax: Double
 
@@ -200,12 +208,12 @@ nonisolated struct KcalChartDescriptor: AXChartDescriptorRepresentable {
         let names = days.map { $0.date.formatted(.dateTime.month(.wide).day()) }
         let xAxis = AXCategoricalDataAxisDescriptor(title: String(localized: "Day"), categoryOrder: names)
         let yAxis = AXNumericDataAxisDescriptor(
-            title: String(localized: "Calories"), range: 0...scaleMax, gridlinePositions: [target.lowerBound, target.upperBound]
+            title: String(localized: "Calories"), range: 0...scaleMax, gridlinePositions: [target.min, target.max].compactMap { $0 }
         ) { NutrientUnit.kcal.spokenValue(NutritionFormat.number($0)) }
         let points = zip(days, names).map { day, name in
             AXDataPoint(x: name, y: day.kcal, label: Self.stateLabel(day.state))
         }
-        var summary = String(localized: "Target \(NutritionFormat.range(target.lowerBound, target.upperBound, .kcal)).")
+        var summary = NutritionFormat.target(min: target.min, max: target.max, .kcal) + "."
         if let average {
             summary += " " + String(localized: "Average \(NutritionFormat.value(average, .kcal)) from complete days.")
         }

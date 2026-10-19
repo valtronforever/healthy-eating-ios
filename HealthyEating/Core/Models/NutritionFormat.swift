@@ -78,10 +78,38 @@ nonisolated enum NutritionFormat {
 
     /// VoiceOver phrase for a value against its target: "77 grams, target 110 to 140 grams".
     static func spokenRange(value: Double, min: Double, max: Double, unit: NutrientUnit, locale: Locale = .current) -> String {
+        spokenTarget(value: value, min: min, max: max, unit: unit, locale: locale)
+    }
+
+    /// The target line under a range band. Either bound may be open: "Target 110–140 g",
+    /// "Target at least 110 g", "Target up to 80 g", or "No target".
+    static func target(min: Double?, max: Double?, _ unit: NutrientUnit, locale: Locale = .current) -> String {
+        switch (min, max) {
+        case let (low?, high?):
+            String(localized: "Target \(range(low, high, unit, locale: locale))")
+        case let (low?, nil):
+            String(localized: "Target at least \(value(low, unit, locale: locale))")
+        case let (nil, high?):
+            String(localized: "Target up to \(value(high, unit, locale: locale))")
+        case (nil, nil):
+            String(localized: "No target")
+        }
+    }
+
+    /// VoiceOver phrase for a value and a target whose bounds may be open.
+    static func spokenTarget(value: Double, min: Double?, max: Double?, unit: NutrientUnit, locale: Locale = .current) -> String {
         let spokenValue = unit.spokenValue(number(value, locale: locale))
-        let low = number(min, locale: locale)
-        let high = unit.spokenValue(number(max, locale: locale))
-        return String(localized: "\(spokenValue), target \(low) to \(high)")
+        switch (min, max) {
+        case let (low?, high?):
+            let high = unit.spokenValue(number(high, locale: locale))
+            return String(localized: "\(spokenValue), target \(number(low, locale: locale)) to \(high)")
+        case let (low?, nil):
+            return String(localized: "\(spokenValue), target at least \(unit.spokenValue(number(low, locale: locale)))")
+        case let (nil, high?):
+            return String(localized: "\(spokenValue), target up to \(unit.spokenValue(number(high, locale: locale)))")
+        case (nil, nil):
+            return String(localized: "\(spokenValue), no target")
+        }
     }
 }
 

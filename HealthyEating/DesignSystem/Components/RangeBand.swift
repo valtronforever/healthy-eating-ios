@@ -2,12 +2,13 @@ import SwiftUI
 
 /// A target shown as a band on a track, with the value as a thin bar that simply ends where it ends.
 /// Over and under look identical: no color change, no icon, no "over" or "left" wording.
-/// The target is always printed as text under the track. See design/system/components/RangeBand.
+/// The target is always printed as text under the track; either bound may be open, and without
+/// a target only the value bar is drawn. See design/system/components/RangeBand.
 struct RangeBand: View {
     let label: String
     let value: Double
-    let min: Double
-    let max: Double
+    let min: Double?
+    let max: Double?
     var unit: NutrientUnit = .grams
     /// Macro color for the value bar and the dot; `nil` uses `ink`.
     var macro: Macro?
@@ -28,7 +29,7 @@ struct RangeBand: View {
             track
                 .frame(height: trackHeight)
                 .accessibilityHidden(true)
-            Text("Target \(NutritionFormat.range(min, max, unit))")
+            Text(NutritionFormat.target(min: min, max: max, unit))
                 .font(.footnote)
                 .foregroundStyle(.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -36,7 +37,7 @@ struct RangeBand: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
-        .accessibilityValue(NutritionFormat.spokenRange(value: value, min: min, max: max, unit: unit))
+        .accessibilityValue(NutritionFormat.spokenTarget(value: value, min: min, max: max, unit: unit))
     }
 
     private var head: some View {
@@ -71,18 +72,29 @@ struct RangeBand: View {
     }
 
     private var track: some View {
-        let top = scaleMax ?? Swift.max(max * 1.3, value * 1.05)
+        let reference = max ?? min ?? value
+        let top = Swift.max(scaleMax ?? Swift.max(reference * 1.3, value * 1.05), 1)
         let barColor = macro?.color ?? Color.ink
+        let low = min
+        let high = max
         return Canvas { context, size in
             func x(_ v: Double) -> CGFloat { CGFloat(Swift.min(Swift.max(v / top, 0), 1)) * size.width }
             let trackShape = Path(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: Radius.xs, style: .continuous)
             context.fill(trackShape, with: .color(.surfaceSunken))
 
-            let bandRect = CGRect(x: x(min), y: 0, width: Swift.max(x(max) - x(min), 0), height: size.height)
-            context.fill(Path(bandRect), with: .color(.band))
-            let edge: CGFloat = 2
-            context.fill(Path(CGRect(x: bandRect.minX, y: 0, width: edge, height: size.height)), with: .color(.accent))
-            context.fill(Path(CGRect(x: bandRect.maxX - edge, y: 0, width: edge, height: size.height)), with: .color(.accent))
+            if low != nil || high != nil {
+                let start = x(low ?? 0)
+                let end = x(high ?? top)
+                let bandRect = CGRect(x: start, y: 0, width: Swift.max(end - start, 0), height: size.height)
+                context.fill(Path(bandRect), with: .color(.band))
+                let edge: CGFloat = 2
+                if low != nil {
+                    context.fill(Path(CGRect(x: bandRect.minX, y: 0, width: edge, height: size.height)), with: .color(.accent))
+                }
+                if high != nil {
+                    context.fill(Path(CGRect(x: bandRect.maxX - edge, y: 0, width: edge, height: size.height)), with: .color(.accent))
+                }
+            }
 
             let barHeight = size.height * 0.4
             let bar = CGRect(x: 0, y: (size.height - barHeight) / 2, width: x(value), height: barHeight)

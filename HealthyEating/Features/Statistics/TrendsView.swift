@@ -108,7 +108,7 @@ struct MacroAverageLine: View {
                 Text(NutritionFormat.value(progress.value, .grams))
                     .metricFont(.small)
                     .foregroundStyle(.ink)
-                Text(NutritionFormat.range(progress.min, progress.max))
+                Text(NutritionFormat.target(min: progress.min, max: progress.max, .grams))
                     .font(.footnote)
                     .foregroundStyle(.inkMuted)
             }
@@ -116,7 +116,7 @@ struct MacroAverageLine: View {
         .padding(.vertical, Spacing.s2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(progress.macro.name)
-        .accessibilityValue(NutritionFormat.spokenRange(value: progress.value, min: progress.min, max: progress.max, unit: .grams))
+        .accessibilityValue(NutritionFormat.spokenTarget(value: progress.value, min: progress.min, max: progress.max, unit: .grams))
     }
 }
 
