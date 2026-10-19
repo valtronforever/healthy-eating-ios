@@ -25,6 +25,8 @@ struct ComponentRenderTests {
         ("WeightTrendChart", AnyView(WeightTrendChartGallery())),
         ("CopyField", AnyView(CopyFieldGallery())),
         ("Banner", AnyView(BannerGallery())),
+        ("Skeleton", AnyView(SkeletonGallery())),
+        ("StateMessage", AnyView(StateMessageGallery())),
     ]
 
     static var outputDirectory: URL {

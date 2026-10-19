@@ -2,11 +2,12 @@ import Foundation
 
 /// Canonical units the backend returns. The app formats them, it never converts or recomputes them.
 nonisolated enum NutrientUnit: Sendable {
-    case kcal, grams
+    case kcal, kilojoules, grams
 
     var symbol: String {
         switch self {
         case .kcal: String(localized: "kcal", comment: "Unit symbol for kilocalories")
+        case .kilojoules: String(localized: "kJ", comment: "Unit symbol for kilojoules")
         case .grams: String(localized: "g", comment: "Unit symbol for grams")
         }
     }
@@ -14,7 +15,27 @@ nonisolated enum NutrientUnit: Sendable {
     func spokenValue(_ formattedNumber: String) -> String {
         switch self {
         case .kcal: String(localized: "\(formattedNumber) kilocalories")
+        case .kilojoules: String(localized: "\(formattedNumber) kilojoules")
         case .grams: String(localized: "\(formattedNumber) grams")
+        }
+    }
+}
+
+/// The unit the person wants energy shown in (a server setting). Values always arrive in kcal;
+/// kJ is a display conversion only.
+nonisolated enum EnergyUnit: String, Sendable, CaseIterable {
+    case kcal
+    case kj
+
+    var nutrientUnit: NutrientUnit {
+        self == .kcal ? .kcal : .kilojoules
+    }
+
+    /// The value in this unit, converted with `Measurement` (1 kcal = 4.184 kJ).
+    func amount(fromKcal kcal: Double) -> Double {
+        switch self {
+        case .kcal: kcal
+        case .kj: Measurement(value: kcal, unit: UnitEnergy.kilocalories).converted(to: .kilojoules).value
         }
     }
 }
@@ -35,6 +56,16 @@ nonisolated enum NutritionFormat {
         let numbers = "\(number(min, locale: locale))–\(number(max, locale: locale))"
         guard let unit else { return numbers }
         return "\(numbers) \(unit.symbol)"
+    }
+
+    /// An energy value from the backend (always kcal), shown in the person's unit.
+    static func energy(_ kcal: Double, in unit: EnergyUnit, locale: Locale = .current) -> String {
+        value(unit.amount(fromKcal: kcal), unit.nutrientUnit, locale: locale)
+    }
+
+    /// An energy range (a target) in the person's unit.
+    static func energyRange(_ minKcal: Double, _ maxKcal: Double, in unit: EnergyUnit, locale: Locale = .current) -> String {
+        range(unit.amount(fromKcal: minKcal), unit.amount(fromKcal: maxKcal), unit.nutrientUnit, locale: locale)
     }
 
     /// The short macro line of a meal row: "P 46 g · F 18 g · C 62 g".

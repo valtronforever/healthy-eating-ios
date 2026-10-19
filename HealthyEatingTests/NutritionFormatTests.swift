@@ -15,6 +15,13 @@ struct NutritionFormatTests {
         #expect(NutritionFormat.range(110, 140, locale: us) == "110–140")
     }
 
+    @Test func formatsEnergyInThePersonsUnit() {
+        #expect(NutritionFormat.energy(1200, in: .kcal, locale: us) == "1,200 kcal")
+        #expect(NutritionFormat.energy(1200, in: .kj, locale: us) == "5,021 kJ")
+        #expect(NutritionFormat.energyRange(1900, 2200, in: .kj, locale: us) == "7,950–9,205 kJ")
+        #expect(NutrientUnit.kilojoules.spokenValue("5,021") == "5,021 kilojoules")
+    }
+
     @Test func formatsTheMealMacroLine() {
         #expect(NutritionFormat.macroLine(protein: 46, fat: 18, carbs: 62, locale: us) == "P 46 g · F 18 g · C 62 g")
     }

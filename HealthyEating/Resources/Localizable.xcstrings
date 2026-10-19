@@ -20,6 +20,9 @@
     "%@ kilograms" : {
 
     },
+    "%@ kilojoules" : {
+
+    },
     "%@ · %@ · via %@" : {
       "localizations" : {
         "en" : {
@@ -151,6 +154,9 @@
     "Calories per day, last %lld days" : {
 
     },
+    "Can’t reach %@" : {
+
+    },
     "Can’t reach food.example.com" : {
 
     },
@@ -158,6 +164,9 @@
 
     },
     "ChatGPT" : {
+
+    },
+    "Check server address" : {
 
     },
     "Choose Add custom connector and paste the URL." : {
@@ -289,6 +298,9 @@
           }
         }
       }
+    },
+    "Loading" : {
+
     },
     "Log in your chat" : {
 
@@ -489,6 +501,9 @@
     },
     "just now" : {
 
+    },
+    "kJ" : {
+      "comment" : "Unit symbol for kilojoules"
     },
     "kcal" : {
       "comment" : "Unit symbol for kilocalories"

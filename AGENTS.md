@@ -118,7 +118,7 @@ Notes:
 
 ## Domain and UI rules
 
-- The backend returns nutrients in canonical units (`kcal`, `g`, `mg`, `µg`). Format for display with `Measurement` and the user's locale; never re-compute nutrient values in the app.
+- The backend returns nutrients in canonical units (`kcal`, `g`, `mg`, `µg`). Format for display with `Measurement` and the user's locale; never re-compute nutrient values in the app. Energy is shown in the person's `EnergyUnit` (kcal or kJ, a server setting) through `NutritionFormat.energy`; kJ is a display conversion only.
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
@@ -137,7 +137,9 @@ Notes:
   `.metricFont(...)` (SF Pro Rounded, monospaced digits). URLs use `.code`.
 - Use the components in `DesignSystem/Components` (ProvenanceBadge, ConfidenceIndicator, RangeBand,
   SummaryCard, MealRow, IntegrationStatus, CalendarDay, KcalBarChart, WeightTrendChart, CopyField,
-  Banner, LabeledTextField, `.action(...)` button styles). The design system's PhoneFrame, NavBar,
+  Banner, LabeledTextField, Skeleton and `LoadingCards` (loading), StateMessage (server unreachable,
+  signed out, nothing yet), `.action(...)` button styles). Host names in titles go through
+  `CopyField.breakable` so they wrap at dots, not with hyphens. The design system's PhoneFrame, NavBar,
   TabBar, StatusBar and Keypad are mockup chrome: use the system `TabView` and `NavigationStack`.
 - Every component and screen has `#Preview` blocks for light, dark and AX5. At accessibility sizes
   rows stack and nothing truncates.
