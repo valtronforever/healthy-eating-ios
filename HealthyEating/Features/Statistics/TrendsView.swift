@@ -190,19 +190,19 @@ struct TrendsView: View {
 
     // MARK: Wording (neutral: lower or higher, never better or worse)
 
-    static func energyChange(_ kcal: Double, unit: EnergyUnit) -> String {
+    nonisolated static func energyChange(_ kcal: Double, unit: EnergyUnit) -> String {
         guard abs(kcal) >= 20 else { return String(localized: "About the same") }
         let amount = NutritionFormat.value(abs(unit.amount(fromKcal: kcal)), unit.nutrientUnit)
         return kcal < 0 ? String(localized: "\(amount) lower") : String(localized: "\(amount) higher")
     }
 
-    static func gramChange(_ grams: Double) -> String {
+    nonisolated static func gramChange(_ grams: Double) -> String {
         guard abs(grams) >= 2 else { return String(localized: "About the same") }
         let amount = NutritionFormat.value(abs(grams), .grams)
         return grams < 0 ? String(localized: "\(amount) lower") : String(localized: "\(amount) higher")
     }
 
-    static func countedLine(_ trends: Trends) -> String {
+    nonisolated static func countedLine(_ trends: Trends) -> String {
         let counted = trends.current.countedDays
         let window = trends.windowDays
         let left = window - counted
