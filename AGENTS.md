@@ -63,7 +63,7 @@ HealthyEating/
     Statistics/      # History, Trends
     Settings/        # server, connection URL, Calm mode, sign out
   Core/
-    Auth/            # ServerAddress validation; later OAuth discovery, DCR, PKCE, token refresh
+    Auth/            # ServerAddress validation, OAuthRedirect; later discovery, DCR, PKCE, refresh
     API/             # (not yet) REST client, DTOs, error mapping
     Storage/         # (not yet) Keychain, cache
     Models/          # domain models, display formatting, SampleData (until the API exists)
@@ -75,6 +75,9 @@ design/tools/generate_design_tokens.py   # tokens.json -> color sets + DesignTok
 
 The project uses Xcode folder-synchronized groups: files added under these folders are part of
 their target automatically; do not add files to `project.pbxproj` by hand.
+`HealthyEating/Info.plist` holds only what build settings cannot express (the `healthyeating`
+URL scheme, `OAuthRedirect`); Xcode merges it with the generated Info.plist and the project
+excludes it from the folder's resources. Put other Info.plist keys in `INFOPLIST_KEY_*` settings.
 
 ## Commands
 
