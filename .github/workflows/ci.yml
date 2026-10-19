@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select the newest Xcode
+        run: |
+          xcode="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+          echo "Using $xcode"
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
+
+      - name: Check generated design tokens
+        run: python3 design/tools/generate_design_tokens.py --check
+
+      - name: Pick an iPhone simulator
+        id: simulator
+        run: |
+          udid="$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          runtimes = sorted((r for r in devices if "iOS" in r), key=lambda r: [int(p) for p in r.split("iOS-")[-1].split("-")])
+          for runtime in reversed(runtimes):
+              phones = [d for d in devices[runtime] if d["name"].startswith("iPhone")]
+              if phones:
+                  print(phones[0]["udid"]); break
+          ')"
+          xcrun simctl list devices | grep "$udid"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test (warnings are errors)
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project HealthyEating.xcodeproj \
+            -scheme HealthyEating \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.xcresult
+          retention-days: 7

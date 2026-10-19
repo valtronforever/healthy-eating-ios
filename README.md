@@ -1,5 +1,7 @@
 # Healthy Eating for iOS
 
+[![CI](https://github.com/valtronforever/healthy-eating-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/valtronforever/healthy-eating-ios/actions/workflows/ci.yml)
+
 The native dashboard for the self-hosted Healthy Eating nutrition tracker. Food is logged through
 an AI assistant connected to the backend's MCP server; the app shows trends, provenance and the
 connection status.
