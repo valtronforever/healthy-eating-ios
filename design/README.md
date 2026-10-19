@@ -25,4 +25,5 @@ The three 1024 px exports are used as supplied in the app's asset catalog
 `AppIconImage.imageset` for the Welcome screen). If the exports change, copy them there again.
 
 The approved design system (tokens, copy rules, component guidelines) is in `system/`;
-see `system/SOURCE.md`.
+see `system/SOURCE.md`. `DESIGN.md` summarizes the icon and the UI design, and `mockups/` holds
+the 37 high-fidelity screens (PNG at 3x, plus `mockups.pdf`).

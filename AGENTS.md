@@ -21,9 +21,10 @@ shell exist; onboarding A1, A2 and A4 work against a user-entered server address
 History, Trends) show `SampleData` because the backend has no meal or statistics endpoints.
 See the workspace `APP_STATE.md` for what is verified.
 
-`design/` holds the approved app icon package for issue #42 (see `design/README.md`) and the
-approved design system spec in `design/system/` (brand book `README.md`, `tokens.json`, copy rules
-`content.md`, `app-icon.md`, one README per component). The spec is the source for every color,
+`design/` holds the approved app icon package for issue #42 (see `design/README.md`), the
+design summary `design/DESIGN.md`, the high-fidelity screens in `design/mockups/` (A1 to G3, PNG
+and PDF) and the approved design system spec in `design/system/` (brand book `README.md`,
+`tokens.json`, copy rules `content.md`, `app-icon.md`, one README per component). The spec is the source for every color,
 type style, spacing value, component and screen in the app; read it before building UI.
 
 ## Hard constraints
