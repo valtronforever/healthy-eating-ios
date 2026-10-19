@@ -14,10 +14,33 @@ struct Banner: View {
     }
 
     let kind: Kind
-    var title: LocalizedStringKey?
-    var text: LocalizedStringKey?
+    private let title: Text?
+    private let text: Text?
     var actionTitle: LocalizedStringKey?
     var action: (() -> Void)?
+
+    init(
+        kind: Kind, title: LocalizedStringKey? = nil, text: LocalizedStringKey? = nil,
+        actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil
+    ) {
+        self.kind = kind
+        self.title = title.map { Text($0) }
+        self.text = text.map { Text($0) }
+        self.actionTitle = actionTitle
+        self.action = action
+    }
+
+    /// For copy that is already localized, such as an error's `message`.
+    init(
+        kind: Kind, message: String?, detail: String? = nil,
+        actionTitle: LocalizedStringKey? = nil, action: (() -> Void)? = nil
+    ) {
+        self.kind = kind
+        self.title = message.map { Text(verbatim: $0) }
+        self.text = detail.map { Text(verbatim: $0) }
+        self.actionTitle = actionTitle
+        self.action = action
+    }
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -34,12 +57,12 @@ struct Banner: View {
             layout {
                 VStack(alignment: .leading, spacing: 2) {
                     if let title {
-                        Text(title).fontWeight(.semibold).foregroundStyle(.ink)
+                        title.fontWeight(.semibold).foregroundStyle(.ink)
                             .minimumScaleFactor(0.6)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     if let text {
-                        Text(text).foregroundStyle(.inkMuted)
+                        text.foregroundStyle(.inkMuted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

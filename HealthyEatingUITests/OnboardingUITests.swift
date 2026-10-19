@@ -8,7 +8,7 @@ final class OnboardingUITests: XCTestCase {
     @MainActor
     func testOnboardingRejectsHTTPThenConnects() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-resetOnboarding"]
+        app.launchArguments = ["-resetOnboarding", "-placeholderSignIn"]
         app.launch()
 
         app.buttons["Get started"].tap()

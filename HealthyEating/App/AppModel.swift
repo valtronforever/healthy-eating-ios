@@ -1,18 +1,26 @@
 import Foundation
 import Observation
 
-/// App-wide state: the person's server and onboarding progress. Injected through the environment.
-/// Sign-in (OAuth + Keychain) is not built yet; see APP_STATE.md.
+/// App-wide state: the person's server, whether they are signed in, onboarding progress and
+/// Calm mode. Injected through the environment. Tokens never live here: they are in the
+/// Keychain (`CredentialStore`) and handed out by `AuthSession`.
+@MainActor
 @Observable
 final class AppModel {
     private(set) var server: ServerAddress?
+    private(set) var isSignedIn = false
     private(set) var hasCompletedOnboarding: Bool
+    /// Set when the server ended the session; onboarding explains it.
+    private(set) var sessionEndedMessage: String?
     /// Calm mode hides calories everywhere.
     var calmMode: Bool {
         didSet { defaults.set(calmMode, forKey: Keys.calmMode) }
     }
 
     @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored let credentials: CredentialStore
+    @ObservationIgnored private let signInProvider: any SignInProviding
+    @ObservationIgnored private(set) var authSession: AuthSession?
 
     private enum Keys {
         static let serverURL = "serverURL"
@@ -24,8 +32,10 @@ final class AppModel {
     enum LaunchArgument {
         /// Start at Welcome with nothing stored.
         static let resetOnboarding = "-resetOnboarding"
-        /// Start on the tabs with the example server.
+        /// Start on the tabs, signed in to the example server, without network.
         static let skipOnboarding = "-skipOnboarding"
+        /// Sign in without the web sheet or network (UI tests of onboarding).
+        static let placeholderSignIn = "-placeholderSignIn"
         /// `-initialTab history` opens that tab first (screenshots).
         static let initialTab = "-initialTab"
 
@@ -33,10 +43,24 @@ final class AppModel {
             guard let index = arguments.firstIndex(of: initialTab), arguments.indices.contains(index + 1) else { return nil }
             return AppTab(rawValue: arguments[index + 1])
         }
+
+        /// UI tests, screenshots and previews keep tokens in memory, never in the Keychain.
+        static func usesPlaceholders(_ arguments: [String]) -> Bool {
+            arguments.contains(skipOnboarding) || arguments.contains(placeholderSignIn)
+        }
     }
 
-    init(defaults: UserDefaults = .standard, arguments: [String] = ProcessInfo.processInfo.arguments) {
+    init(
+        defaults: UserDefaults = .standard,
+        arguments: [String] = ProcessInfo.processInfo.arguments,
+        secureStore: (any SecureStore)? = nil,
+        signInProvider: (any SignInProviding)? = nil
+    ) {
+        let placeholders = LaunchArgument.usesPlaceholders(arguments)
+        let store = CredentialStore(store: secureStore ?? (placeholders ? MemoryStore() : Keychain()))
         self.defaults = defaults
+        self.credentials = store
+        self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
         if arguments.contains(LaunchArgument.resetOnboarding) {
             for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode] {
                 defaults.removeObject(forKey: key)
@@ -47,24 +71,59 @@ final class AppModel {
             defaults.set(true, forKey: Keys.onboardingComplete)
         }
         let storedServer = defaults.string(forKey: Keys.serverURL).flatMap { try? ServerAddress.parse($0) }
+        if let storedServer, arguments.contains(LaunchArgument.skipOnboarding) {
+            store.save(Credentials(clientID: "placeholder", accessToken: "placeholder", refreshToken: nil, expiresAt: nil), for: storedServer)
+        }
+        let signedIn = storedServer.map(store.hasCredentials(for:)) ?? false
         server = storedServer
-        hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingComplete) && storedServer != nil
         calmMode = defaults.bool(forKey: Keys.calmMode)
+        isSignedIn = signedIn
+        hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingComplete) && signedIn
+        if let storedServer, signedIn {
+            authSession = AuthSession(server: storedServer, store: store)
+        }
     }
 
     func setServer(_ address: ServerAddress) {
+        if address != server {
+            isSignedIn = credentials.hasCredentials(for: address)
+            authSession = isSignedIn ? AuthSession(server: address, store: credentials) : nil
+        }
         server = address
         defaults.set(address.baseURL.absoluteString, forKey: Keys.serverURL)
     }
 
+    /// Signs in to the current server through its login page (A3).
+    func signIn() async throws(AuthError) {
+        guard let server else { throw .notAHealthyEatingServer }
+        _ = try await signInProvider.signIn(to: server, store: credentials)
+        authSession = AuthSession(server: server, store: credentials)
+        sessionEndedMessage = nil
+        isSignedIn = true
+    }
+
     func completeOnboarding() {
-        guard server != nil else { return }
+        guard server != nil, isSignedIn else { return }
         hasCompletedOnboarding = true
         defaults.set(true, forKey: Keys.onboardingComplete)
     }
 
-    /// Returns to Welcome. Token revocation is added with sign-in.
-    func signOut() {
+    /// Revokes the session on the server, forgets the tokens and returns to Welcome.
+    func signOut() async {
+        await authSession?.signOut()
+        reset()
+    }
+
+    /// The server refused to refresh the session: back to onboarding with an explanation.
+    func sessionEnded() {
+        if let server { credentials.delete(for: server) }
+        reset()
+        sessionEndedMessage = AuthError.sessionExpired.message
+    }
+
+    private func reset() {
+        authSession = nil
+        isSignedIn = false
         server = nil
         hasCompletedOnboarding = false
         defaults.removeObject(forKey: Keys.serverURL)

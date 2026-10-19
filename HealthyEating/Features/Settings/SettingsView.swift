@@ -43,7 +43,7 @@ struct SettingsView: View {
                 .listRowBackground(Color.surface)
 
                 Section {
-                    Button("Sign out") { model.signOut() }
+                    Button("Sign out") { Task { await model.signOut() } }
                         .foregroundStyle(.accent)
                         .frame(maxWidth: .infinity)
                 } footer: {

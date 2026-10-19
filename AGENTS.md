@@ -16,9 +16,9 @@ Non-goals (do not build without an owner decision): own food database, barcode s
 In v1, food is logged through the MCP server from an LLM client. The app is primarily a viewer: it may edit and delete existing meals (edited values are no longer marked as estimated) and, later, re-log a meal that was already logged (copying its values and provenance), but it never creates meals from scratch. Body weight is optional and opt-in: it may be read from Apple Health or entered by hand, and when weight tracking is off no weight appears anywhere in the app. Do not build food recognition or nutrient calculation into the app; the backend owns that logic.
 
 Status: early v1. The Xcode project, the design system (tokens and components) and the app
-shell exist; onboarding A1, A2 and A4 work against a user-entered server address. Sign-in
-(OAuth), the REST client and Keychain storage are not built yet, and the data screens (Today,
-History, Trends) show `SampleData` because the backend has no meal or statistics endpoints.
+shell exist. Onboarding signs in to a user-entered server with OAuth (A1, A2, the A3 web sheet,
+A4); tokens are in the Keychain. The REST client is not built yet, so the data screens (Today,
+History, Trends) still show `SampleData`.
 See the workspace `APP_STATE.md` for what is verified.
 
 `design/` holds the approved app icon package for issue #42 (see `design/README.md`), the
@@ -59,14 +59,15 @@ HealthyEating/
     Components/      # SwiftUI versions of the design system components, each with #Preview blocks
     Preview/         # preview helpers
   Features/
-    Onboarding/      # A1 Welcome, A2 Server, A4 Connect your AI assistant (sign-in comes later)
+    Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail
     Statistics/      # History, Trends
     Settings/        # server, connection URL, Calm mode, sign out
   Core/
-    Auth/            # ServerAddress validation, OAuthRedirect; later discovery, DCR, PKCE, refresh
+    Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
+                     # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
     API/             # (not yet) REST client, DTOs, error mapping
-    Storage/         # (not yet) Keychain, cache
+    Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders
@@ -98,10 +99,20 @@ any change, the project must build without warnings and tests must pass. CI
 writes light, dark and AX5 PNGs of every component to the simulator's temporary directory
 (`HealthyEatingRenders`) for visual review; the onboarding UI test keeps named screenshots of A2
 (https error) and A4 in the result bundle. Launch arguments (`AppModel.LaunchArgument`):
-`-resetOnboarding`, `-skipOnboarding`, `-initialTab today|history|trends|settings`; with
+`-resetOnboarding`, `-skipOnboarding` (signed in with placeholder credentials, no network),
+`-placeholderSignIn` (sign-in succeeds without the web sheet), `-initialTab today|history|trends|settings`;
+both placeholder arguments keep tokens in memory, never in the Keychain; with
 `xcrun simctl ui <device> appearance dark` and `content_size accessibility-extra-extra-extra-large`
 they give headless screenshots of every tab in light, dark and AX5. Tests pass on iOS 27 and on
 the iOS 18.1 simulator (the deployment target).
+
+End-to-end sign-in against a real backend (run it with `DEV_LOGIN_ENABLED=true`; skipped
+otherwise):
+
+```bash
+TEST_RUNNER_HE_E2E_SERVER=http://localhost:8000 xcodebuild test -scheme HealthyEating \
+  -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:HealthyEatingUITests/SignInEndToEndUITests
+```
 
 ## Authentication flow
 
@@ -113,6 +124,11 @@ The app uses the **same OAuth flow as MCP clients**. All social login happens on
 4. Start `ASWebAuthenticationSession` to `/authorize` with PKCE (S256), `state`, and the requested scopes. The user picks Google, Microsoft or Apple on the server's login page.
 5. Exchange the code at `/token`. Store access and refresh tokens in the Keychain.
 6. On `401`, refresh once (single in-flight refresh shared by all requests), then retry. If refresh fails, sign out to onboarding.
+
+Implemented in `Core/Auth`: `OAuthSignIn` runs steps 2 to 5 (the `client_id` is kept per server
+across sign-outs; `scope=nutrition`, `resource={server}/mcp`); `AuthSession` hands out tokens and
+does step 6's single in-flight refresh (`refresh(rejected:)`); a refused refresh deletes the
+tokens and `AppModel.sessionEnded()` returns to Welcome with an explanation.
 
 Notes:
 - First sign-in creates the account on the server if it does not exist yet. A user who connected MCP first signs in here with the same social account and sees their existing data.

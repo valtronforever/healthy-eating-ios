@@ -160,6 +160,9 @@
     "Can’t reach food.example.com" : {
 
     },
+    "Can’t reach your server. Check that it is running and that you are online." : {
+
+    },
     "Carbohydrates" : {
 
     },
@@ -218,6 +221,9 @@
 
     },
     "Delete account" : {
+
+    },
+    "Details: %@" : {
 
     },
     "Display and privacy" : {
@@ -424,6 +430,15 @@
     "Sign out" : {
 
     },
+    "Sign-in did not finish. Try again." : {
+
+    },
+    "Sign-in was cancelled." : {
+
+    },
+    "Signing in" : {
+
+    },
     "Skip" : {
 
     },
@@ -449,6 +464,9 @@
 
     },
     "Tell Claude or ChatGPT what you ate. Nothing new to learn." : {
+
+    },
+    "This address does not look like a Healthy Eating server. Check the address." : {
 
     },
     "Today" : {
@@ -478,6 +496,9 @@
     "Weight" : {
 
     },
+    "You sign in on your server’s page. An account is created the first time." : {
+
+    },
     "Your data is safe on your server." : {
 
     },
@@ -488,6 +509,9 @@
 
     },
     "Your server" : {
+
+    },
+    "Your session ended. Sign in again to see your data." : {
 
     },
     "Zero" : {

@@ -4,10 +4,14 @@ import SwiftUI
 struct WelcomeView: View {
     var onGetStarted: () -> Void
 
+    @Environment(AppModel.self) private var model
     @ScaledMetric(relativeTo: .largeTitle) private var iconSide: CGFloat = 96
 
     var body: some View {
         OnboardingScaffold {
+            if let message = model.sessionEndedMessage {
+                Banner(kind: .info, message: message)
+            }
             Image("AppIconImage")
                 .resizable()
                 .frame(width: iconSide, height: iconSide)
