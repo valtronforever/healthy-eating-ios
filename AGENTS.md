@@ -15,7 +15,16 @@ Non-goals (do not build without an owner decision): own food database, barcode s
 
 In v1, food is logged through the MCP server from an LLM client. The app is primarily a viewer: it may edit and delete existing meals (edited values are no longer marked as estimated) and, later, re-log a meal that was already logged (copying its values and provenance), but it never creates meals from scratch. Body weight is optional and opt-in: it may be read from Apple Health or entered by hand, and when weight tracking is off no weight appears anywhere in the app. Do not build food recognition or nutrient calculation into the app; the backend owns that logic.
 
-Status: early v1. The layout and commands below are the target structure. Create them as described when scaffolding, and keep this file in sync when they change.
+Status: early v1. The Xcode project, the design system (tokens and components) and the app
+shell exist; onboarding A1, A2 and A4 work against a user-entered server address. Sign-in
+(OAuth), the REST client and Keychain storage are not built yet, and the data screens (Today,
+History, Trends) show `SampleData` because the backend has no meal or statistics endpoints.
+See the workspace `APP_STATE.md` for what is verified.
+
+`design/` holds the approved app icon package for issue #42 (see `design/README.md`) and the
+approved design system spec in `design/system/` (brand book `README.md`, `tokens.json`, copy rules
+`content.md`, `app-icon.md`, one README per component). The spec is the source for every color,
+type style, spacing value, component and screen in the app; read it before building UI.
 
 ## Hard constraints
 
@@ -39,35 +48,53 @@ Status: early v1. The layout and commands below are the target structure. Create
 
 Optional: `swift-openapi-generator` (Apache-2.0) to generate the REST client from the backend's `/openapi.json`.
 
-## Target layout
+## Layout
 
 ```
 HealthyEating/
-  App/               # @main app, root navigation, dependency container
+  App/               # @main app, root navigation (TabView), AppModel (server, onboarding state)
+  DesignSystem/
+    Tokens/          # DesignTokens.generated.swift (colors, Spacing, Radius), Typography.swift
+    Components/      # SwiftUI versions of the design system components, each with #Preview blocks
+    Preview/         # preview helpers
   Features/
-    Onboarding/      # server URL entry, sign-in
-    Dashboard/       # today's summary
-    Statistics/      # trends, charts, nutrient detail
-    Settings/        # account, linked logins, server, sign-out, delete account
+    Onboarding/      # A1 Welcome, A2 Server, A4 Connect your AI assistant (sign-in comes later)
+    Dashboard/       # Today, meal detail
+    Statistics/      # History, Trends
+    Settings/        # server, connection URL, Calm mode, sign out
   Core/
-    Auth/            # OAuth discovery, client registration, PKCE, token refresh
-    API/             # REST client, DTOs, error mapping
-    Storage/         # Keychain, cache
-    Models/          # domain models (separate from DTOs)
-  Resources/         # assets, Localizable.xcstrings
-HealthyEatingTests/
-HealthyEatingUITests/
+    Auth/            # ServerAddress validation; later OAuth discovery, DCR, PKCE, token refresh
+    API/             # (not yet) REST client, DTOs, error mapping
+    Storage/         # (not yet) Keychain, cache
+    Models/          # domain models, display formatting, SampleData (until the API exists)
+  Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
+HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders
+HealthyEatingUITests/  # XCUITest: onboarding flow, tabs
+design/tools/generate_design_tokens.py   # tokens.json -> color sets + DesignTokens.generated.swift
 ```
+
+The project uses Xcode folder-synchronized groups: files added under these folders are part of
+their target automatically; do not add files to `project.pbxproj` by hand.
 
 ## Commands
 
 ```bash
 open HealthyEating.xcodeproj
-xcodebuild -scheme HealthyEating -destination 'platform=iOS Simulator,name=iPhone 16' build
-xcodebuild -scheme HealthyEating -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -scheme HealthyEating -destination 'platform=iOS Simulator,name=iPhone 17' build
+xcodebuild -scheme HealthyEating -destination 'platform=iOS Simulator,name=iPhone 17' test
+python3 design/tools/generate_design_tokens.py          # after changing design/system/tokens.json
+python3 design/tools/generate_design_tokens.py --check  # fails if generated token files are stale
 ```
 
-Adjust the simulator name to one installed locally (`xcrun simctl list devices`). Before finishing any change, the project must build without warnings and tests must pass.
+Adjust the simulator name to one installed locally (`xcrun simctl list devices`). Before finishing
+any change, the project must build without warnings and tests must pass. `ComponentRenderTests`
+writes light, dark and AX5 PNGs of every component to the simulator's temporary directory
+(`HealthyEatingRenders`) for visual review; the onboarding UI test keeps named screenshots of A2
+(https error) and A4 in the result bundle. Launch arguments (`AppModel.LaunchArgument`):
+`-resetOnboarding`, `-skipOnboarding`, `-initialTab today|history|trends|settings`; with
+`xcrun simctl ui <device> appearance dark` and `content_size accessibility-extra-extra-extra-large`
+they give headless screenshots of every tab in light, dark and AX5. Tests pass on iOS 27 and on
+the iOS 18.1 simulator (the deployment target).
 
 ## Authentication flow
 
@@ -94,6 +121,24 @@ Notes:
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).
+
+## Design system rules
+
+- Colors only through the generated tokens (`Color.ink`, `.foregroundStyle(.inkMuted)`, ...), never
+  hex or system colors for content. Every token is an Asset Catalog color set with Any and Dark
+  appearances; change `design/system/tokens.json` and rerun the generator, never edit the generated
+  files. `AccentColor` mirrors `accent` so system controls pick it up.
+- Spacing and corner radii through `Spacing` and `Radius`; corners always `style: .continuous`.
+- Text uses Dynamic Type styles (`Typography.swift`), never fixed sizes. Numbers use
+  `.metricFont(...)` (SF Pro Rounded, monospaced digits). URLs use `.code`.
+- Use the components in `DesignSystem/Components` (ProvenanceBadge, ConfidenceIndicator, RangeBand,
+  SummaryCard, MealRow, IntegrationStatus, CalendarDay, KcalBarChart, WeightTrendChart, CopyField,
+  Banner, LabeledTextField, `.action(...)` button styles). The design system's PhoneFrame, NavBar,
+  TabBar, StatusBar and Keypad are mockup chrome: use the system `TabView` and `NavigationStack`.
+- Every component and screen has `#Preview` blocks for light, dark and AX5. At accessibility sizes
+  rows stack and nothing truncates.
+- Copy follows `design/system/content.md`: sentence case, no exclamation marks, no em dash, fixed
+  provenance and confidence words.
 
 ## Code conventions
 
