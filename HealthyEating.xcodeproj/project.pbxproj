@@ -29,9 +29,22 @@
 		4E0000000000000000000203 /* HealthyEatingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthyEatingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4E0000000000000000000021 /* Exceptions for "HealthyEating" folder in "HealthyEating" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4E0000000000000000000101 /* HealthyEating */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4E0000000000000000000011 /* HealthyEating */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4E0000000000000000000021 /* Exceptions for "HealthyEating" folder in "HealthyEating" target */,
+			);
 			path = HealthyEating;
 			sourceTree = "<group>";
 		};
@@ -405,6 +418,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -433,6 +447,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
