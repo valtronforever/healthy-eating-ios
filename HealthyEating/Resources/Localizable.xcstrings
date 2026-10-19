@@ -141,6 +141,12 @@
     "Accept the risk warning and select Create as a plugin." : {
 
     },
+    "Add Healthy Eating to ChatGPT" : {
+
+    },
+    "Add Healthy Eating to ChatGPT:\n1. Open https://chatgpt.com/plugins\n2. Select Add, then Add custom MCP server.\n3. Name it Healthy Eating and paste this URL: %@\n4. Accept the risk warning, select Create as a plugin and sign in." : {
+
+    },
     "Add Healthy Eating to the assistant you already use. Your chats stay the same." : {
 
     },
@@ -311,7 +317,7 @@
     "Couldn’t load this" : {
 
     },
-    "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps." : {
+    "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. After that, Healthy Eating works in the apps too." : {
 
     },
     "Day" : {
@@ -446,7 +452,7 @@
     "In a new chat, type @, choose Healthy Eating and send your meal." : {
 
     },
-    "In a web browser, open chatgpt.com and go to Plugins." : {
+    "On a computer, open chatgpt.com/plugins." : {
 
     },
     "It" : {
@@ -647,7 +653,7 @@
     "See trends here" : {
 
     },
-    "Select +, then Add custom MCP server, and paste the URL." : {
+    "Select Add, then Add custom MCP server, and paste the URL." : {
 
     },
     "Selected" : {
@@ -672,6 +678,9 @@
 
     },
     "Settings" : {
+
+    },
+    "Share setup link" : {
 
     },
     "Show connection steps" : {

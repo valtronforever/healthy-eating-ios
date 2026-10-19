@@ -257,7 +257,7 @@ struct TodayConnectCard: View {
         .sheet(isPresented: $showingSteps) {
             NavigationStack {
                 ScrollView {
-                    ConnectionSteps(assistant: $assistant).padding(Spacing.s5)
+                    ConnectionSteps(assistant: $assistant, mcpURL: server?.mcpURL).padding(Spacing.s5)
                 }
                 .background(Color.bg)
                 .navigationTitle("Connection steps")

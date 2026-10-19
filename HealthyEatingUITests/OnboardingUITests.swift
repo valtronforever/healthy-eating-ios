@@ -32,7 +32,8 @@ final class OnboardingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Connect your AI assistant"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["https://food.example.com/mcp"].waitForExistence(timeout: 2))
         app.buttons["ChatGPT"].tap()
-        XCTAssertTrue(app.staticTexts["In a web browser, open chatgpt.com and go to Plugins."].exists)
+        XCTAssertTrue(app.staticTexts["On a computer, open chatgpt.com/plugins."].exists)
+        XCTAssertTrue(app.buttons["Share setup link"].exists)
         keepScreenshot(named: "A4 Connect your AI assistant")
 
         app.buttons["I’ve connected it"].tap()

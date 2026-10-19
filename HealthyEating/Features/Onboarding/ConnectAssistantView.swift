@@ -25,8 +25,8 @@ enum AssistantKind: String, CaseIterable, Identifiable {
              "Sign in with the same account you use here.",
              "Send your first meal in any chat."]
         case .chatGPT:
-            ["In a web browser, open chatgpt.com and go to Plugins.",
-             "Select +, then Add custom MCP server, and paste the URL.",
+            ["On a computer, open chatgpt.com/plugins.",
+             "Select Add, then Add custom MCP server, and paste the URL.",
              "Accept the risk warning and select Create as a plugin.",
              "Sign in with the same account you use here.",
              "In a new chat, type @, choose Healthy Eating and send your meal."]
@@ -42,7 +42,23 @@ enum AssistantKind: String, CaseIterable, Identifiable {
     var note: LocalizedStringKey? {
         switch self {
         case .chatGPT:
-            "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps."
+            "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. After that, Healthy Eating works in the apps too."
+        case .claude, .other:
+            nil
+        }
+    }
+
+    /// Setup instructions to send to another device, for assistants that can't be set up on the phone.
+    func shareText(mcpURL: URL) -> String? {
+        switch self {
+        case .chatGPT:
+            String(localized: """
+                Add Healthy Eating to ChatGPT:
+                1. Open https://chatgpt.com/plugins
+                2. Select Add, then Add custom MCP server.
+                3. Name it Healthy Eating and paste this URL: \(mcpURL.absoluteString)
+                4. Accept the risk warning, select Create as a plugin and sign in.
+                """)
         case .claude, .other:
             nil
         }
@@ -73,7 +89,7 @@ struct ConnectAssistantView: View {
                 CopyField(label: "Connection URL", value: server.mcpURL.absoluteString)
             }
 
-            ConnectionSteps(assistant: $assistant)
+            ConnectionSteps(assistant: $assistant, mcpURL: model.server?.mcpURL)
 
             VStack(alignment: .leading, spacing: Spacing.s1) {
                 Text("Try this first message")
@@ -97,6 +113,8 @@ struct ConnectAssistantView: View {
 /// The assistant switch and its numbered steps (also shown from Today and Settings later).
 struct ConnectionSteps: View {
     @Binding var assistant: AssistantKind
+    /// Shown in the setup text the person can send to their computer.
+    var mcpURL: URL?
     @ScaledMetric(relativeTo: .body) private var numberSide: CGFloat = 26
 
     var body: some View {
@@ -132,6 +150,13 @@ struct ConnectionSteps: View {
                     .font(.footnote)
                     .foregroundStyle(.inkMuted)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let mcpURL, let text = assistant.shareText(mcpURL: mcpURL) {
+                ShareLink(item: text, subject: Text("Add Healthy Eating to ChatGPT")) {
+                    Label("Share setup link", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.action(.secondary))
             }
         }
     }
