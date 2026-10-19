@@ -1,0 +1,531 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ at %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ at %2$@"
+          }
+        }
+      }
+    },
+    "%@ grams" : {
+
+    },
+    "%@ kilocalories" : {
+
+    },
+    "%@ kilograms" : {
+
+    },
+    "%@ · %@ · via %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@ · via %3$@"
+          }
+        }
+      }
+    },
+    "%@ · via %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · via %2$@"
+          }
+        }
+      }
+    },
+    "%@, target %@ to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, target %2$@ to %3$@"
+          }
+        }
+      }
+    },
+    "%lld h ago" : {
+
+    },
+    "%lld min ago" : {
+
+    },
+    "%lld of %lld meals estimated" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld meals estimated"
+          }
+        }
+      }
+    },
+    "11 g lower" : {
+
+    },
+    "30 days" : {
+
+    },
+    "6 g higher" : {
+
+    },
+    "7 days" : {
+
+    },
+    "70 kcal lower" : {
+
+    },
+    "90 days" : {
+
+    },
+    "A private dashboard for the meals you already log by talking to your AI assistant." : {
+
+    },
+    "About the same" : {
+
+    },
+    "Add Healthy Eating to the assistant you already use. Your chats stay the same." : {
+
+    },
+    "Add a custom connector and paste the URL." : {
+
+    },
+    "Add a remote MCP server with the URL above." : {
+
+    },
+    "Address" : {
+
+    },
+    "Ask it to log a meal." : {
+
+    },
+    "Ask whoever runs your server if you are not sure." : {
+
+    },
+    "Assistant" : {
+
+    },
+    "Average" : {
+
+    },
+    "Average %@" : {
+
+    },
+    "Average %@ from complete days." : {
+
+    },
+    "Average per day" : {
+
+    },
+    "Averages use %lld of %lld days (%lld partial or not logged days left out)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Averages use %1$lld of %2$lld days (%3$lld partial or not logged days left out)."
+          }
+        }
+      }
+    },
+    "Averages use complete days only." : {
+
+    },
+    "Baseline" : {
+
+    },
+    "Calm mode" : {
+
+    },
+    "Calories" : {
+
+    },
+    "Calories per day" : {
+
+    },
+    "Calories per day, last %lld days" : {
+
+    },
+    "Can’t reach food.example.com" : {
+
+    },
+    "Carbohydrates" : {
+
+    },
+    "ChatGPT" : {
+
+    },
+    "Choose Add custom connector and paste the URL." : {
+
+    },
+    "Claude" : {
+
+    },
+    "Compared with the previous %lld days" : {
+
+    },
+    "Complete" : {
+
+    },
+    "Complete day" : {
+
+    },
+    "Complete days count in your averages." : {
+
+    },
+    "Connect your AI assistant" : {
+
+    },
+    "Connection URL" : {
+
+    },
+    "Connection steps" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Copied" : {
+
+    },
+    "Copy" : {
+
+    },
+    "Copy connection URL" : {
+
+    },
+    "Copy message" : {
+
+    },
+    "Day" : {
+
+    },
+    "Day %lld" : {
+
+    },
+    "Delete account" : {
+
+    },
+    "Display and privacy" : {
+
+    },
+    "Done" : {
+
+    },
+    "End" : {
+
+    },
+    "Enter an address like https://food.example.com" : {
+
+    },
+    "Enter the address of your Healthy Eating server. It is the same one you connect to your AI assistant." : {
+
+    },
+    "Enter the address of your server" : {
+
+    },
+    "Estimated" : {
+
+    },
+    "Fat" : {
+
+    },
+    "Finish the sign-in in your browser." : {
+
+    },
+    "Free and open source (MIT)" : {
+
+    },
+    "Get started" : {
+
+    },
+    "Healthy Eating" : {
+
+    },
+    "Healthy Eating %@ · MIT License" : {
+
+    },
+    "Healthy Eating app icon" : {
+
+    },
+    "Healthy Eating gets your meals from the chat you already use. Add this URL as a connector in Claude or ChatGPT." : {
+
+    },
+    "Healthy Eating is the app plus a PostgreSQL database on any server you control. Setup takes about 15 minutes." : {
+
+    },
+    "Hide calories everywhere" : {
+
+    },
+    "High" : {
+
+    },
+    "High confidence" : {
+
+    },
+    "History" : {
+
+    },
+    "In ChatGPT, open Settings › Connectors." : {
+
+    },
+    "In Claude, open Settings › Connectors." : {
+
+    },
+    "I’ve connected it" : {
+
+    },
+    "Last meal saved %@ via %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last meal saved %1$@ via %2$@"
+          }
+        }
+      }
+    },
+    "Log in your chat" : {
+
+    },
+    "Log my breakfast: oatmeal with berries" : {
+
+    },
+    "Logged 6 of the last 7 days." : {
+
+    },
+    "Low" : {
+
+    },
+    "Low confidence" : {
+
+    },
+    "Mark day as complete" : {
+
+    },
+    "Meals" : {
+
+    },
+    "Medium" : {
+
+    },
+    "Medium confidence" : {
+
+    },
+    "No meals received yet" : {
+
+    },
+    "No meals saved in the last 2 days" : {
+
+    },
+    "Not logged" : {
+
+    },
+    "Nutrition" : {
+
+    },
+    "Offline" : {
+
+    },
+    "Open source and self-hosted. No ads, no tracking." : {
+
+    },
+    "Open your assistant’s MCP or connector settings." : {
+
+    },
+    "Other" : {
+
+    },
+    "P %@ · F %@ · C %@" : {
+      "comment" : "Macro line: protein, fat, carbohydrates",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "P %1$@ · F %2$@ · C %3$@"
+          }
+        }
+      }
+    },
+    "Partial" : {
+
+    },
+    "Partial, left out" : {
+
+    },
+    "Period" : {
+
+    },
+    "Portion" : {
+
+    },
+    "Protein" : {
+
+    },
+    "Read the self-hosting guide" : {
+
+    },
+    "Retry" : {
+
+    },
+    "Running your own?" : {
+
+    },
+    "Saved by" : {
+
+    },
+    "See trends here" : {
+
+    },
+    "Send your first meal in any chat or project." : {
+
+    },
+    "Send your first meal in any chat." : {
+
+    },
+    "Series" : {
+
+    },
+    "Server" : {
+
+    },
+    "Server address" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Show steps" : {
+
+    },
+    "Showing data from 09:42. It updates when you are back online." : {
+
+    },
+    "Sign in with the same account you use here." : {
+
+    },
+    "Sign out" : {
+
+    },
+    "Skip" : {
+
+    },
+    "Smoothed weight trend" : {
+
+    },
+    "Source" : {
+
+    },
+    "Start" : {
+
+    },
+    "Target %@" : {
+
+    },
+    "Target %@." : {
+
+    },
+    "Target high" : {
+
+    },
+    "Target low" : {
+
+    },
+    "Tell Claude or ChatGPT what you ate. Nothing new to learn." : {
+
+    },
+    "Today" : {
+
+    },
+    "Trend" : {
+
+    },
+    "Trends" : {
+
+    },
+    "Try this first message" : {
+
+    },
+    "Use an https address" : {
+
+    },
+    "Weekly averages, target ranges and which values were estimated." : {
+
+    },
+    "Weigh-in" : {
+
+    },
+    "Weigh-ins" : {
+
+    },
+    "Weight" : {
+
+    },
+    "Your data is safe on your server." : {
+
+    },
+    "Your data stays on your server" : {
+
+    },
+    "Your numbers" : {
+
+    },
+    "Your server" : {
+
+    },
+    "Zero" : {
+
+    },
+    "complete" : {
+
+    },
+    "g" : {
+      "comment" : "Unit symbol for grams"
+    },
+    "just now" : {
+
+    },
+    "kcal" : {
+      "comment" : "Unit symbol for kilocalories"
+    },
+    "kcal so far" : {
+
+    },
+    "kcal · %lld meals" : {
+
+    },
+    "kg trend" : {
+
+    },
+    "not logged" : {
+
+    },
+    "partial" : {
+
+    },
+    "partial, left out of the average" : {
+
+    },
+    "today" : {
+
+    },
+    "via %@" : {
+
+    },
+    "yesterday at %@" : {
+
+    },
+    "± marks values %@ estimated. Values you edit become your numbers." : {
+
+    },
+    "−0.3 kg per week over the last 4 weeks" : {
+
+    }
+  },
+  "version" : "1.0"
+}
