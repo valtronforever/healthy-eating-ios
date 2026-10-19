@@ -31,6 +31,9 @@ final class AppModel {
     /// Where the screens read and change data: the server, or sample data in UI tests.
     @ObservationIgnored private(set) var data: (any NutritionDataSource)?
     @ObservationIgnored private let usesSampleData: Bool
+    /// `-skipOnboarding` shows a filled account; `-placeholderSignIn` a new one whose first meal
+    /// arrives while A5 waits.
+    @ObservationIgnored private let skipsOnboarding: Bool
 
     private enum Keys {
         static let serverURL = "serverURL"
@@ -72,6 +75,7 @@ final class AppModel {
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
         self.usesSampleData = placeholders
+        self.skipsOnboarding = arguments.contains(LaunchArgument.skipOnboarding)
         if arguments.contains(LaunchArgument.resetOnboarding) {
             for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode] {
                 defaults.removeObject(forKey: key)
@@ -98,7 +102,7 @@ final class AppModel {
     private func startSession(for server: ServerAddress) {
         let session = AuthSession(server: server, store: credentials)
         authSession = session
-        data = usesSampleData ? SampleDataSource() : APIClient(server: server, auth: session)
+        data = usesSampleData ? SampleDataSource(newAccount: !skipsOnboarding) : APIClient(server: server, auth: session)
     }
 
     /// Sends the device's time zone when the server has none yet, so local days match the
@@ -114,6 +118,12 @@ final class AppModel {
         } catch {
             handle(error)
         }
+    }
+
+    /// Whether meals already reached the server (the assistant was connected before the app).
+    func accountHasMeals() async -> Bool {
+        guard let data else { return false }
+        return (try? await data.integrationStatus().lastMealSavedAt) != nil
     }
 
     /// Call with every API error a screen gets: an ended session returns to onboarding.

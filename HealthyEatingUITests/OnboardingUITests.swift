@@ -36,7 +36,15 @@ final class OnboardingUITests: XCTestCase {
         keepScreenshot(named: "A4 Connect your AI assistant")
 
         app.buttons["I’ve connected it"].tap()
+        XCTAssertTrue(app.staticTexts["Waiting for your first meal"].waitForExistence(timeout: 5))
+        keepScreenshot(named: "A5 Waiting for your first meal")
+        // The sample account's first meal arrives on the next status check.
+        XCTAssertTrue(app.staticTexts["First meal received from ChatGPT"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Oatmeal with berries"].exists)
+        keepScreenshot(named: "A5 First meal received")
+        app.buttons["Go to Today"].tap()
         XCTAssertTrue(app.tabBars.buttons["Today"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Oatmeal with berries"].waitForExistence(timeout: 5))
     }
 
     /// Screenshots for comparing the screens with the design boards (kept in the result bundle).

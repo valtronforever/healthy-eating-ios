@@ -1,14 +1,16 @@
 import SwiftUI
 
-/// Onboarding: A1 Welcome → A2 Server → A4 Connect your AI assistant.
-/// A3 (sign in through the server's web page) and A5 (waiting for the first meal) come with the
-/// OAuth client and the meals API; see APP_STATE.md.
+/// Onboarding: A1 Welcome → A2 Server (Continue signs in: A3) → A4 Connect your AI assistant →
+/// A5 Waiting for the first meal. Someone who connected their assistant first (the account
+/// already has meals) goes straight to Today after signing in.
 struct OnboardingFlow: View {
     enum Step: Hashable {
         case server
         case connect
+        case waiting
     }
 
+    @Environment(AppModel.self) private var model
     @State private var path: [Step] = []
 
     var body: some View {
@@ -17,8 +19,18 @@ struct OnboardingFlow: View {
                 .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(for: Step.self) { step in
                     switch step {
-                    case .server: ServerView { path.append(.connect) }
-                    case .connect: ConnectAssistantView()
+                    case .server:
+                        ServerView {
+                            Task {
+                                if await model.accountHasMeals() {
+                                    model.completeOnboarding()
+                                } else {
+                                    path.append(.connect)
+                                }
+                            }
+                        }
+                    case .connect: ConnectAssistantView { path.append(.waiting) }
+                    case .waiting: WaitingForMealView { path.removeLast() }
                     }
                 }
         }

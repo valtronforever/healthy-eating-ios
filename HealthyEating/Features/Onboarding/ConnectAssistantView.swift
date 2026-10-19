@@ -38,6 +38,9 @@ enum AssistantKind: String, CaseIterable, Identifiable {
 
 /// A4 Connect your AI assistant: the MCP connection URL, steps per assistant and a first message to try.
 struct ConnectAssistantView: View {
+    /// "I've connected it": wait for the first meal (A5).
+    var onConnected: () -> Void = {}
+
     @Environment(AppModel.self) private var model
     @State private var assistant: AssistantKind = .claude
 
@@ -66,7 +69,7 @@ struct ConnectAssistantView: View {
                 CopyField(value: String(localized: "Log my breakfast: oatmeal with berries"), buttonTitle: "Copy message", isCode: false)
             }
         } footer: {
-            Button("I’ve connected it") { model.completeOnboarding() }
+            Button("I’ve connected it", action: onConnected)
                 .buttonStyle(.action(.primary))
         }
         .navigationBarTitleDisplayMode(.inline)

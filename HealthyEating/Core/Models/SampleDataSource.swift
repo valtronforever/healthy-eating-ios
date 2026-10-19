@@ -5,6 +5,19 @@ import Foundation
 /// screenshots) and in previews. Contains no logic the backend owns beyond simple sums.
 actor SampleDataSource: NutritionDataSource {
     private var todayMeals: [Meal] = SampleData.meals
+    private var lastSaved: (at: Date, via: String)? = (SampleData.lastSavedAt, SampleData.lastSavedVia)
+    /// A new account: no meals until the first one "arrives" on the third status check: the
+    /// sign-in check and A5's first check still see none, so the waiting state shows.
+    private var statusChecks = 0
+    private let newAccount: Bool
+
+    init(newAccount: Bool = false) {
+        self.newAccount = newAccount
+        if newAccount {
+            todayMeals = []
+            lastSaved = nil
+        }
+    }
     /// Marks the person set; an explicit nil means "not marked" (overrides the board pattern).
     private var marks: [Date: DayMark?] = [:]
     private var userSettings = UserSettings(
@@ -28,7 +41,7 @@ actor SampleDataSource: NutritionDataSource {
 
     func meals(on day: Date) -> [Meal] {
         if calendar.isDateInToday(day) { return todayMeals.sorted { $0.eatenAt > $1.eatenAt } }
-        guard day < calendar.startOfDay(for: .now), pastState(day) != .none else { return [] }
+        guard !newAccount, day < calendar.startOfDay(for: .now), pastState(day) != .none else { return [] }
         return SampleData.meals.map { meal in
             var moved = meal
             let time = calendar.dateComponents([.hour, .minute], from: meal.eatenAt)
@@ -86,7 +99,16 @@ actor SampleDataSource: NutritionDataSource {
     }
 
     func integrationStatus() -> IntegrationState {
-        IntegrationState(lastMealSavedAt: SampleData.lastSavedAt, lastAssistant: SampleData.lastSavedVia, mealsToday: todayMeals.count)
+        if newAccount, lastSaved == nil {
+            statusChecks += 1
+            if statusChecks >= 3 {
+                var first = SampleData.meals[0]
+                first.eatenAt = .now
+                todayMeals = [first]
+                lastSaved = (.now, first.assistant)
+            }
+        }
+        return IntegrationState(lastMealSavedAt: lastSaved?.at, lastAssistant: lastSaved?.via, mealsToday: todayMeals.count)
     }
 
     func connections() -> [Connection] { signIns }

@@ -251,6 +251,9 @@
     "Check the values and try again." : {
 
     },
+    "Checking %@…" : {
+
+    },
     "Choose Add custom connector and paste the URL." : {
 
     },
@@ -383,6 +386,15 @@
     "Finish the sign-in in your browser." : {
 
     },
+    "First meal received" : {
+
+    },
+    "First meal received from %@" : {
+
+    },
+    "For example" : {
+
+    },
     "Free and open source (MIT)" : {
 
     },
@@ -390,6 +402,9 @@
 
     },
     "Get started" : {
+
+    },
+    "Go to Today" : {
 
     },
     "Healthy Eating" : {
@@ -629,6 +644,9 @@
     "Selected" : {
 
     },
+    "Send a meal to your assistant. It appears here a few seconds after the assistant saves it." : {
+
+    },
     "Send your first meal in any chat or project." : {
 
     },
@@ -648,6 +666,9 @@
 
     },
     "Settings" : {
+
+    },
+    "Show connection steps" : {
 
     },
     "Show steps" : {
@@ -675,6 +696,9 @@
 
     },
     "Skip" : {
+
+    },
+    "Skip for now" : {
 
     },
     "Smoothed weight trend" : {
@@ -711,6 +735,9 @@
 
     },
     "The app contains no third-party code: it uses only Apple’s frameworks. Your server runs the open-source Healthy Eating backend, also MIT." : {
+
+    },
+    "The connection works. Keep logging in your chat the way you do now." : {
 
     },
     "The start of a range can’t be above its end." : {
@@ -780,6 +807,9 @@
 
     },
     "Values you change are saved as your numbers." : {
+
+    },
+    "Waiting for your first meal" : {
 
     },
     "Weekly averages, target ranges and which values were estimated." : {
@@ -891,6 +921,9 @@
 
     },
     "± marks values %@ estimated. Values you edit become your numbers." : {
+
+    },
+    "“Log my breakfast: oatmeal with berries”" : {
 
     },
     "−0.3 kg per week over the last 4 weeks" : {
