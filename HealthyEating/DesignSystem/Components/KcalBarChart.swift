@@ -104,15 +104,11 @@ struct KcalBarChart: View {
                 if let plotAnchor = proxy.plotFrame {
                     let plot = geometry[plotAnchor]
                     ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
-                        if day.state == .partial,
-                           let left = proxy.position(forX: Double(index) - barHalfWidth),
-                           let right = proxy.position(forX: Double(index) + barHalfWidth),
-                           let top = proxy.position(forY: day.kcal),
-                           let bottom = proxy.position(forY: 0.0) {
+                        if let rect = partialBarFrame(index: index, day: day, proxy: proxy, plot: plot) {
                             UnevenRoundedRectangle(topLeadingRadius: Radius.xs, topTrailingRadius: Radius.xs, style: .continuous)
                                 .stroke(Color.chartFaded, style: StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
-                                .frame(width: max(right - left - 1.5, 1), height: max(bottom - top - 0.75, 0))
-                                .position(x: plot.minX + (left + right) / 2, y: plot.minY + (top + bottom) / 2)
+                                .frame(width: rect.width, height: rect.height)
+                                .position(x: rect.midX, y: rect.midY)
                         }
                     }
                 }
@@ -120,6 +116,22 @@ struct KcalBarChart: View {
             .allowsHitTesting(false)
         }
         .accessibilityChartDescriptor(KcalChartDescriptor(title: title, days: days, target: target, average: average, scaleMax: scaleMax))
+    }
+
+    /// Where the dashed outline of a partial day's bar goes, in the overlay's coordinates.
+    /// Kept out of the view builder so older compilers type-check the chart in time.
+    private func partialBarFrame(index: Int, day: KcalDay, proxy: ChartProxy, plot: CGRect) -> CGRect? {
+        guard day.state == .partial,
+              let left: CGFloat = proxy.position(forX: Double(index) - barHalfWidth),
+              let right: CGFloat = proxy.position(forX: Double(index) + barHalfWidth),
+              let top: CGFloat = proxy.position(forY: day.kcal),
+              let bottom: CGFloat = proxy.position(forY: 0.0)
+        else { return nil }
+        let width: CGFloat = max(right - left - 1.5, 1)
+        let height: CGFloat = max(bottom - top - 0.75, 0)
+        let centerX: CGFloat = plot.minX + (left + right) / 2
+        let centerY: CGFloat = plot.minY + (top + bottom) / 2
+        return CGRect(x: centerX - width / 2, y: centerY - height / 2, width: width, height: height)
     }
 
     private var labeledIndices: [Double] {
