@@ -6,6 +6,8 @@ nonisolated protocol SecureStore: Sendable {
     func read(_ account: String) -> Data?
     func write(_ data: Data, for account: String) -> Bool
     func delete(_ account: String)
+    /// Removes everything this store holds (used by `-resetOnboarding`).
+    func deleteAll()
 }
 
 /// The system Keychain: generic passwords, this device only, readable after the first unlock
@@ -46,6 +48,11 @@ nonisolated struct Keychain: SecureStore {
     func delete(_ account: String) {
         SecItemDelete(query(account) as CFDictionary)
     }
+
+    func deleteAll() {
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service]
+        SecItemDelete(query as CFDictionary)
+    }
 }
 
 /// An in-memory store for previews, UI tests and unit tests.
@@ -64,6 +71,10 @@ nonisolated final class MemoryStore: SecureStore, @unchecked Sendable {
 
     func delete(_ account: String) {
         _ = lock.withLock { items.removeValue(forKey: account) }
+    }
+
+    func deleteAll() {
+        lock.withLock { items.removeAll() }
     }
 }
 

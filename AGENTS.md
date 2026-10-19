@@ -115,6 +115,11 @@ TEST_RUNNER_HE_E2E_SERVER=http://localhost:8000 xcodebuild test -scheme HealthyE
   -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:HealthyEatingUITests/SignInEndToEndUITests
 ```
 
+The second test there checks the "assistant first" path: save a meal for an account through the
+backend's MCP `log_meal` first (dev login, any email), then also set
+`TEST_RUNNER_HE_E2E_EMAIL=<that email>` and `TEST_RUNNER_HE_E2E_MEAL=<its dish name>`; signing in
+must skip onboarding and show the meal on Today. `-resetOnboarding` also clears the Keychain.
+
 ## Authentication flow
 
 The app uses the **same OAuth flow as MCP clients**. All social login happens on the backend's web login page, so the app works with any self-hosted server without per-server configuration.

@@ -45,12 +45,55 @@ final class SignInEndToEndUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Connect your AI assistant"].waitForExistence(timeout: 15))
         keepScreenshot(named: "A4 after a real sign-in")
         app.buttons["I’ve connected it"].tap()
+        // A new account has no meals: A5 waits (polling the server) until skipped.
+        XCTAssertTrue(app.staticTexts["Waiting for your first meal"].waitForExistence(timeout: 5))
+        app.buttons["Skip for now"].tap()
         XCTAssertTrue(app.tabBars.buttons["Settings"].waitForExistence(timeout: 5))
 
         // Signing out revokes the session and returns to Welcome.
         app.tabBars.buttons["Settings"].tap()
         let signOut = app.buttons["Sign out"]
         while !signOut.isHittable { app.swipeUp() }
+        signOut.tap()
+        XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
+    }
+
+    /// "MCP first": an assistant already saved a meal for this account (seed it with the
+    /// assistant's MCP `log_meal` before the run; set TEST_RUNNER_HE_E2E_EMAIL and
+    /// TEST_RUNNER_HE_E2E_MEAL). Signing in with the same account skips onboarding and Today
+    /// shows the meal from the server.
+    @MainActor
+    func testAssistantFirstAccountOpensTodayWithItsMeals() throws {
+        let environment = ProcessInfo.processInfo.environment
+        guard let server = environment["HE_E2E_SERVER"], let email = environment["HE_E2E_EMAIL"],
+              let meal = environment["HE_E2E_MEAL"]
+        else {
+            throw XCTSkip("Set TEST_RUNNER_HE_E2E_SERVER, _EMAIL and _MEAL to run this test")
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-resetOnboarding"]
+        app.launch()
+
+        app.buttons["Get started"].tap()
+        let field = app.textFields["serverAddress"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap()
+        field.typeText(server)
+        app.buttons["Continue"].tap()
+        let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Continue"]
+        if allow.waitForExistence(timeout: 10) { allow.tap() }
+        let emailField = app.webViews.textFields.firstMatch
+        XCTAssertTrue(emailField.waitForExistence(timeout: 15))
+        emailField.tap()
+        emailField.typeText(email + "\n")
+
+        XCTAssertTrue(app.navigationBars["Today"].waitForExistence(timeout: 15), "Onboarding is skipped")
+        XCTAssertTrue(app.staticTexts[meal].waitForExistence(timeout: 10))
+        keepScreenshot(named: "Today from the real server")
+
+        app.tabBars.buttons["Settings"].tap()
+        let signOut = app.buttons["Sign out"]
+        for _ in 0..<8 where !signOut.isHittable { app.swipeUp() }
         signOut.tap()
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
     }

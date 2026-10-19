@@ -43,7 +43,7 @@ final class AppModel {
 
     /// Launch arguments used by UI tests and screenshots.
     enum LaunchArgument {
-        /// Start at Welcome with nothing stored.
+        /// Start at Welcome with nothing stored (preferences and Keychain).
         static let resetOnboarding = "-resetOnboarding"
         /// Start on the tabs, signed in to the example server, without network.
         static let skipOnboarding = "-skipOnboarding"
@@ -80,6 +80,8 @@ final class AppModel {
             for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode] {
                 defaults.removeObject(forKey: key)
             }
+            // A clean start: no session from an earlier run (the Keychain outlives the app).
+            store.store.deleteAll()
         }
         if arguments.contains(LaunchArgument.skipOnboarding) {
             defaults.set(SampleData.exampleServer, forKey: Keys.serverURL)
