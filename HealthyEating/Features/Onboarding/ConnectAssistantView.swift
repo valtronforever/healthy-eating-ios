@@ -3,7 +3,7 @@ import SwiftUI
 /// The AI assistants with written connection steps. Menu names must be checked against current
 /// Claude and ChatGPT releases. ChatGPT steps follow OpenAI's help article "Connecting custom MCP
 /// servers in ChatGPT" (checked 2026-10-19): custom MCP servers are added on chatgpt.com under
-/// Plugins, not in the apps, and write tools need a Business, Enterprise or Edu workspace.
+/// Plugins, not in the apps. Saving meals works on a personal Pro plan (owner, 2026-10-19).
 enum AssistantKind: String, CaseIterable, Identifiable {
     case claude, chatGPT, other
 
@@ -42,7 +42,7 @@ enum AssistantKind: String, CaseIterable, Identifiable {
     var note: LocalizedStringKey? {
         switch self {
         case .chatGPT:
-            "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. Saving meals needs a ChatGPT Business, Enterprise or Edu workspace that allows custom MCP servers."
+            "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps."
         case .claude, .other:
             nil
         }
