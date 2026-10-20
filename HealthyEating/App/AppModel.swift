@@ -24,7 +24,13 @@ final class AppModel {
         }
     }
 
+    /// The opt-in notice when meals stop arriving (`ArrivalNotice`); off by default.
+    private(set) var arrivalNoticeEnabled: Bool
+    /// The person declined notifications when turning the notice on.
+    private(set) var arrivalNoticeDeclined = false
+
     @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private let noticeCenter: any ArrivalNoticeCenter
     @ObservationIgnored let credentials: CredentialStore
     @ObservationIgnored private let signInProvider: any SignInProviding
     @ObservationIgnored private(set) var authSession: AuthSession?
@@ -39,6 +45,9 @@ final class AppModel {
         static let serverURL = "serverURL"
         static let onboardingComplete = "onboardingComplete"
         static let calmMode = "calmMode"
+        static let arrivalNotice = "arrivalNotice"
+        /// `lastMealSavedAt` of the quiet spell the notice was posted for.
+        static let arrivalNoticeNotifiedFor = "arrivalNoticeNotifiedFor"
     }
 
     /// Launch arguments used by UI tests and screenshots.
@@ -67,17 +76,19 @@ final class AppModel {
         defaults: UserDefaults = .standard,
         arguments: [String] = ProcessInfo.processInfo.arguments,
         secureStore: (any SecureStore)? = nil,
-        signInProvider: (any SignInProviding)? = nil
+        signInProvider: (any SignInProviding)? = nil,
+        noticeCenter: (any ArrivalNoticeCenter)? = nil
     ) {
         let placeholders = LaunchArgument.usesPlaceholders(arguments)
         let store = CredentialStore(store: secureStore ?? (placeholders ? MemoryStore() : Keychain()))
         self.defaults = defaults
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
+        self.noticeCenter = noticeCenter ?? (placeholders ? PlaceholderArrivalNoticeCenter() : SystemArrivalNoticeCenter())
         self.usesSampleData = placeholders
         self.skipsOnboarding = arguments.contains(LaunchArgument.skipOnboarding)
         if arguments.contains(LaunchArgument.resetOnboarding) {
-            for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode] {
+            for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode, Keys.arrivalNotice, Keys.arrivalNoticeNotifiedFor] {
                 defaults.removeObject(forKey: key)
             }
             // A clean start: no session from an earlier run (the Keychain outlives the app).
@@ -94,6 +105,7 @@ final class AppModel {
         let signedIn = storedServer.map(store.hasCredentials(for:)) ?? false
         server = storedServer
         calmMode = defaults.bool(forKey: Keys.calmMode)
+        arrivalNoticeEnabled = defaults.bool(forKey: Keys.arrivalNotice)
         isSignedIn = signedIn
         hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingComplete) && signedIn
         if let storedServer, signedIn {
@@ -126,6 +138,52 @@ final class AppModel {
     func accountHasMeals() async -> Bool {
         guard let data else { return false }
         return (try? await data.integrationStatus().lastMealSavedAt) != nil
+    }
+
+    /// Turns the notice when meals stop arriving on (after asking to post notifications) or off.
+    func setArrivalNotice(_ on: Bool) async {
+        if on {
+            guard await noticeCenter.requestPermission() else {
+                arrivalNoticeDeclined = true
+                return
+            }
+            arrivalNoticeDeclined = false
+            arrivalNoticeEnabled = true
+            noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery)
+        } else {
+            arrivalNoticeEnabled = false
+            noticeCenter.cancel()
+        }
+        defaults.set(arrivalNoticeEnabled, forKey: Keys.arrivalNotice)
+    }
+
+    /// The background check: posts the notice when it is due, then asks for the next check.
+    func checkArrival(now: Date = .now) async {
+        guard arrivalNoticeEnabled, let data else { return }
+        defer {
+            if arrivalNoticeEnabled { noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery) }
+        }
+        let state: IntegrationState
+        do throws(APIError) {
+            state = try await data.integrationStatus()
+        } catch {
+            handle(error)
+            return
+        }
+        await postArrivalNoticeIfDue(state, now: now)
+    }
+
+    /// Posts the notice once per quiet spell and remembers which spell it was for.
+    func postArrivalNoticeIfDue(_ state: IntegrationState, now: Date) async {
+        let notifiedFor = defaults.object(forKey: Keys.arrivalNoticeNotifiedFor) as? Date
+        guard ArrivalNotice.isDue(state, now: now, notifiedFor: notifiedFor) else { return }
+        await noticeCenter.post(title: ArrivalNotice.title, body: ArrivalNotice.body)
+        defaults.set(state.lastMealSavedAt, forKey: Keys.arrivalNoticeNotifiedFor)
+    }
+
+    /// At launch: keeps the background check scheduled while the notice is on.
+    func scheduleArrivalCheckIfEnabled() {
+        if arrivalNoticeEnabled, isSignedIn { noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery) }
     }
 
     /// Call with every API error a screen gets: an ended session returns to onboarding.
@@ -186,5 +244,11 @@ final class AppModel {
         hasCompletedOnboarding = false
         defaults.removeObject(forKey: Keys.serverURL)
         defaults.removeObject(forKey: Keys.onboardingComplete)
+        // The notice belongs to the account: signing out stops it.
+        if arrivalNoticeEnabled { noticeCenter.cancel() }
+        arrivalNoticeEnabled = false
+        arrivalNoticeDeclined = false
+        defaults.removeObject(forKey: Keys.arrivalNotice)
+        defaults.removeObject(forKey: Keys.arrivalNoticeNotifiedFor)
     }
 }

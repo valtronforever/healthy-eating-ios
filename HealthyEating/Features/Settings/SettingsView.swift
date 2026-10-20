@@ -200,8 +200,23 @@ struct SettingsView: View {
                     }
                 }
             }
+            Toggle(isOn: arrivalNotice) {
+                HStack(spacing: Spacing.s3) {
+                    SymbolTile(systemName: "bell", small: true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Notice when meals stop arriving").foregroundStyle(.ink)
+                        Text("One quiet notification after 2 days").font(.subheadline).foregroundStyle(.inkMuted)
+                    }
+                }
+            }
+            .accessibilityIdentifier("arrivalNotice")
         } header: {
             Text("Display and privacy").sectionTextStyle()
+        } footer: {
+            if app.arrivalNoticeDeclined {
+                Text("Notifications are off for Healthy Eating. Turn them on in the Settings app to get this notice.")
+                    .sectionTextStyle()
+            }
         }
         .listRowBackground(Color.surface)
 
@@ -247,6 +262,10 @@ struct SettingsView: View {
                 .sectionTextStyle()
                 .frame(maxWidth: .infinity)
         }
+    }
+
+    private var arrivalNotice: Binding<Bool> {
+        Binding(get: { app.arrivalNoticeEnabled }, set: { on in Task { await app.setArrivalNotice(on) } })
     }
 
     private var signOutSection: some View {

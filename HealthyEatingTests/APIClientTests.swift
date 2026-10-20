@@ -231,3 +231,25 @@ struct APIContractTests {
 }
 
 private final class BundleToken {}
+
+extension NetworkTests {
+    struct ArrivalStatusAPITests {
+        private func status(_ arrival: String?) async throws -> IntegrationState {
+            let field = arrival.map { #","arrival_status":"\#($0)""# } ?? ""
+            let (api, _) = client { _ in
+                (200, json(#"{"last_meal_saved_at":"2026-10-18T11:00:00Z","last_client_name":"Claude","meals_today":0\#(field)}"#))
+            }
+            return try await api.integrationStatus()
+        }
+
+        @Test func mapsTheServersArrivalStatus() async throws {
+            #expect(try await status("quiet").arrival == .quiet)
+            #expect(try await status("ok").arrival == .ok)
+        }
+
+        @Test func olderServersAndNewValuesMeanUnknown() async throws {
+            #expect(try await status(nil).arrival == .unknown)
+            #expect(try await status("something-new").arrival == .unknown)
+        }
+    }
+}

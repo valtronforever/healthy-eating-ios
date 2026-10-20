@@ -108,7 +108,12 @@ actor SampleDataSource: NutritionDataSource {
                 lastSaved = (.now, first.assistant)
             }
         }
-        return IntegrationState(lastMealSavedAt: lastSaved?.at, lastAssistant: lastSaved?.via, mealsToday: todayMeals.count)
+        return IntegrationState(
+            lastMealSavedAt: lastSaved?.at,
+            lastAssistant: lastSaved?.via,
+            mealsToday: todayMeals.count,
+            arrival: newAccount ? .unknown : .ok
+        )
     }
 
     func connections() -> [Connection] { signIns }

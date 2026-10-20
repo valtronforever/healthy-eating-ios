@@ -123,6 +123,18 @@ nonisolated struct IntegrationState: Sendable, Equatable {
     var lastMealSavedAt: Date?
     var lastAssistant: String?
     var mealsToday: Int
+    /// Whether meals still arrive as usual, judged by the server from the person's own pattern.
+    var arrival: ArrivalStatus = .unknown
+}
+
+/// The server's `arrival_status`: about the integration, never about how much the person eats.
+nonisolated enum ArrivalStatus: String, Sendable {
+    /// Meals arrive as usual.
+    case ok
+    /// Nothing arrived yesterday, or today later than usual: the assistant may not be saving meals.
+    case quiet
+    /// New account, irregular pattern, or a server without the field.
+    case unknown
 }
 
 /// An AI assistant or app session signed in to the account (`GET /api/v1/connections`).

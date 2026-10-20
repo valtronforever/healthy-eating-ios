@@ -68,6 +68,7 @@ HealthyEating/
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
     API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
     Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
+    Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
@@ -79,7 +80,8 @@ design/tools/generate_design_tokens.py   # tokens.json -> color sets + DesignTok
 The project uses Xcode folder-synchronized groups: files added under these folders are part of
 their target automatically; do not add files to `project.pbxproj` by hand.
 `HealthyEating/Info.plist` holds only what build settings cannot express (the `healthyeating`
-URL scheme, `OAuthRedirect`); Xcode merges it with the generated Info.plist and the project
+URL scheme, `OAuthRedirect`; `UIBackgroundModes` `fetch` and `BGTaskSchedulerPermittedIdentifiers`
+for the arrival check); Xcode merges it with the generated Info.plist and the project
 excludes it from the folder's resources. Put other Info.plist keys in `INFOPLIST_KEY_*` settings.
 
 ## Commands
@@ -147,6 +149,12 @@ Notes:
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
+- The notice when meals stop arriving (`Core/Notices/ArrivalNotice.swift`, Settings) is off by
+  default. A background app refresh (`.backgroundTask(.appRefresh)`, about every 6 h when iOS
+  allows) posts one local notification when the server's `arrival_status` is `quiet` and the last
+  meal arrived 2 days ago or more, once per quiet spell; signing out turns it off. No push service.
+  Its wording is about the assistant connection, never about the person's eating or logging.
+  The Today footnote's dot follows `arrival_status` (24 h rule while it is `unknown`).
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

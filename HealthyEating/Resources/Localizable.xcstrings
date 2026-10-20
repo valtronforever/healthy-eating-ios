@@ -452,9 +452,6 @@
     "In a new chat, type @, choose Healthy Eating and send your meal." : {
 
     },
-    "On a computer, open chatgpt.com/plugins." : {
-
-    },
     "It" : {
 
     },
@@ -549,6 +546,9 @@
     "No meals saved in the last 2 days" : {
 
     },
+    "No meals saved in the last 2 days. If you logged food, check that your assistant is still connected." : {
+
+    },
     "No meals yet today" : {
 
     },
@@ -573,10 +573,22 @@
     "Nothing is connected yet." : {
 
     },
+    "Notice when meals stop arriving" : {
+
+    },
+    "Notifications are off for Healthy Eating. Turn them on in the Settings app to get this notice." : {
+
+    },
     "Nutrition" : {
 
     },
     "Offline" : {
+
+    },
+    "On a computer, open chatgpt.com/plugins." : {
+
+    },
+    "One quiet notification after 2 days" : {
 
     },
     "Open" : {
@@ -846,6 +858,9 @@
 
     },
     "Your account" : {
+
+    },
+    "Your assistant may not be saving meals" : {
 
     },
     "Your data" : {

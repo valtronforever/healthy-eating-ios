@@ -143,7 +143,12 @@ nonisolated extension APIClient {
 
     func integrationStatus() async throws(APIError) -> IntegrationState {
         let dto = try await send(Request(path: "integration-status"), as: IntegrationStatusDTO.self)
-        return IntegrationState(lastMealSavedAt: dto.lastMealSavedAt, lastAssistant: dto.lastClientName, mealsToday: dto.mealsToday)
+        return IntegrationState(
+            lastMealSavedAt: dto.lastMealSavedAt,
+            lastAssistant: dto.lastClientName,
+            mealsToday: dto.mealsToday,
+            arrival: dto.arrivalStatus.flatMap(ArrivalStatus.init(rawValue:)) ?? .unknown
+        )
     }
 
     func connections() async throws(APIError) -> [Connection] {

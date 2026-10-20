@@ -167,11 +167,16 @@ struct TodayView: View {
             return IntegrationStatus(state: .unknown, text: "No meals received yet")
         }
         let when = RelativeTimeFormat.string(for: savedAt)
-        let recent = Date.now.timeIntervalSince(savedAt) < 24 * 3600
-        if let assistant = integration.lastAssistant {
-            return IntegrationStatus(state: recent ? .ok : .quiet, text: "Last meal saved \(when) via \(assistant)")
+        let dot: IntegrationStatus.Kind = switch integration.arrival {
+        case .ok: .ok
+        case .quiet: .quiet
+        // No usual pattern to compare with yet: a meal within a day counts as recent.
+        case .unknown: Date.now.timeIntervalSince(savedAt) < 24 * 3600 ? .ok : .quiet
         }
-        return IntegrationStatus(state: recent ? .ok : .quiet, text: "Last meal saved \(when)")
+        if let assistant = integration.lastAssistant {
+            return IntegrationStatus(state: dot, text: "Last meal saved \(when) via \(assistant)")
+        }
+        return IntegrationStatus(state: dot, text: "Last meal saved \(when)")
     }
 
     private func markDay(_ day: DayTotals?) -> some View {

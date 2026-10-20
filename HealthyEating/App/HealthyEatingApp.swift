@@ -10,6 +10,10 @@ struct HealthyEatingApp: App {
                 .environment(model)
                 .tint(.accent)
         }
+        // The notice when meals stop arriving (opt-in, see ArrivalNotice).
+        .backgroundTask(.appRefresh(ArrivalNotice.taskIdentifier)) { [model] in
+            await model.checkArrival()
+        }
     }
 }
 
@@ -20,7 +24,10 @@ struct RootView: View {
     var body: some View {
         if model.hasCompletedOnboarding {
             MainTabView()
-                .task { await model.syncTimeZoneIfNeeded() }
+                .task {
+                    model.scheduleArrivalCheckIfEnabled()
+                    await model.syncTimeZoneIfNeeded()
+                }
         } else {
             OnboardingFlow()
         }

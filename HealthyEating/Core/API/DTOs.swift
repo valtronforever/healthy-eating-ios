@@ -199,11 +199,14 @@ nonisolated struct IntegrationStatusDTO: Decodable, Sendable {
     let lastMealSavedAt: Date?
     let lastClientName: String?
     let mealsToday: Int
+    /// "ok", "quiet" or "unknown"; missing on servers from before the field existed.
+    let arrivalStatus: String?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case lastMealSavedAt = "last_meal_saved_at"
         case lastClientName = "last_client_name"
         case mealsToday = "meals_today"
+        case arrivalStatus = "arrival_status"
     }
 }
 
