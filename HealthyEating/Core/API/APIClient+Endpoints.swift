@@ -101,6 +101,34 @@ nonisolated extension APIClient {
             averages: dto.averages.map(Self.nutrients), estimatedCaloriesShare: dto.estimatedCaloriesShare)
     }
 
+    /// The local week (Monday to Sunday) that contains `week`.
+    func weeklyReview(week: Date) async throws(APIError) -> WeeklyReview {
+        let query = [URLQueryItem(name: "week", value: APIDate.dayString(week, calendar: calendar))]
+        let dto = try await send(Request(path: "weekly-review", query: query), as: WeeklyReviewDTO.self)
+        guard let first = APIDate.day(dto.firstDay, calendar: calendar), let last = APIDate.day(dto.lastDay, calendar: calendar) else {
+            throw .unexpectedResponse("week \(dto.firstDay)")
+        }
+        let leftOut = try dto.leftOut.map { (day) throws(APIError) -> WeeklyReview.LeftOutDay in
+            guard let date = APIDate.day(day.localDate, calendar: calendar) else { throw .unexpectedResponse("day \(day.localDate)") }
+            // A reason added by a newer server reads as not logged, the plainest fact.
+            return .init(date: date, reason: WeeklyReview.LeftOutReason(rawValue: day.reason) ?? .notLogged)
+        }
+        return WeeklyReview(
+            firstDay: first, lastDay: last,
+            countingRule: CountingRule(rawValue: dto.countingRule) ?? .loggedDays,
+            loggedDays: dto.loggedDays, completeDays: dto.completeDays, countedDays: dto.countedDays,
+            averages: dto.averages.map(Self.nutrients),
+            leftOut: leftOut,
+            weekdays: .init(countedDays: dto.weekdays.countedDays, averages: dto.weekdays.averages.map(Self.nutrients)),
+            weekend: .init(countedDays: dto.weekend.countedDays, averages: dto.weekend.averages.map(Self.nutrients)),
+            mealCount: dto.mealCount,
+            proteinPerMealG: dto.proteinPerMealG,
+            proteinBuckets: dto.proteinBuckets.map { .init(minG: $0.minG, maxG: $0.maxG, meals: $0.meals) },
+            lateMeals: dto.lateMeals,
+            estimatedValuesShare: dto.estimatedValuesShare,
+            lowConfidenceMeals: dto.lowConfidenceMeals)
+    }
+
     // MARK: Account
 
     func account() async throws(APIError) -> Account {

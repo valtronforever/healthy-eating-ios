@@ -45,6 +45,54 @@
     "%@ of calories estimated" : {
 
     },
+    "%@ on average across %lld meals" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ on average across %2$lld meals"
+          }
+        }
+      }
+    },
+    "%@ on weekdays, %@ on the weekend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ on weekdays, %2$@ on the weekend"
+          }
+        }
+      }
+    },
+    "%@ protein on weekdays, %@ on the weekend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ protein on weekdays, %2$@ on the weekend"
+          }
+        }
+      }
+    },
+    "%@ was marked partial." : {
+
+    },
+    "%@ was not logged." : {
+
+    },
+    "%@ was not marked complete." : {
+
+    },
+    "%@ were marked partial." : {
+
+    },
+    "%@ were not logged." : {
+
+    },
+    "%@ were not marked complete." : {
+
+    },
     "%@ · %@ · via %@" : {
       "localizations" : {
         "en" : {
@@ -111,7 +159,36 @@
     "%lld h ago" : {
 
     },
+    "%lld meals" : {
+
+    },
     "%lld min ago" : {
+
+    },
+    "%lld of %lld meals after %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld meals after %3$@"
+          }
+        }
+      }
+    },
+    "%lld of 7" : {
+
+    },
+    "%lld of 7 · %lld complete" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of 7 · %2$lld complete"
+          }
+        }
+      }
+    },
+    "1 meal" : {
 
     },
     "11 g lower" : {
@@ -183,6 +260,9 @@
     "Average per day" : {
 
     },
+    "Averages" : {
+
+    },
     "Averages appear here once meals arrive from your assistant." : {
 
     },
@@ -206,7 +286,16 @@
         }
       }
     },
+    "Averages use %lld of 7 days." : {
+
+    },
     "Averages use complete days only." : {
+
+    },
+    "Averages use the %lld complete days." : {
+
+    },
+    "Averages use the 1 complete day." : {
 
     },
     "Baseline" : {
@@ -320,6 +409,9 @@
     "Custom MCP servers can only be added on the ChatGPT website, not in the ChatGPT apps. After that, Healthy Eating works in the apps too." : {
 
     },
+    "Data quality" : {
+
+    },
     "Day" : {
 
     },
@@ -381,6 +473,9 @@
 
     },
     "Estimated" : {
+
+    },
+    "Estimated %lld%%" : {
 
     },
     "Export data" : {
@@ -486,6 +581,9 @@
     "Last used %@" : {
 
     },
+    "Late meals" : {
+
+    },
     "Leave a field empty for an open range. Your days are shown against these ranges, never judged by them." : {
 
     },
@@ -534,6 +632,12 @@
     "Next month" : {
 
     },
+    "Next week" : {
+
+    },
+    "No day counts for the averages yet." : {
+
+    },
     "No days to show yet" : {
 
     },
@@ -547,6 +651,9 @@
 
     },
     "No meals saved in the last 2 days. If you logged food, check that your assistant is still connected." : {
+
+    },
+    "No meals this week" : {
 
     },
     "No meals yet today" : {
@@ -626,6 +733,9 @@
     "Partial, left out" : {
 
     },
+    "Patterns" : {
+
+    },
     "Period" : {
 
     },
@@ -635,7 +745,13 @@
     "Previous month" : {
 
     },
+    "Previous week" : {
+
+    },
     "Protein" : {
+
+    },
+    "Protein per meal" : {
 
     },
     "Read the self-hosting guide" : {
@@ -704,6 +820,9 @@
     "Showing data from 09:42. It updates when you are back online." : {
 
     },
+    "Shown once both weekdays and the weekend have counted days" : {
+
+    },
     "Sign in with the same account you use here." : {
 
     },
@@ -767,6 +886,12 @@
     "The connection works. Keep logging in your chat the way you do now." : {
 
     },
+    "The rest of the week is still ahead." : {
+
+    },
+    "The review fills in as meals arrive from your assistant." : {
+
+    },
     "The start of a range can’t be above its end." : {
 
     },
@@ -798,6 +923,9 @@
 
     },
     "Today" : {
+
+    },
+    "Today is still in progress." : {
 
     },
     "Today, %@" : {
@@ -839,7 +967,13 @@
     "Waiting for your first meal" : {
 
     },
+    "Weekdays and weekend" : {
+
+    },
     "Weekly averages, target ranges and which values were estimated." : {
+
+    },
+    "Weekly review" : {
 
     },
     "Weigh-in" : {
@@ -849,6 +983,9 @@
 
     },
     "Weight" : {
+
+    },
+    "Where values came from" : {
 
     },
     "Yesterday, %@" : {
@@ -873,6 +1010,19 @@
 
     },
     "Your numbers" : {
+
+    },
+    "Your numbers %lld percent, estimated %lld percent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your numbers %1$lld percent, estimated %2$lld percent"
+          }
+        }
+      }
+    },
+    "Your numbers %lld%%" : {
 
     },
     "Your server" : {

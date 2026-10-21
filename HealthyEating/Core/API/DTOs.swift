@@ -158,6 +158,75 @@ nonisolated struct TrendsDTO: Decodable, Sendable {
     }
 }
 
+nonisolated struct LeftOutDayDTO: Decodable, Sendable {
+    let localDate: String
+    let reason: String
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case localDate = "local_date"
+        case reason
+    }
+}
+
+nonisolated struct DayGroupDTO: Decodable, Sendable {
+    let countedDays: Int
+    let averages: NutrientsDTO?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case countedDays = "counted_days"
+        case averages
+    }
+}
+
+nonisolated struct ProteinBucketDTO: Decodable, Sendable {
+    let minG: Double
+    let maxG: Double?
+    let meals: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case minG = "min_g"
+        case maxG = "max_g"
+        case meals
+    }
+}
+
+nonisolated struct WeeklyReviewDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let countingRule: String
+    let loggedDays: Int
+    let completeDays: Int
+    let countedDays: Int
+    let averages: NutrientsDTO?
+    let leftOut: [LeftOutDayDTO]
+    let weekdays: DayGroupDTO
+    let weekend: DayGroupDTO
+    let mealCount: Int
+    let proteinPerMealG: Double?
+    let proteinBuckets: [ProteinBucketDTO]
+    let lateMeals: Int
+    let estimatedValuesShare: Double?
+    let lowConfidenceMeals: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case countingRule = "counting_rule"
+        case loggedDays = "logged_days"
+        case completeDays = "complete_days"
+        case countedDays = "counted_days"
+        case averages
+        case leftOut = "left_out"
+        case weekdays, weekend
+        case mealCount = "meal_count"
+        case proteinPerMealG = "protein_per_meal_g"
+        case proteinBuckets = "protein_buckets"
+        case lateMeals = "late_meals"
+        case estimatedValuesShare = "estimated_values_share"
+        case lowConfidenceMeals = "low_confidence_meals"
+    }
+}
+
 nonisolated struct TargetRangeDTO: Codable, Sendable {
     let min: Double?
     let max: Double?

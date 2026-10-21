@@ -104,6 +104,55 @@ nonisolated struct Trends: Sendable, Equatable {
     var change: NutrientValues?
 }
 
+/// One local week, Monday to Sunday, as neutral facts (`GET /api/v1/weekly-review`).
+nonisolated struct WeeklyReview: Sendable, Equatable {
+    /// Why the averages leave a day out.
+    enum LeftOutReason: String, Sendable {
+        case future
+        case inProgress = "in_progress"
+        case notLogged = "not_logged"
+        case partial
+        case notMarkedComplete = "not_marked_complete"
+    }
+
+    struct LeftOutDay: Sendable, Equatable {
+        var date: Date
+        var reason: LeftOutReason
+    }
+
+    struct DayGroup: Sendable, Equatable {
+        var countedDays: Int
+        var averages: NutrientValues?
+    }
+
+    struct ProteinBucket: Sendable, Equatable {
+        var minG: Double
+        /// nil for the last, open bucket.
+        var maxG: Double?
+        var meals: Int
+    }
+
+    var firstDay: Date
+    var lastDay: Date
+    var countingRule: CountingRule
+    var loggedDays: Int
+    var completeDays: Int
+    var countedDays: Int
+    /// Average per counted day, counted like Trends; nil when no day counts.
+    var averages: NutrientValues?
+    var leftOut: [LeftOutDay]
+    var weekdays: DayGroup
+    var weekend: DayGroup
+    /// Every meal of the week, counted day or not.
+    var mealCount: Int
+    var proteinPerMealG: Double?
+    var proteinBuckets: [ProteinBucket]
+    var lateMeals: Int
+    /// Share of the meals' values the assistant estimated (0 to 1); the rest are the person's own.
+    var estimatedValuesShare: Double?
+    var lowConfidenceMeals: Int
+}
+
 /// A target range; either bound may be open. Targets are ranges, never limits.
 nonisolated struct TargetRange: Sendable, Equatable {
     var min: Double?

@@ -61,7 +61,7 @@ HealthyEating/
   Features/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail
-    Statistics/      # History, Trends
+    Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
     Settings/        # server, connection URL, Calm mode, sign out
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
@@ -149,6 +149,10 @@ Notes:
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
+- The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
+  as facts: its footnote names the days the averages use and why others are left out; Calm mode
+  hides calories (weekdays and weekend then compare protein). Week titles use the locale's order
+  with an en dash and no spaces ("Oct 12–18", "12–18 Oct").
 - The notice when meals stop arriving (`Core/Notices/ArrivalNotice.swift`, Settings) is off by
   default. A background app refresh (`.backgroundTask(.appRefresh)`, about every 6 h when iOS
   allows) posts one local notification when the server's `arrival_status` is `quiet` and the last

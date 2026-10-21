@@ -8,6 +8,8 @@ nonisolated protocol NutritionDataSource: Sendable {
     func meals(on day: Date) async throws(APIError) -> [Meal]
     func days(from: Date, to: Date) async throws(APIError) -> DayRange
     func trends(window: Int) async throws(APIError) -> Trends
+    /// The local week, Monday to Sunday, that contains `week`.
+    func weeklyReview(week: Date) async throws(APIError) -> WeeklyReview
     func account() async throws(APIError) -> Account
     func settings() async throws(APIError) -> UserSettings
     func updateSettings(_ change: APIClient.SettingsChange) async throws(APIError) -> UserSettings

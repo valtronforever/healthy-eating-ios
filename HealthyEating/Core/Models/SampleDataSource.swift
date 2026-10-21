@@ -84,6 +84,47 @@ actor SampleDataSource: NutritionDataSource {
             change: change)
     }
 
+    /// D2's sample week: Thursday not logged, today in progress, later days ahead; in past weeks
+    /// Sunday is logged but not marked complete.
+    func weeklyReview(week: Date) -> WeeklyReview {
+        let today = calendar.startOfDay(for: .now)
+        let day = calendar.startOfDay(for: week)
+        let sinceMonday = (calendar.component(.weekday, from: day) + 5) % 7
+        let monday = calendar.date(byAdding: .day, value: -sinceMonday, to: day) ?? day
+        let days = (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: monday) }
+        var leftOut: [WeeklyReview.LeftOutDay] = []
+        var logged = 0, counted = 0, countedWeekend = 0
+        for (index, date) in days.enumerated() {
+            let reason: WeeklyReview.LeftOutReason? =
+                if date > today { .future }
+                else if date == today { .inProgress }
+                else if index == 3 { .notLogged }
+                else if index == 6 { .notMarkedComplete }
+                else { nil }
+            if reason != .future, reason != .notLogged { logged += 1 }
+            if let reason {
+                leftOut.append(.init(date: date, reason: reason))
+            } else {
+                counted += 1
+                if index >= 5 { countedWeekend += 1 }
+            }
+        }
+        let averages = NutrientValues(caloriesKcal: 2060, proteinG: 121, fatG: 70, carbohydratesG: 231)
+        return WeeklyReview(
+            firstDay: monday, lastDay: days.last ?? monday, countingRule: .completeDays,
+            loggedDays: logged, completeDays: counted, countedDays: counted,
+            averages: counted > 0 ? averages : nil,
+            leftOut: leftOut,
+            weekdays: .init(countedDays: counted - countedWeekend,
+                            averages: counted > countedWeekend ? NutrientValues(caloriesKcal: 2010, proteinG: 118, fatG: 68, carbohydratesG: 226) : nil),
+            weekend: .init(countedDays: countedWeekend,
+                           averages: countedWeekend > 0 ? NutrientValues(caloriesKcal: 2190, proteinG: 128, fatG: 75, carbohydratesG: 244) : nil),
+            mealCount: 17, proteinPerMealG: 31,
+            proteinBuckets: [.init(minG: 0, maxG: 10, meals: 1), .init(minG: 10, maxG: 20, meals: 3), .init(minG: 20, maxG: 30, meals: 4),
+                             .init(minG: 30, maxG: 40, meals: 5), .init(minG: 40, maxG: nil, meals: 4)],
+            lateMeals: 2, estimatedValuesShare: 0.64, lowConfidenceMeals: 3)
+    }
+
     func account() -> Account {
         Account(displayName: "Alex Kim", email: "alex@example.com", linkedLogins: ["google", "apple"])
     }

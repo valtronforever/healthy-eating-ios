@@ -208,6 +208,10 @@ struct APIContractTests {
         ("Targets", TargetsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("SettingsResponse", SettingsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("IntegrationStatusResponse", IntegrationStatusDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WeeklyReviewResponse", WeeklyReviewDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("LeftOutDayResponse", LeftOutDayDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("DayGroupResponse", DayGroupDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("ProteinBucketResponse", ProteinBucketDTO.CodingKeys.allCases.map(\.stringValue)),
         ("GrantResponse", GrantDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ConnectionResponse", ConnectionDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ConnectionsResponse", ConnectionsDTO.CodingKeys.allCases.map(\.stringValue)),
@@ -250,6 +254,42 @@ extension NetworkTests {
         @Test func olderServersAndNewValuesMeanUnknown() async throws {
             #expect(try await status(nil).arrival == .unknown)
             #expect(try await status("something-new").arrival == .unknown)
+        }
+    }
+}
+
+extension NetworkTests {
+    struct WeeklyReviewAPITests {
+        @Test func mapsTheWeek() async throws {
+            let (api, _) = client { request in
+                #expect(request.url?.path() == "/api/v1/weekly-review")
+                #expect(request.url?.query() == "week=2026-10-14")
+                return (200, json(#"""
+                {"first_day":"2026-10-12","last_day":"2026-10-18","counting_rule":"complete_days",
+                 "logged_days":6,"complete_days":5,"counted_days":5,
+                 "averages":{"calories_kcal":2060.0,"protein_g":121.0,"fat_g":70.0,"carbohydrates_g":231.0},
+                 "left_out":[{"local_date":"2026-10-15","reason":"not_logged"},{"local_date":"2026-10-18","reason":"in_progress"},
+                             {"local_date":"2026-10-16","reason":"something_new"}],
+                 "weekdays":{"counted_days":3,"averages":null},
+                 "weekend":{"counted_days":0,"averages":null},
+                 "meal_count":17,"protein_per_meal_g":31.0,
+                 "protein_buckets":[{"min_g":0,"max_g":10,"meals":1},{"min_g":40,"max_g":null,"meals":4}],
+                 "late_meals":2,"estimated_values_share":0.64,"low_confidence_meals":3}
+                """#))
+            }
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = try #require(TimeZone(identifier: "Europe/Berlin"))
+            let wednesday = try #require(APIDate.day("2026-10-14", calendar: calendar))
+
+            let review = try await api.weeklyReview(week: wednesday)
+
+            #expect(APIDate.dayString(review.firstDay, calendar: calendar) == "2026-10-12")
+            #expect(review.countingRule == .completeDays)
+            #expect(review.averages?.proteinG == 121)
+            #expect(review.leftOut.map(\.reason) == [.notLogged, .inProgress, .notLogged])
+            #expect(review.weekend.averages == nil)
+            #expect(review.proteinBuckets.last == .init(minG: 40, maxG: nil, meals: 4))
+            #expect(review.estimatedValuesShare == 0.64)
         }
     }
 }

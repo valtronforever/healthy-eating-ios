@@ -85,6 +85,19 @@ struct TrendsView: View {
                 if let snapshot = model.state.value, snapshot.trends.current.loggedDays > 0 {
                     comparisonSection(snapshot)
                 }
+
+                Section {
+                    NavigationLink {
+                        WeeklyReviewView()
+                    } label: {
+                        HStack(spacing: Spacing.s3) {
+                            SymbolTile(systemName: "calendar", small: true)
+                            Text("Weekly review").foregroundStyle(.ink)
+                        }
+                    }
+                    .accessibilityIdentifier("weeklyReview")
+                }
+                .listRowBackground(Color.surface)
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
