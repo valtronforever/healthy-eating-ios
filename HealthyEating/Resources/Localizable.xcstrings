@@ -4,6 +4,16 @@
     "" : {
 
     },
+    "%@ (%lld of %lld meals)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$lld of %3$lld meals)"
+          }
+        }
+      }
+    },
     "%@ at %@" : {
       "localizations" : {
         "en" : {
@@ -40,6 +50,9 @@
 
     },
     "%@ lower" : {
+
+    },
+    "%@ milligrams" : {
 
     },
     "%@ of calories estimated" : {
@@ -487,6 +500,9 @@
     "Fat" : {
 
     },
+    "Fiber" : {
+
+    },
     "Finish the sign-in in your browser." : {
 
     },
@@ -850,10 +866,16 @@
     "Smoothed weight trend" : {
 
     },
+    "Sodium" : {
+
+    },
     "Source" : {
 
     },
     "Start" : {
+
+    },
+    "Sugar" : {
 
     },
     "Target %@" : {
@@ -1043,6 +1065,12 @@
     "at least %@" : {
 
     },
+    "average of %lld days" : {
+
+    },
+    "average of 1 day" : {
+
+    },
     "complete" : {
 
     },
@@ -1070,8 +1098,21 @@
     "kg trend" : {
 
     },
+    "mg" : {
+      "comment" : "Unit symbol for milligrams"
+    },
     "not logged" : {
 
+    },
+    "on %lld of %lld counted days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "on %1$lld of %2$lld counted days"
+          }
+        }
+      }
     },
     "partial" : {
 

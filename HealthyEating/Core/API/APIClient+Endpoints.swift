@@ -31,6 +31,8 @@ nonisolated extension APIClient {
         var proteinG: Double?
         var fatG: Double?
         var carbohydratesG: Double?
+        /// Fiber, sugar and sodium to change; `.some(nil)` removes a value.
+        var optional: [OptionalNutrient: Double?] = [:]
         var eatenAt: Date?
     }
 
@@ -44,6 +46,7 @@ nonisolated extension APIClient {
         if let value = edit.proteinG { fields["protein_g"] = value }
         if let value = edit.fatG { fields["fat_g"] = value }
         if let value = edit.carbohydratesG { fields["carbohydrates_g"] = value }
+        for (nutrient, value) in edit.optional { fields[nutrient.rawValue] = .some(value ?? NSNull()) }
         if let eatenAt = edit.eatenAt { fields["eaten_at"] = APIDate.timeString(eatenAt) }
         let request = Request(method: "PATCH", path: "meals/\(id.uuidString.lowercased())", body: Self.json(fields))
         let response = try await send(request, as: MealUpdateResponseDTO.self)
@@ -68,7 +71,9 @@ nonisolated extension APIClient {
                 date: date, mealCount: dto.mealCount, caloriesKcal: dto.caloriesKcal, proteinG: dto.proteinG,
                 fatG: dto.fatG, carbohydratesG: dto.carbohydratesG, estimatedCaloriesShare: dto.estimatedCaloriesShare,
                 status: dto.status.flatMap(DayMark.init(rawValue:)), markedBy: dto.statusSetBy.flatMap(MarkSetter.init(rawValue:)),
-                counted: dto.counted)
+                counted: dto.counted,
+                optional: Self.compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg])
+                    .mapValues { OptionalTotal(amount: $0.amount, mealCount: $0.mealCount) })
         }
         return DayRange(days: days, countingRule: CountingRule(rawValue: response.countingRule) ?? .loggedDays)
     }
@@ -98,7 +103,9 @@ nonisolated extension APIClient {
         }
         return TrendPeriod(
             firstDay: first, lastDay: last, countedDays: dto.countedDays, loggedDays: dto.loggedDays,
-            averages: dto.averages.map(Self.nutrients), estimatedCaloriesShare: dto.estimatedCaloriesShare)
+            averages: dto.averages.map(Self.nutrients), estimatedCaloriesShare: dto.estimatedCaloriesShare,
+            optionalAverages: Self.compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg])
+                .mapValues { OptionalAverage(average: $0.average, days: $0.days) })
     }
 
     /// The local week (Monday to Sunday) that contains `week`.
@@ -222,7 +229,14 @@ nonisolated extension APIClient {
             estimatedFields: Set(dto.estimatedFields.compactMap(NutrientField.init(rawValue:))),
             confidence: Confidence(rawValue: dto.confidence),
             assistant: dto.clientName ?? String(localized: "your AI assistant"),
-            sourceNote: dto.sourceNote)
+            sourceNote: dto.sourceNote,
+            optional: compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg]),
+            estimatedOptional: Set(dto.estimatedFields.compactMap(OptionalNutrient.init(rawValue:))))
+    }
+
+    /// Keeps the nutrients that have a value.
+    static func compact<Value>(_ values: [OptionalNutrient: Value?]) -> [OptionalNutrient: Value] {
+        values.compactMapValues { $0 }
     }
 
     static func nutrients(_ dto: NutrientsDTO) -> NutrientValues {

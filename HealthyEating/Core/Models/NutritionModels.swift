@@ -42,6 +42,25 @@ nonisolated enum NutrientField: String, Sendable, CaseIterable, Codable {
     case carbohydrates = "carbohydrates_g"
 }
 
+/// Values a meal may have besides the four, with the backend's field names. Never targets.
+nonisolated enum OptionalNutrient: String, Sendable, CaseIterable, Identifiable {
+    case fiber = "fiber_g"
+    case sugar = "sugar_g"
+    case sodium = "sodium_mg"
+
+    var id: String { rawValue }
+
+    var name: String {
+        switch self {
+        case .fiber: String(localized: "Fiber")
+        case .sugar: String(localized: "Sugar")
+        case .sodium: String(localized: "Sodium")
+        }
+    }
+
+    var unit: NutrientUnit { self == .sodium ? .milligrams : .grams }
+}
+
 /// One logged meal, as the backend stores it (`meals` table).
 nonisolated struct Meal: Identifiable, Hashable, Sendable {
     let id: UUID
@@ -60,15 +79,22 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var assistant: String
     /// Where existing numbers came from, or a one-line explanation of an estimate.
     var sourceNote: String?
+    /// Fiber, sugar and sodium, when the meal has them.
+    var optional: [OptionalNutrient: Double] = [:]
+    /// Which of them the assistant estimated.
+    var estimatedOptional: Set<OptionalNutrient> = []
 
     /// "Estimated" as soon as one value was estimated; "Your numbers" otherwise.
-    var provenance: Provenance { estimatedFields.isEmpty ? .user : .estimated }
+    var provenance: Provenance { estimatedFields.isEmpty && estimatedOptional.isEmpty ? .user : .estimated }
 
     init(
         id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
         carbohydratesG: Double, portionGrams: Double?, estimatedFields: Set<NutrientField>,
-        confidence: Confidence?, assistant: String, sourceNote: String?
+        confidence: Confidence?, assistant: String, sourceNote: String?,
+        optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = []
     ) {
+        self.optional = optional
+        self.estimatedOptional = estimatedOptional
         self.id = id
         self.eatenAt = eatenAt
         self.dishName = dishName
@@ -87,13 +113,14 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     init(
         id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
         carbohydratesG: Double, portionGrams: Double?, provenance: Provenance, confidence: Confidence?,
-        assistant: String, sourceNote: String?
+        assistant: String, sourceNote: String?, optional: [OptionalNutrient: Double] = [:]
     ) {
         self.init(
             id: id, eatenAt: eatenAt, dishName: dishName, caloriesKcal: caloriesKcal, proteinG: proteinG,
             fatG: fatG, carbohydratesG: carbohydratesG, portionGrams: portionGrams,
             estimatedFields: provenance == .estimated ? Set(NutrientField.allCases) : [],
-            confidence: confidence, assistant: assistant, sourceNote: sourceNote)
+            confidence: confidence, assistant: assistant, sourceNote: sourceNote,
+            optional: optional, estimatedOptional: provenance == .estimated ? Set(optional.keys) : [])
     }
 
     func grams(of macro: Macro) -> Double {

@@ -17,19 +17,22 @@ nonisolated enum SampleData {
             id: UUID(uuidString: "6F1A3C2E-0000-4000-8000-000000000001") ?? UUID(),
             eatenAt: today(at: 8, 10), dishName: "Oatmeal with berries",
             caloriesKcal: 380, proteinG: 14, fatG: 9, carbohydratesG: 58, portionGrams: 320,
-            provenance: .user, confidence: nil, assistant: "ChatGPT", sourceNote: nil),
+            provenance: .user, confidence: nil, assistant: "ChatGPT", sourceNote: nil,
+            optional: [.fiber: 8]),
         Meal(
             id: UUID(uuidString: "6F1A3C2E-0000-4000-8000-000000000002") ?? UUID(),
             eatenAt: today(at: 12, 40), dishName: "Chicken with rice and salad",
             caloriesKcal: 610, proteinG: 46, fatG: 18, carbohydratesG: 62, portionGrams: 350,
             provenance: .estimated, confidence: .medium, assistant: "Claude",
-            sourceNote: "Claude estimated all values from a photo. Portion size and cooking oil were not stated."),
+            sourceNote: "Claude estimated all values from a photo. Portion size and cooking oil were not stated.",
+            optional: [.fiber: 6, .sugar: 4, .sodium: 820]),
         Meal(
             id: UUID(uuidString: "6F1A3C2E-0000-4000-8000-000000000003") ?? UUID(),
             eatenAt: today(at: 16, 5), dishName: "Greek yogurt with honey",
             caloriesKcal: 210, proteinG: 17, fatG: 5, carbohydratesG: 24, portionGrams: 200,
             provenance: .estimated, confidence: .high, assistant: "Claude",
-            sourceNote: "Claude estimated the values from the description."),
+            sourceNote: "Claude estimated the values from the description.",
+            optional: [.sugar: 22]),
     ]
 
     static let kcalSoFar: Double = 1200

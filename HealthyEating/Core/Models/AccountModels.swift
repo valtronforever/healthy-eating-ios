@@ -36,6 +36,8 @@ nonisolated struct DayTotals: Identifiable, Hashable, Sendable {
     var markedBy: MarkSetter?
     /// Whether the day counts for averages.
     var counted: Bool
+    /// Fiber, sugar and sodium over the meals of the day that have them.
+    var optional: [OptionalNutrient: OptionalTotal] = [:]
 
     var id: Date { date }
 
@@ -70,6 +72,18 @@ nonisolated struct DayRange: Sendable {
     var countingRule: CountingRule
 }
 
+/// An optional nutrient's day total, over the meals that have a value for it.
+nonisolated struct OptionalTotal: Sendable, Hashable {
+    var amount: Double
+    var mealCount: Int
+}
+
+/// An optional nutrient's average, over the counted days that have a value for it.
+nonisolated struct OptionalAverage: Sendable, Hashable {
+    var average: Double
+    var days: Int
+}
+
 /// Averages per counted day for one window (`GET /api/v1/trends`).
 nonisolated struct TrendPeriod: Sendable, Equatable {
     var firstDay: Date
@@ -78,6 +92,7 @@ nonisolated struct TrendPeriod: Sendable, Equatable {
     var loggedDays: Int
     var averages: NutrientValues?
     var estimatedCaloriesShare: Double?
+    var optionalAverages: [OptionalNutrient: OptionalAverage] = [:]
 }
 
 nonisolated struct NutrientValues: Sendable, Equatable {

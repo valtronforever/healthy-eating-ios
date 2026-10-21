@@ -76,7 +76,12 @@ actor SampleDataSource: NutritionDataSource {
         return Trends(
             windowDays: window, countingRule: .completeDays,
             current: TrendPeriod(firstDay: first, lastDay: today, countedDays: sample.completeDays, loggedDays: logged,
-                                 averages: averages, estimatedCaloriesShare: 0.6),
+                                 averages: averages, estimatedCaloriesShare: 0.6,
+                                 optionalAverages: [
+                                     .fiber: OptionalAverage(average: 21, days: sample.completeDays),
+                                     .sugar: OptionalAverage(average: 38, days: sample.completeDays),
+                                     .sodium: OptionalAverage(average: 2100, days: max(1, sample.completeDays / 2)),
+                                 ]),
             previous: TrendPeriod(firstDay: previousFirst, lastDay: previousLast, countedDays: sample.completeDays, loggedDays: logged,
                                   averages: NutrientValues(caloriesKcal: averages.caloriesKcal + 70, proteinG: averages.proteinG - 6,
                                                            fatG: averages.fatG, carbohydratesG: averages.carbohydratesG + 11),
@@ -231,6 +236,10 @@ actor SampleDataSource: NutritionDataSource {
             date: day, mealCount: meals.count, caloriesKcal: kcal, proteinG: meals.map(\.proteinG).reduce(0, +),
             fatG: meals.map(\.fatG).reduce(0, +), carbohydratesG: meals.map(\.carbohydratesG).reduce(0, +),
             estimatedCaloriesShare: kcal > 0 ? estimated / kcal : nil, status: mark, markedBy: mark == nil ? nil : .user,
-            counted: mark == .complete && !meals.isEmpty)
+            counted: mark == .complete && !meals.isEmpty,
+            optional: Dictionary(uniqueKeysWithValues: OptionalNutrient.allCases.compactMap { nutrient in
+                let amounts = meals.compactMap { $0.optional[nutrient] }
+                return amounts.isEmpty ? nil : (nutrient, OptionalTotal(amount: amounts.reduce(0, +), mealCount: amounts.count))
+            }))
     }
 }

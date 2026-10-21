@@ -140,9 +140,15 @@ struct DaySummaryCard: View {
         let macros = [(Macro.protein, NutrientField.protein), (.fat, .fat), (.carbs, .carbohydrates)].map { macro, field in
             MacroProgress(macro: macro, value: value(of: macro), min: targets[field]?.min, max: targets[field]?.max)
         }
-        return SummaryCard(
-            kcal: day?.caloriesKcal ?? 0, kcalTarget: targets[.calories] ?? TargetRange(),
-            macros: macros, energyUnit: settings.energyUnit, calm: calm)
+        return VStack(alignment: .leading, spacing: Spacing.s2) {
+            SummaryCard(
+                kcal: day?.caloriesKcal ?? 0, kcalTarget: targets[.calories] ?? TargetRange(),
+                macros: macros, energyUnit: settings.energyUnit, calm: calm)
+            if let day {
+                OptionalNutrientsLine(totals: day.optional, mealCount: day.mealCount)
+                    .padding(.horizontal, Spacing.s1)
+            }
+        }
     }
 
     private func value(of macro: Macro) -> Double {

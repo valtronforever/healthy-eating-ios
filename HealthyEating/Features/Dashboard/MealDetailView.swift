@@ -60,6 +60,9 @@ struct MealDetailView: View {
                 valueRow("Protein", NutritionFormat.value(meal.proteinG, .grams), field: .protein)
                 valueRow("Fat", NutritionFormat.value(meal.fatG, .grams), field: .fat)
                 valueRow("Carbohydrates", NutritionFormat.value(meal.carbohydratesG, .grams), field: .carbohydrates)
+                ForEach(OptionalNutrient.allCases.filter { meal.optional[$0] != nil }) { nutrient in
+                    optionalRow(nutrient)
+                }
                 if let portion = meal.portionGrams {
                     valueRow("Portion", NutritionFormat.value(portion, .grams), field: nil)
                 }
@@ -145,6 +148,25 @@ struct MealDetailView: View {
             }
         } label: {
             Text(title).foregroundStyle(.ink)
+        }
+    }
+
+    private func optionalRow(_ nutrient: OptionalNutrient) -> some View {
+        LabeledContent {
+            HStack(spacing: Spacing.s2) {
+                if meal.estimatedOptional.contains(nutrient) {
+                    Image(systemName: "plusminus")
+                        .imageScale(.small)
+                        .foregroundStyle(.inkMuted)
+                        .accessibilityLabel(Text("Estimated"))
+                }
+                Text(verbatim: NutritionFormat.value(meal.optional[nutrient] ?? 0, nutrient.unit))
+                    .fontDesign(.rounded)
+                    .monospacedDigit()
+                    .foregroundStyle(.ink)
+            }
+        } label: {
+            Text(verbatim: nutrient.name).foregroundStyle(.ink)
         }
     }
 

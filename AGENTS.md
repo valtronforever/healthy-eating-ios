@@ -149,6 +149,11 @@ Notes:
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
+- Fiber, sugar and sodium (`OptionalNutrient`, never targets) are optional per meal and only shown
+  when present: meal detail rows (± when estimated), one line under the day summary (Today and
+  History days) and a Trends card. A value only some meals or days have says so ("2 of 3 meals",
+  "on 9 of 18 counted days"). Servers without them decode as none. The edit sheet does not change
+  them yet; `APIClient.MealEdit.optional` can.
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

@@ -77,6 +77,12 @@ struct TrendsView: View {
                                 averageCard(snapshot).plainListRow()
                             }
                             macroCard(snapshot).plainListRow()
+                            if !snapshot.trends.current.optionalAverages.isEmpty {
+                                OptionalAveragesCard(
+                                    averages: snapshot.trends.current.optionalAverages,
+                                    countedDays: snapshot.trends.current.countedDays
+                                ).plainListRow()
+                            }
                         }
                     }
                 }

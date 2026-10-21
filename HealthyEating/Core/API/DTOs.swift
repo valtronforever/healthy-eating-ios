@@ -15,6 +15,10 @@ nonisolated struct MealDTO: Decodable, Sendable {
     let proteinG: Double
     let fatG: Double
     let carbohydratesG: Double
+    /// Optional; missing on servers from before fiber, sugar and sodium.
+    let fiberG: Double?
+    let sugarG: Double?
+    let sodiumMg: Double?
     let source: String
     let sourceNote: String?
     let estimatedFields: [String]
@@ -34,6 +38,9 @@ nonisolated struct MealDTO: Decodable, Sendable {
         case proteinG = "protein_g"
         case fatG = "fat_g"
         case carbohydratesG = "carbohydrates_g"
+        case fiberG = "fiber_g"
+        case sugarG = "sugar_g"
+        case sodiumMg = "sodium_mg"
         case source
         case sourceNote = "source_note"
         case estimatedFields = "estimated_fields"
@@ -63,6 +70,25 @@ nonisolated struct MealUpdateResponseDTO: Decodable, Sendable {
     }
 }
 
+nonisolated struct NutrientTotalDTO: Decodable, Sendable {
+    let amount: Double
+    let mealCount: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case amount
+        case mealCount = "meal_count"
+    }
+}
+
+nonisolated struct OptionalAverageDTO: Decodable, Sendable {
+    let average: Double
+    let days: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case average, days
+    }
+}
+
 nonisolated struct DaySummaryDTO: Decodable, Sendable {
     let date: String
     let mealCount: Int
@@ -70,6 +96,9 @@ nonisolated struct DaySummaryDTO: Decodable, Sendable {
     let proteinG: Double
     let fatG: Double
     let carbohydratesG: Double
+    let fiberG: NutrientTotalDTO?
+    let sugarG: NutrientTotalDTO?
+    let sodiumMg: NutrientTotalDTO?
     let estimatedCaloriesShare: Double?
     let status: String?
     let statusSetBy: String?
@@ -82,6 +111,9 @@ nonisolated struct DaySummaryDTO: Decodable, Sendable {
         case proteinG = "protein_g"
         case fatG = "fat_g"
         case carbohydratesG = "carbohydrates_g"
+        case fiberG = "fiber_g"
+        case sugarG = "sugar_g"
+        case sodiumMg = "sodium_mg"
         case estimatedCaloriesShare = "estimated_calories_share"
         case status
         case statusSetBy = "status_set_by"
@@ -133,6 +165,9 @@ nonisolated struct PeriodDTO: Decodable, Sendable {
     let loggedDays: Int
     let averages: NutrientsDTO?
     let estimatedCaloriesShare: Double?
+    let fiberG: OptionalAverageDTO?
+    let sugarG: OptionalAverageDTO?
+    let sodiumMg: OptionalAverageDTO?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case firstDay = "first_day"
@@ -141,6 +176,9 @@ nonisolated struct PeriodDTO: Decodable, Sendable {
         case loggedDays = "logged_days"
         case averages
         case estimatedCaloriesShare = "estimated_calories_share"
+        case fiberG = "fiber_g"
+        case sugarG = "sugar_g"
+        case sodiumMg = "sodium_mg"
     }
 }
 
@@ -339,7 +377,10 @@ nonisolated struct MeDTO: Decodable, Sendable {
 
 /// Field names of request bodies, checked against the contract like the response keys.
 nonisolated enum RequestFields {
-    static let mealUpdate = ["dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g", "eaten_at"]
+    static let mealUpdate = [
+        "dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g",
+        "fiber_g", "sugar_g", "sodium_mg", "eaten_at",
+    ]
     static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets"]
     static let dayStatusUpdate = ["status"]
     static let deleteAccount = ["confirm"]

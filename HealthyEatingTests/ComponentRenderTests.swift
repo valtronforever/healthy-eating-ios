@@ -20,6 +20,7 @@ struct ComponentRenderTests {
             ForEach(SampleData.meals) { MealRow(meal: $0) }
         }.cardStyle())),
         ("IntegrationStatus", AnyView(IntegrationStatusGallery())),
+        ("OptionalNutrients", AnyView(OptionalNutrientsGallery())),
         ("CalendarDay", AnyView(CalendarDayGallery())),
         ("KcalBarChart", AnyView(KcalBarChartGallery())),
         ("WeightTrendChart", AnyView(WeightTrendChartGallery())),

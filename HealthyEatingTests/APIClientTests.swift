@@ -209,6 +209,8 @@ struct APIContractTests {
         ("SettingsResponse", SettingsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("IntegrationStatusResponse", IntegrationStatusDTO.CodingKeys.allCases.map(\.stringValue)),
         ("WeeklyReviewResponse", WeeklyReviewDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("NutrientTotalResponse", NutrientTotalDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("OptionalAverageResponse", OptionalAverageDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LeftOutDayResponse", LeftOutDayDTO.CodingKeys.allCases.map(\.stringValue)),
         ("DayGroupResponse", DayGroupDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ProteinBucketResponse", ProteinBucketDTO.CodingKeys.allCases.map(\.stringValue)),
@@ -290,6 +292,57 @@ extension NetworkTests {
             #expect(review.weekend.averages == nil)
             #expect(review.proteinBuckets.last == .init(minG: 40, maxG: nil, meals: 4))
             #expect(review.estimatedValuesShare == 0.64)
+        }
+    }
+}
+
+extension NetworkTests {
+    struct OptionalNutrientAPITests {
+        @Test func mapsMealValuesAndTheirMarks() async throws {
+            let meal = mealJSON.replacingOccurrences(
+                of: #""carbohydrates_g":36.0,"#,
+                with: #""carbohydrates_g":36.0,"fiber_g":7.0,"sugar_g":null,"sodium_mg":640.0,"#)
+                .replacingOccurrences(of: #""estimated_fields":["protein_g","fat_g"]"#, with: #""estimated_fields":["protein_g","fiber_g"]"#)
+            let (api, _) = client { _ in (200, json(#"{"meals":[\#(meal)],"next_cursor":null}"#)) }
+
+            let page = try await api.meals(from: .now, to: .now)
+
+            let first = try #require(page.meals.first)
+            #expect(first.optional == [.fiber: 7, .sodium: 640])
+            #expect(first.estimatedOptional == [.fiber])
+            #expect(first.estimatedFields == [.protein])
+        }
+
+        @Test func editsSetAndClearThem() async throws {
+            let (api, _) = client { _ in (200, json(#"{"meal":\#(mealJSON),"warnings":[]}"#)) }
+            var edit = APIClient.MealEdit()
+            edit.optional = [.fiber: 9, .sugar: Double?.none]
+
+            _ = try await api.update(UUID(), with: edit)
+
+            let body = try #require(JSONSerialization.jsonObject(with: StubProtocol.requests.last?.httpBody ?? Data()) as? [String: Any])
+            #expect(body["fiber_g"] as? Double == 9)
+            #expect(body["sugar_g"] is NSNull)
+            #expect(body["sodium_mg"] == nil)
+        }
+
+        @Test func olderServersHaveNone() async throws {
+            let (api, _) = client { _ in (200, json(#"{"meals":[\#(mealJSON)],"next_cursor":null}"#)) }
+            let first = try #require(try await api.meals(from: .now, to: .now).meals.first)
+            #expect(first.optional.isEmpty)
+        }
+
+        @Test func mapsDayTotals() async throws {
+            let (api, _) = client { _ in
+                (200, json(#"""
+                {"days":[{"date":"2026-10-18","meal_count":3,"calories_kcal":1200.0,"protein_g":80.0,"fat_g":40.0,
+                  "carbohydrates_g":120.0,"fiber_g":{"amount":14.0,"meal_count":2},"sugar_g":null,"sodium_mg":null,
+                  "estimated_calories_share":0.5,"status":null,"status_set_by":null,"counted":true}],
+                 "counting_rule":"logged_days"}
+                """#))
+            }
+            let day = try #require(try await api.days(from: .now, to: .now).days.first)
+            #expect(day.optional == [.fiber: OptionalTotal(amount: 14, mealCount: 2)])
         }
     }
 }
