@@ -65,14 +65,15 @@ final class AppleHealthSync {
         defaults.set(try? JSONEncoder().encode(value), forKey: key)
     }
 
-    /// The sync version of a weigh-in: when the server last changed it, in milliseconds.
-    nonisolated static func version(_ weighIn: WeighIn) -> Int {
-        Int(((weighIn.updatedAt ?? weighIn.measuredAt).timeIntervalSince1970 * 1000).rounded())
-    }
+    /// The sync version of a weigh-in: when the server last changed it, in milliseconds. Without
+    /// a change time (sample data) it is 0, so any real change is newer.
+    nonisolated static func version(_ weighIn: WeighIn) -> Int { milliseconds(weighIn.updatedAt) }
 
     /// The sync version of a meal, the same way.
-    nonisolated static func version(_ meal: Meal) -> Int {
-        Int(((meal.updatedAt ?? meal.eatenAt).timeIntervalSince1970 * 1000).rounded())
+    nonisolated static func version(_ meal: Meal) -> Int { milliseconds(meal.updatedAt) }
+
+    nonisolated private static func milliseconds(_ date: Date?) -> Int {
+        date.map { Int(($0.timeIntervalSince1970 * 1000).rounded()) } ?? 0
     }
 
     /// One sync. Returns how many changes it made (meals written or deleted, weigh-ins imported,
