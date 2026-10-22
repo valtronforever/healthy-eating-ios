@@ -134,6 +134,8 @@ struct DaySummaryCard: View {
     let day: DayTotals?
     let settings: UserSettings
     var calm = false
+    /// One factual line inside the card (Calm mode's consistency line on Today).
+    var footer: String?
 
     var body: some View {
         let targets = settings.targets
@@ -143,7 +145,7 @@ struct DaySummaryCard: View {
         return VStack(alignment: .leading, spacing: Spacing.s2) {
             SummaryCard(
                 kcal: day?.caloriesKcal ?? 0, kcalTarget: targets[.calories] ?? TargetRange(),
-                macros: macros, energyUnit: settings.energyUnit, calm: calm)
+                macros: macros, energyUnit: settings.energyUnit, calm: calm, footer: footer)
             if let day {
                 OptionalNutrientsLine(totals: day.optional, mealCount: day.mealCount)
                     .padding(.horizontal, Spacing.s1)

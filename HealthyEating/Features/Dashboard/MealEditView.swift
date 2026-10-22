@@ -48,7 +48,9 @@ struct MealEditView: View {
                 .listRowBackground(Color.surface)
 
                 Section {
-                    valueRow("Calories", field: .calories, unit: .kcal)
+                    if !app.calmMode {
+                        valueRow("Calories", field: .calories, unit: .kcal)
+                    }
                     valueRow("Protein", field: .protein, unit: .grams)
                     valueRow("Fat", field: .fat, unit: .grams)
                     valueRow("Carbohydrates", field: .carbohydrates, unit: .grams)

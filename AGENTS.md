@@ -149,6 +149,11 @@ Notes:
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
+- Calm mode (Settings, stored on the server and adopted from it with `AppModel.adopt(_:)` whenever
+  settings load, never echoed back) hides calories everywhere: Today's hero number (G3 shows
+  "Logged N of the last 7 days." instead, a plain count, never a streak), meal rows, meal detail
+  and the edit sheet, History days, Trends, the weekly review, the target summary and the calorie
+  target in Settings. New screens and widgets must follow it.
 - Fiber, sugar and sodium (`OptionalNutrient`, never targets) are optional per meal and only shown
   when present: meal detail rows (± when estimated), one line under the day summary (Today and
   History days) and a Trends card. A value only some meals or days have says so ("2 of 3 meals",

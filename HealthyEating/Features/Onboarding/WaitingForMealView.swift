@@ -96,7 +96,7 @@ struct WaitingForMealView: View {
             .multilineTextAlignment(.center)
             .accessibilityAddTraits(.isHeader)
             if let meal = received.meal {
-                MealRow(meal: meal)
+                MealRow(meal: meal, hideKcal: app.calmMode)
                     .padding(Spacing.s4)
                     .background(Color.surface, in: RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
             }

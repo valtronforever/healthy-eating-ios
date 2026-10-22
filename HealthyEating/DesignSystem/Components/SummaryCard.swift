@@ -11,8 +11,8 @@ struct SummaryCard: View {
     var energyUnit: EnergyUnit = .kcal
     /// Calm mode: hides the calorie block, keeps the macros.
     var calm = false
-    /// One factual line, for example "Logged 6 of the last 7 days."
-    var footer: LocalizedStringKey?
+    /// One factual line, already localized, for example "Logged 6 of the last 7 days."
+    var footer: String?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -34,7 +34,7 @@ struct SummaryCard: View {
                 }
             }
             if let footer {
-                Text(footer)
+                Text(verbatim: footer)
                     .font(.footnote)
                     .foregroundStyle(.inkMuted)
             }
@@ -76,7 +76,7 @@ struct SummaryCardGallery: View {
         VStack(spacing: Spacing.s5) {
             SummaryCard(kcal: SampleData.kcalSoFar, kcalTarget: SampleData.kcalTarget, macros: SampleData.macros)
             SummaryCard(kcal: SampleData.kcalSoFar, kcalTarget: SampleData.kcalTarget, macros: SampleData.macros,
-                        calm: true, footer: "Logged 6 of the last 7 days.")
+                        calm: true, footer: TodayView.consistencyLine(6))
         }
     }
 }

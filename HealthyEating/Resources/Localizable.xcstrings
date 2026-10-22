@@ -612,7 +612,7 @@
     "Log my breakfast: oatmeal with berries" : {
 
     },
-    "Logged 6 of the last 7 days." : {
+    "Logged %lld of the last 7 days." : {
 
     },
     "Low" : {

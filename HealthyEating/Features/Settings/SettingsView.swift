@@ -159,12 +159,12 @@ struct SettingsView: View {
                 .fixedSize()
             }
             NavigationLink {
-                TargetsView(settings: snapshot.settings) { change in
+                TargetsView(settings: snapshot.settings, calm: app.calmMode) { change in
                     await update(change)
                 }
             } label: {
                 LabeledContent("Target ranges") {
-                    Text(verbatim: targetSummary(snapshot.settings)).foregroundStyle(.inkMuted)
+                    Text(verbatim: Self.targetSummary(snapshot.settings, calm: app.calmMode)).foregroundStyle(.inkMuted)
                 }
             }
             .accessibilityIdentifier("targetRanges")
@@ -283,13 +283,19 @@ struct SettingsView: View {
         return String(parts).uppercased()
     }
 
-    private func targetSummary(_ settings: UserSettings) -> String {
-        guard let calories = settings.targets[.calories], calories.min != nil || calories.max != nil else {
-            return settings.targets.isEmpty ? String(localized: "Not set") : String(localized: "Set")
+    /// The calorie range, or in Calm mode the protein range (Calm mode shows no calories).
+    nonisolated static func targetSummary(_ settings: UserSettings, calm: Bool) -> String {
+        let field: NutrientField = calm ? .protein : .calories
+        guard let target = settings.targets[field], target.min != nil || target.max != nil else {
+            let others = settings.targets.filter { !calm || $0.key != .calories }
+            return others.isEmpty ? String(localized: "Not set") : String(localized: "Set")
+        }
+        if calm {
+            return NutritionFormat.shortTarget(min: target.min, max: target.max) + " " + NutrientUnit.grams.symbol
         }
         let unit = settings.energyUnit
         return NutritionFormat.shortTarget(
-            min: calories.min.map(unit.amount(fromKcal:)), max: calories.max.map(unit.amount(fromKcal:)))
+            min: target.min.map(unit.amount(fromKcal:)), max: target.max.map(unit.amount(fromKcal:)))
             + " " + unit.nutrientUnit.symbol
     }
 
@@ -300,6 +306,7 @@ struct SettingsView: View {
     private func reload() async {
         guard let data = app.data else { return }
         if let error = await model.load(data) { app.handle(error) }
+        if let settings = model.state.value?.settings { app.adopt(settings) }
     }
 
     @discardableResult

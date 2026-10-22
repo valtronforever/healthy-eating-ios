@@ -9,6 +9,8 @@ final class TodayModel {
         var day: DayTotals?
         var settings: UserSettings
         var integration: IntegrationState
+        /// Days with meals among the last 7 (today included), for Calm mode's consistency line.
+        var loggedDaysOfLastSeven: Int
     }
 
     private(set) var state: Loadable<Snapshot> = .loading
@@ -16,15 +18,18 @@ final class TodayModel {
     private(set) var refreshError: APIError?
     private(set) var isMarking = false
 
-    func load(_ data: any NutritionDataSource, now: Date = .now) async -> APIError? {
+    func load(_ data: any NutritionDataSource, now: Date = .now, calendar: Calendar = .current) async -> APIError? {
+        let weekAgo = calendar.date(byAdding: .day, value: -6, to: now) ?? now
         do {
             async let meals = data.meals(on: now)
-            async let days = data.days(from: now, to: now)
+            async let days = data.days(from: weekAgo, to: now)
             async let settings = data.settings()
             async let integration = data.integrationStatus()
+            let lastSeven = try await days.days
             state = .loaded(Snapshot(
-                meals: try await meals, day: try await days.days.first,
-                settings: try await settings, integration: try await integration))
+                meals: try await meals, day: lastSeven.last { calendar.isDate($0.date, inSameDayAs: now) },
+                settings: try await settings, integration: try await integration,
+                loggedDaysOfLastSeven: lastSeven.filter { $0.mealCount > 0 }.count))
             refreshError = nil
             return nil
         } catch {
@@ -159,7 +164,9 @@ struct TodayView: View {
     }
 
     private func summary(_ snapshot: TodayModel.Snapshot) -> some View {
-        DaySummaryCard(day: snapshot.day, settings: snapshot.settings, calm: app.calmMode)
+        DaySummaryCard(
+            day: snapshot.day, settings: snapshot.settings, calm: app.calmMode,
+            footer: app.calmMode ? Self.consistencyLine(snapshot.loggedDaysOfLastSeven) : nil)
     }
 
     private func integrationLine(_ integration: IntegrationState) -> some View {
@@ -204,6 +211,12 @@ struct TodayView: View {
     private func reload() async {
         guard let data = app.data else { return }
         if let error = await model.load(data) { app.handle(error) }
+        if let settings = model.state.value?.settings { app.adopt(settings) }
+    }
+
+    /// Calm mode's consistency line: a plain count, never a streak.
+    nonisolated static func consistencyLine(_ loggedDays: Int) -> String {
+        String(localized: "Logged \(loggedDays) of the last 7 days.")
     }
 
     private func setComplete(_ complete: Bool) async {

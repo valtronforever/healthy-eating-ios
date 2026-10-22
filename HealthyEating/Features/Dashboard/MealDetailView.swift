@@ -56,7 +56,9 @@ struct MealDetailView: View {
             .listSectionSpacing(Spacing.s3)
 
             Section {
-                valueRow("Calories", NutritionFormat.value(meal.caloriesKcal, .kcal), field: .calories)
+                if !app.calmMode {
+                    valueRow("Calories", NutritionFormat.value(meal.caloriesKcal, .kcal), field: .calories)
+                }
                 valueRow("Protein", NutritionFormat.value(meal.proteinG, .grams), field: .protein)
                 valueRow("Fat", NutritionFormat.value(meal.fatG, .grams), field: .fat)
                 valueRow("Carbohydrates", NutritionFormat.value(meal.carbohydratesG, .grams), field: .carbohydrates)

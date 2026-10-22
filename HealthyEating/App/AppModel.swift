@@ -17,7 +17,7 @@ final class AppModel {
         didSet {
             defaults.set(calmMode, forKey: Keys.calmMode)
             // Also stored on the server, so it follows the person to another device.
-            if let data, oldValue != calmMode {
+            if let data, oldValue != calmMode, !adoptingServerSettings {
                 let calm = calmMode
                 Task { _ = try? await data.updateSettings(.init(calmMode: calm)) }
             }
@@ -31,6 +31,8 @@ final class AppModel {
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let noticeCenter: any ArrivalNoticeCenter
+    /// Set while a value read from the server is applied, so it is not sent back.
+    @ObservationIgnored private var adoptingServerSettings = false
     @ObservationIgnored let credentials: CredentialStore
     @ObservationIgnored private let signInProvider: any SignInProviding
     @ObservationIgnored private(set) var authSession: AuthSession?
@@ -119,6 +121,15 @@ final class AppModel {
         data = usesSampleData ? SampleDataSource(newAccount: !skipsOnboarding) : APIClient(server: server, auth: session)
     }
 
+    /// Applies settings read from the server that the app also keeps locally (Calm mode), so a
+    /// change made on another device shows here too.
+    func adopt(_ settings: UserSettings) {
+        guard settings.calmMode != calmMode else { return }
+        adoptingServerSettings = true
+        calmMode = settings.calmMode
+        adoptingServerSettings = false
+    }
+
     /// Sends the device's time zone when the server has none yet, so local days match the
     /// person's days. A different stored time zone is kept (the person may have chosen it);
     /// Settings offers to switch.
@@ -126,6 +137,7 @@ final class AppModel {
         guard let data else { return }
         do throws(APIError) {
             let settings = try await data.settings()
+            adopt(settings)
             if settings.timeZone == nil {
                 _ = try await data.updateSettings(.init(timeZone: .some(device.identifier)))
             }

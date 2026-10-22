@@ -51,11 +51,12 @@ struct RangeBand: View {
                         .fill(macro.color)
                         .frame(width: dotSize, height: dotSize)
                 }
+                // Long names wrap to a second line instead of shrinking: a scale factor here
+                // shrank the names in the Calm mode summary card although there was room.
                 Text(label)
                     .font(.subheadline)
                     .foregroundStyle(.ink)
                     .lineLimit(2)
-                    .minimumScaleFactor(0.6)
             }
             if !dynamicTypeSize.isAccessibilitySize {
                 Spacer(minLength: Spacing.s2)

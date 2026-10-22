@@ -4,6 +4,8 @@ import SwiftUI
 /// Ranges, never single numbers or limits: being over or under is shown the same way.
 struct TargetsView: View {
     let settings: UserSettings
+    /// Calm mode: the calorie range is not shown (it is kept as it is).
+    var calm = false
     var onSave: (APIClient.SettingsChange) async -> APIError?
 
     @Environment(\.dismiss) private var dismiss
@@ -18,7 +20,7 @@ struct TargetsView: View {
 
     var body: some View {
         Form {
-            ForEach(fields, id: \.0) { field, title in
+            ForEach(fields.filter { !calm || $0.0 != .calories }, id: \.0) { field, title in
                 Section {
                     boundRow("From", field: field, text: minBinding(field))
                     boundRow("To", field: field, text: maxBinding(field))
