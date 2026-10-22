@@ -49,6 +49,8 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var app
     @State private var model = SettingsModel()
     @State private var deletingAccount = false
+    @State private var deletingWeights = false
+    @State private var weightMessage: String?
     @State private var exportFormat: String?
     @State private var exportedFile: ExportedFile?
     @State private var exportError: APIError?
@@ -158,6 +160,20 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
                 .fixedSize()
             }
+            if snapshot.settings.weightTracking {
+                HStack {
+                    Text("Weight").foregroundStyle(.ink)
+                    Spacer(minLength: Spacing.s4)
+                    Picker("Weight", selection: Binding(
+                        get: { snapshot.settings.weightUnit },
+                        set: { unit in Task { await update(.init(weightUnit: unit)) } })) {
+                        ForEach(WeightUnit.allCases, id: \.self) { Text(verbatim: $0.symbol).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                    .accessibilityIdentifier("weightUnit")
+                }
+            }
             NavigationLink {
                 TargetsView(settings: snapshot.settings, calm: app.calmMode) { change in
                     await update(change)
@@ -210,13 +226,46 @@ struct SettingsView: View {
                 }
             }
             .accessibilityIdentifier("arrivalNotice")
+            Toggle(isOn: Binding(
+                get: { snapshot.settings.weightTracking },
+                set: { on in Task { await update(.init(weightTracking: on)) } })) {
+                HStack(spacing: Spacing.s3) {
+                    SymbolTile(systemName: "chart.line.uptrend.xyaxis", small: true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Weight tracking").foregroundStyle(.ink)
+                        Text("Trend and energy estimate").font(.subheadline).foregroundStyle(.inkMuted)
+                    }
+                }
+            }
+            .accessibilityIdentifier("weightTracking")
+            if snapshot.settings.weightTracking {
+                NavigationLink {
+                    WeighInsView(unit: snapshot.settings.weightUnit)
+                } label: {
+                    Text("Weigh-ins").foregroundStyle(.ink)
+                }
+                .accessibilityIdentifier("weighIns")
+            }
+            Button("Delete all weight data") { deletingWeights = true }
+                .foregroundStyle(.destructive)
+                .accessibilityIdentifier("deleteAllWeights")
         } header: {
             Text("Display and privacy").sectionTextStyle()
         } footer: {
-            if app.arrivalNoticeDeclined {
-                Text("Notifications are off for Healthy Eating. Turn them on in the Settings app to get this notice.")
-                    .sectionTextStyle()
+            VStack(alignment: .leading, spacing: Spacing.s2) {
+                if app.arrivalNoticeDeclined {
+                    Text("Notifications are off for Healthy Eating. Turn them on in the Settings app to get this notice.")
+                }
+                Text("Weight stays on your server. Turning weight tracking off hides it; deleting removes every weigh-in.")
+                if let weightMessage { Text(verbatim: weightMessage) }
             }
+            .sectionTextStyle()
+        }
+        .confirmationDialog("Delete all weight data?", isPresented: $deletingWeights, titleVisibility: .visible) {
+            Button("Delete all weight data", role: .destructive) { Task { await deleteAllWeights() } }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Every weigh-in is removed from your server. This can’t be undone.")
         }
         .listRowBackground(Color.surface)
 
@@ -301,6 +350,17 @@ struct SettingsView: View {
 
     private var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+    }
+
+    private func deleteAllWeights() async {
+        guard let data = app.data else { return }
+        do throws(APIError) {
+            let count = try await data.deleteAllWeights()
+            weightMessage = count == 1 ? String(localized: "1 weigh-in deleted.") : String(localized: "\(count) weigh-ins deleted.")
+        } catch {
+            weightMessage = error.message
+            app.handle(error)
+        }
     }
 
     private func reload() async {

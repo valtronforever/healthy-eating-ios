@@ -136,6 +136,67 @@ nonisolated extension APIClient {
             lowConfidenceMeals: dto.lowConfidenceMeals)
     }
 
+    // MARK: Weight
+
+    /// Weigh-ins and the smoothed trend for local days `from` to `to`.
+    func weights(from: Date, to: Date) async throws(APIError) -> WeightHistory {
+        let query = [
+            URLQueryItem(name: "from", value: APIDate.dayString(from, calendar: calendar)),
+            URLQueryItem(name: "to", value: APIDate.dayString(to, calendar: calendar)),
+        ]
+        let dto = try await send(Request(path: "weights", query: query), as: WeightsDTO.self)
+        guard let first = APIDate.day(dto.firstDay, calendar: calendar), let last = APIDate.day(dto.lastDay, calendar: calendar) else {
+            throw .unexpectedResponse("weights \(dto.firstDay)")
+        }
+        let trend = try dto.trend.map { (point) throws(APIError) -> WeightTrendDay in
+            guard let date = APIDate.day(point.date, calendar: calendar) else { throw .unexpectedResponse("day \(point.date)") }
+            return WeightTrendDay(date: date, weightKg: point.weightKg, trendKg: point.trendKg)
+        }
+        return WeightHistory(
+            firstDay: first, lastDay: last, entries: dto.entries.map(Self.weighIn), trend: trend,
+            latestTrendKg: dto.latestTrendKg, weeklyChangeKg: dto.weeklyChangeKg, changeDays: dto.changeDays)
+    }
+
+    /// A weigh-in typed in the app. The first one turns weight tracking on (server rule).
+    func addWeight(kg: Double, at date: Date) async throws(APIError) -> WeighIn {
+        let entry: [String: Any] = ["weight_kg": kg, "measured_at": APIDate.timeString(date), "source": "app"]
+        let request = Request(method: "POST", path: "weights", body: Self.json(["entries": [entry]]))
+        let dto = try await send(request, as: WeightsCreatedDTO.self)
+        guard let first = dto.entries.first else { throw .unexpectedResponse("no weigh-in returned") }
+        return Self.weighIn(first)
+    }
+
+    func updateWeight(_ id: UUID, kg: Double?, at date: Date?) async throws(APIError) -> WeighIn {
+        var fields: [String: Any?] = [:]
+        if let kg { fields["weight_kg"] = kg }
+        if let date { fields["measured_at"] = APIDate.timeString(date) }
+        let request = Request(method: "PATCH", path: "weights/\(id.uuidString.lowercased())", body: Self.json(fields))
+        return Self.weighIn(try await send(request, as: WeightEntryDTO.self))
+    }
+
+    func deleteWeight(_ id: UUID) async throws(APIError) {
+        _ = try await data(for: Request(method: "DELETE", path: "weights/\(id.uuidString.lowercased())"))
+    }
+
+    /// Deletes every weigh-in; the weight tracking setting stays as it is.
+    func deleteAllWeights() async throws(APIError) -> Int {
+        let request = Request(method: "DELETE", path: "weights", body: Self.json(["confirm": "delete-all-weights"]))
+        return try await send(request, as: WeightsDeletedDTO.self).deleted
+    }
+
+    func energyEstimate() async throws(APIError) -> EnergyEstimate {
+        let dto = try await send(Request(path: "expenditure"), as: ExpenditureDTO.self)
+        return EnergyEstimate(
+            countedDays: dto.countedDays, weighIns: dto.weighIns, weighInDays: dto.weighInDays,
+            averageIntakeKcal: dto.averageIntakeKcal, maintenanceKcal: dto.maintenanceKcal,
+            confidence: dto.confidence.flatMap(Confidence.init(rawValue:)),
+            missing: dto.reason.flatMap(EnergyEstimate.MissingData.init(rawValue:)))
+    }
+
+    static func weighIn(_ dto: WeightEntryDTO) -> WeighIn {
+        WeighIn(id: dto.id, weightKg: dto.weightKg, measuredAt: dto.measuredAt, source: WeightSource(rawValue: dto.source) ?? .app)
+    }
+
     // MARK: Account
 
     func account() async throws(APIError) -> Account {
@@ -154,6 +215,8 @@ nonisolated extension APIClient {
         var calmMode: Bool?
         /// A nil range removes that target.
         var targets: [NutrientField: TargetRange?] = [:]
+        var weightTracking: Bool?
+        var weightUnit: WeightUnit?
     }
 
     func updateSettings(_ change: SettingsChange) async throws(APIError) -> UserSettings {
@@ -161,6 +224,8 @@ nonisolated extension APIClient {
         if let timeZone = change.timeZone { fields["timezone"] = .some(timeZone ?? NSNull()) }
         if let unit = change.energyUnit { fields["energy_unit"] = unit.rawValue }
         if let calm = change.calmMode { fields["calm_mode"] = calm }
+        if let tracking = change.weightTracking { fields["weight_tracking"] = tracking }
+        if let unit = change.weightUnit { fields["weight_unit"] = unit.rawValue }
         if !change.targets.isEmpty {
             var targets: [String: Any] = [:]
             for (field, range) in change.targets {
@@ -254,6 +319,8 @@ nonisolated extension APIClient {
         }
         return UserSettings(
             timeZone: dto.timezone, energyUnit: EnergyUnit(rawValue: dto.energyUnit) ?? .kcal,
-            calmMode: dto.calmMode, targets: targets)
+            calmMode: dto.calmMode, targets: targets,
+            weightTracking: dto.weightTracking ?? false,
+            weightUnit: dto.weightUnit.flatMap(WeightUnit.init(rawValue:)) ?? .kg)
     }
 }

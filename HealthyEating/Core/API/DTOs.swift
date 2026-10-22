@@ -293,12 +293,113 @@ nonisolated struct SettingsDTO: Decodable, Sendable {
     let energyUnit: String
     let calmMode: Bool
     let targets: TargetsDTO
+    /// Missing on servers from before weight tracking.
+    let weightTracking: Bool?
+    let weightUnit: String?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case timezone
         case energyUnit = "energy_unit"
         case calmMode = "calm_mode"
         case targets
+        case weightTracking = "weight_tracking"
+        case weightUnit = "weight_unit"
+    }
+}
+
+nonisolated struct WeightEntryDTO: Decodable, Sendable {
+    let id: UUID
+    let weightKg: Double
+    let measuredAt: Date
+    let localDate: String
+    let source: String
+    let createdAt: Date
+    let updatedAt: Date
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case weightKg = "weight_kg"
+        case measuredAt = "measured_at"
+        case localDate = "local_date"
+        case source
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+nonisolated struct TrendPointDTO: Decodable, Sendable {
+    let date: String
+    let weightKg: Double
+    let trendKg: Double
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case date
+        case weightKg = "weight_kg"
+        case trendKg = "trend_kg"
+    }
+}
+
+nonisolated struct WeightsDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let entries: [WeightEntryDTO]
+    let trend: [TrendPointDTO]
+    let latestTrendKg: Double?
+    let weeklyChangeKg: Double?
+    let changeDays: Int?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case entries, trend
+        case latestTrendKg = "latest_trend_kg"
+        case weeklyChangeKg = "weekly_change_kg"
+        case changeDays = "change_days"
+    }
+}
+
+nonisolated struct WeightsCreatedDTO: Decodable, Sendable {
+    let entries: [WeightEntryDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case entries
+    }
+}
+
+nonisolated struct WeightsDeletedDTO: Decodable, Sendable {
+    let deleted: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case deleted
+    }
+}
+
+nonisolated struct ExpenditureDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let countingRule: String
+    let countedDays: Int
+    let weighIns: Int
+    let weighInDays: Int
+    let averageIntakeKcal: Double?
+    let trendChangeKg: Double?
+    let spanDays: Int?
+    let maintenanceKcal: Double?
+    let confidence: String?
+    let reason: String?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case countingRule = "counting_rule"
+        case countedDays = "counted_days"
+        case weighIns = "weigh_ins"
+        case weighInDays = "weigh_in_days"
+        case averageIntakeKcal = "average_intake_kcal"
+        case trendChangeKg = "trend_change_kg"
+        case spanDays = "span_days"
+        case maintenanceKcal = "maintenance_kcal"
+        case confidence, reason
     }
 }
 
@@ -381,7 +482,11 @@ nonisolated enum RequestFields {
         "dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g",
         "fiber_g", "sugar_g", "sodium_mg", "eaten_at",
     ]
-    static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets"]
+    static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets", "weight_tracking", "weight_unit"]
+    static let weightCreate = ["weight_kg", "measured_at", "source", "external_id"]
+    static let weightsCreate = ["entries"]
+    static let weightUpdate = ["weight_kg", "measured_at"]
+    static let deleteAllWeights = ["confirm"]
     static let dayStatusUpdate = ["status"]
     static let deleteAccount = ["confirm"]
 }

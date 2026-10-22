@@ -219,10 +219,20 @@ struct APIContractTests {
         ("ConnectionsResponse", ConnectionsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("RevokeResponse", RevokeDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MeResponse", MeDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WeightEntryResponse", WeightEntryDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("TrendPointResponse", TrendPointDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WeightsResponse", WeightsDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WeightsCreated", WeightsCreatedDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WeightsDeleted", WeightsDeletedDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("ExpenditureResponse", ExpenditureDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MealUpdate", RequestFields.mealUpdate),
         ("SettingsUpdate", RequestFields.settingsUpdate),
         ("DayStatusUpdate", RequestFields.dayStatusUpdate),
         ("DeleteAccountRequest", RequestFields.deleteAccount),
+        ("WeightCreate", RequestFields.weightCreate),
+        ("WeightsCreate", RequestFields.weightsCreate),
+        ("WeightUpdate", RequestFields.weightUpdate),
+        ("DeleteAllWeightsRequest", RequestFields.deleteAllWeights),
         ]
 
     @Test(arguments: contract)
@@ -343,6 +353,102 @@ extension NetworkTests {
             }
             let day = try #require(try await api.days(from: .now, to: .now).days.first)
             #expect(day.optional == [.fiber: OptionalTotal(amount: 14, mealCount: 2)])
+        }
+    }
+}
+
+extension NetworkTests {
+    struct WeightAPITests {
+        private let entryJSON = #"""
+        {"id":"0b6f3c2e-2222-4000-8000-000000000001","weight_kg":80.4,"measured_at":"2026-10-18T07:10:00+02:00",
+         "local_date":"2026-10-18","source":"assistant",
+         "created_at":"2026-10-18T05:10:01Z","updated_at":"2026-10-18T05:10:01Z"}
+        """#
+
+        @Test func mapsWeighInsAndTheTrendToTheDeviceCalendar() async throws {
+            let entry = entryJSON
+            let (api, _) = client { request in
+                #expect(request.url?.path() == "/api/v1/weights")
+                #expect(request.url?.query() == "from=2026-09-25&to=2026-10-22")
+                return (200, json(#"""
+                {"first_day":"2026-09-25","last_day":"2026-10-22","entries":[\#(entry)],
+                 "trend":[{"date":"2026-10-18","weight_kg":80.4,"trend_kg":80.1}],
+                 "latest_trend_kg":80.1,"weekly_change_kg":-0.3,"change_days":21}
+                """#))
+            }
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = try #require(TimeZone(identifier: "Europe/Berlin"))
+            let first = try #require(APIDate.day("2026-09-25", calendar: calendar))
+            let last = try #require(APIDate.day("2026-10-22", calendar: calendar))
+
+            let history = try await api.weights(from: first, to: last)
+
+            #expect(history.entries.map(\.weightKg) == [80.4])
+            #expect(history.entries.first?.source == .assistant)
+            #expect(history.trend.map { APIDate.dayString($0.date, calendar: calendar) } == ["2026-10-18"])
+            #expect(history.latestTrendKg == 80.1)
+            #expect(history.weeklyChangeKg == -0.3)
+            #expect(history.changeDays == 21)
+        }
+
+        @Test func addsOneWeighInFromTheApp() async throws {
+            let entry = entryJSON
+            let (api, _) = client { _ in (201, json(#"{"entries":[\#(entry)]}"#)) }
+            let saved = try await api.addWeight(kg: 80.4, at: Date(timeIntervalSince1970: 1_792_300_000))
+            #expect(saved.weightKg == 80.4)
+            let request = try #require(StubProtocol.requests.last)
+            #expect(request.httpMethod == "POST")
+            let body = try #require(JSONSerialization.jsonObject(with: request.httpBody ?? Data()) as? [String: Any])
+            let entries = try #require(body["entries"] as? [[String: Any]])
+            #expect(entries.count == 1)
+            #expect(entries.first?["source"] as? String == "app")
+            #expect(entries.first?["weight_kg"] as? Double == 80.4)
+        }
+
+        @Test func deletingAllWeightsSendsTheConfirmation() async throws {
+            let (api, _) = client { _ in (200, json(#"{"deleted":12}"#)) }
+            #expect(try await api.deleteAllWeights() == 12)
+            let request = try #require(StubProtocol.requests.last)
+            #expect(request.httpMethod == "DELETE")
+            let body = try #require(JSONSerialization.jsonObject(with: request.httpBody ?? Data()) as? [String: Any])
+            #expect(body["confirm"] as? String == "delete-all-weights")
+        }
+
+        @Test func mapsTheEnergyEstimateAndWhatIsMissing() async throws {
+            let (api, _) = client { request in
+                #expect(request.url?.path() == "/api/v1/expenditure")
+                return (200, json(#"""
+                {"first_day":"2026-09-25","last_day":"2026-10-22","counting_rule":"all_logged_days",
+                 "counted_days":9,"weigh_ins":3,"weigh_in_days":3,"average_intake_kcal":2100.0,
+                 "trend_change_kg":null,"span_days":null,"maintenance_kcal":null,"confidence":null,
+                 "reason":"not_enough_logged_days"}
+                """#))
+            }
+            let estimate = try await api.energyEstimate()
+            #expect(estimate.maintenanceKcal == nil)
+            #expect(estimate.missing == .loggedDays)
+            #expect(estimate.countedDays == 9)
+        }
+
+        @Test func olderServersHaveWeightTrackingOff() async throws {
+            let (api, _) = client { _ in
+                (200, json(#"{"timezone":null,"energy_unit":"kcal","calm_mode":false,"targets":{"calories_kcal":null,"protein_g":null,"fat_g":null,"carbohydrates_g":null}}"#))
+            }
+            let settings = try await api.settings()
+            #expect(settings.weightTracking == false)
+            #expect(settings.weightUnit == .kg)
+        }
+
+        @Test func settingsChangesTurnWeightTrackingOnInPounds() async throws {
+            let (api, _) = client { _ in
+                (200, json(#"{"timezone":null,"energy_unit":"kcal","calm_mode":false,"targets":{"calories_kcal":null,"protein_g":null,"fat_g":null,"carbohydrates_g":null},"weight_tracking":true,"weight_unit":"lb"}"#))
+            }
+            let settings = try await api.updateSettings(.init(weightTracking: true, weightUnit: .lb))
+            #expect(settings.weightTracking)
+            #expect(settings.weightUnit == .lb)
+            let body = try #require(JSONSerialization.jsonObject(with: StubProtocol.requests.last?.httpBody ?? Data()) as? [String: Any])
+            #expect(body["weight_tracking"] as? Bool == true)
+            #expect(body["weight_unit"] as? String == "lb")
         }
     }
 }

@@ -62,7 +62,8 @@ HealthyEating/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
-    Settings/        # server, connection URL, Calm mode, sign out
+    Settings/        # server, connection URL, Calm mode, weight tracking, sign out
+    Weight/          # weigh-ins list and form (WeighInsView, WeighInForm)
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
@@ -169,6 +170,12 @@ Notes:
   meal arrived 2 days ago or more, once per quiet spell; signing out turns it off. No push service.
   Its wording is about the assistant connection, never about the person's eating or logging.
   The Today footnote's dot follows `arrival_status` (24 h rule while it is `unknown`).
+- Weight (`Features/Weight`, `/api/v1/weights`) is opt-in: `UserSettings.weightTracking` comes
+  from the server (off until the first weigh-in from the chat or the app, or the Settings toggle).
+  While it is off no weight appears anywhere except the Settings toggle and "Delete all weight
+  data". Values arrive in kg; `WeightUnit` (kg or lb, a server setting) is display and input only.
+  The form accepts "," or "." and 20 to 400 kg. Weight values are plain numbers: no arrows,
+  colors, praise or warnings for a change.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

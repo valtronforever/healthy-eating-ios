@@ -180,6 +180,77 @@ nonisolated struct UserSettings: Sendable, Equatable {
     var energyUnit: EnergyUnit
     var calmMode: Bool
     var targets: [NutrientField: TargetRange]
+    /// Opt-in: off until the first weigh-in or until the person turns it on. Off hides weight.
+    var weightTracking = false
+    var weightUnit: WeightUnit = .kg
+}
+
+/// The unit the person wants weight shown in (a server setting). Values always arrive in kg.
+nonisolated enum WeightUnit: String, Sendable, CaseIterable {
+    case kg, lb
+
+    static let kgPerLb = 0.45359237
+
+    var symbol: String {
+        switch self {
+        case .kg: String(localized: "kg", comment: "Unit symbol for kilograms")
+        case .lb: String(localized: "lb", comment: "Unit symbol for pounds")
+        }
+    }
+
+    func amount(fromKg kg: Double) -> Double { self == .kg ? kg : kg / Self.kgPerLb }
+    func kg(from amount: Double) -> Double { self == .kg ? amount : amount * Self.kgPerLb }
+}
+
+nonisolated enum WeightSource: String, Sendable {
+    case app, assistant
+    case appleHealth = "apple_health"
+}
+
+/// One weigh-in (`/api/v1/weights`).
+nonisolated struct WeighIn: Identifiable, Sendable, Hashable {
+    let id: UUID
+    var weightKg: Double
+    var measuredAt: Date
+    var source: WeightSource
+}
+
+/// The smoothed trend after a day with weigh-ins.
+nonisolated struct WeightTrendDay: Sendable, Hashable {
+    /// The local day, as midnight in the device calendar.
+    var date: Date
+    /// Mean of the day's weigh-ins.
+    var weightKg: Double
+    var trendKg: Double
+}
+
+nonisolated struct WeightHistory: Sendable, Equatable {
+    var firstDay: Date
+    var lastDay: Date
+    /// Oldest first.
+    var entries: [WeighIn]
+    var trend: [WeightTrendDay]
+    var latestTrendKg: Double?
+    /// Trend change per 7 days over the last 28 days; nil when the history is too short.
+    var weeklyChangeKg: Double?
+    var changeDays: Int?
+}
+
+/// "You maintain at about X kcal", from the person's own log and weight trend
+/// (`/api/v1/expenditure`).
+nonisolated struct EnergyEstimate: Sendable, Equatable {
+    enum MissingData: String, Sendable {
+        case loggedDays = "not_enough_logged_days"
+        case weighIns = "not_enough_weigh_ins"
+    }
+
+    var countedDays: Int
+    var weighIns: Int
+    var weighInDays: Int
+    var averageIntakeKcal: Double?
+    var maintenanceKcal: Double?
+    var confidence: Confidence?
+    var missing: MissingData?
 }
 
 /// Is the assistant integration working? (`GET /api/v1/integration-status`)

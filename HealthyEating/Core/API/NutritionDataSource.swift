@@ -14,6 +14,12 @@ nonisolated protocol NutritionDataSource: Sendable {
     func settings() async throws(APIError) -> UserSettings
     func updateSettings(_ change: APIClient.SettingsChange) async throws(APIError) -> UserSettings
     func integrationStatus() async throws(APIError) -> IntegrationState
+    func weights(from: Date, to: Date) async throws(APIError) -> WeightHistory
+    func addWeight(kg: Double, at date: Date) async throws(APIError) -> WeighIn
+    func updateWeight(_ id: UUID, kg: Double?, at date: Date?) async throws(APIError) -> WeighIn
+    func deleteWeight(_ id: UUID) async throws(APIError)
+    func deleteAllWeights() async throws(APIError) -> Int
+    func energyEstimate() async throws(APIError) -> EnergyEstimate
     func connections() async throws(APIError) -> [Connection]
     /// Returns true if the revoked sign-in was this app's own.
     func revoke(signIn id: UUID) async throws(APIError) -> Bool

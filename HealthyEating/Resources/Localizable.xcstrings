@@ -4,6 +4,26 @@
     "" : {
 
     },
+    "%@ %@ per week over the last %lld weeks" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ per week over the last %3$lld weeks"
+          }
+        }
+      }
+    },
+    "%@ %@ per week over the last week" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@ per week over the last week"
+          }
+        }
+      }
+    },
     "%@ (%lld of %lld meals)" : {
       "localizations" : {
         "en" : {
@@ -201,7 +221,16 @@
         }
       }
     },
+    "%lld weigh-ins deleted." : {
+
+    },
+    "0.0" : {
+
+    },
     "1 meal" : {
+
+    },
+    "1 weigh-in deleted." : {
 
     },
     "11 g lower" : {
@@ -228,6 +257,12 @@
     "About the same" : {
 
     },
+    "About the same over the last %lld weeks" : {
+
+    },
+    "About the same over the last week" : {
+
+    },
     "Accept the risk warning and select Create as a plugin." : {
 
     },
@@ -247,6 +282,12 @@
 
     },
     "Add this URL to your assistant (a connector in Claude, a plugin in ChatGPT):" : {
+
+    },
+    "Add weigh-in" : {
+
+    },
+    "Added in the app" : {
 
     },
     "Address" : {
@@ -440,13 +481,28 @@
     "Days on your server are counted in this time zone." : {
 
     },
+    "Delete" : {
+
+    },
     "Delete account" : {
+
+    },
+    "Delete all weight data" : {
+
+    },
+    "Delete all weight data?" : {
 
     },
     "Delete meal" : {
 
     },
     "Delete this meal?" : {
+
+    },
+    "Delete this weigh-in?" : {
+
+    },
+    "Delete weigh-in" : {
 
     },
     "Delete your account?" : {
@@ -470,11 +526,24 @@
     "Edit meal" : {
 
     },
+    "Edit weigh-in" : {
+
+    },
     "End" : {
 
     },
     "Energy" : {
 
+    },
+    "Enter a weight between %lld and %lld %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Enter a weight between %1$lld and %2$lld %3$@."
+          }
+        }
+      }
     },
     "Enter an address like https://food.example.com" : {
 
@@ -489,6 +558,9 @@
 
     },
     "Estimated %lld%%" : {
+
+    },
+    "Every weigh-in is removed from your server. This can’t be undone." : {
 
     },
     "Export data" : {
@@ -519,6 +591,12 @@
 
     },
     "From" : {
+
+    },
+    "From Apple Health" : {
+
+    },
+    "From your assistant" : {
 
     },
     "Get started" : {
@@ -676,6 +754,9 @@
 
     },
     "No target" : {
+
+    },
+    "No weigh-ins yet. Tell your assistant your weight, or add one here." : {
 
     },
     "Not enough counted days in the previous %lld days to compare." : {
@@ -956,6 +1037,9 @@
     "Trend" : {
 
     },
+    "Trend and energy estimate" : {
+
+    },
     "Trends" : {
 
     },
@@ -1005,6 +1089,15 @@
 
     },
     "Weight" : {
+
+    },
+    "Weight stays on your server. Turning weight tracking off hides it; deleting removes every weigh-in." : {
+
+    },
+    "Weight tracking" : {
+
+    },
+    "When" : {
 
     },
     "Where values came from" : {
@@ -1095,8 +1188,14 @@
     "kcal so far" : {
 
     },
+    "kg" : {
+      "comment" : "Unit symbol for kilograms"
+    },
     "kg trend" : {
 
+    },
+    "lb" : {
+      "comment" : "Unit symbol for pounds"
     },
     "mg" : {
       "comment" : "Unit symbol for milligrams"

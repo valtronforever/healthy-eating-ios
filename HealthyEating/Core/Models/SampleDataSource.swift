@@ -25,7 +25,14 @@ actor SampleDataSource: NutritionDataSource {
         targets: [
             .calories: TargetRange(min: 1900, max: 2200), .protein: TargetRange(min: 110, max: 140),
             .fat: TargetRange(min: 55, max: 80), .carbohydrates: TargetRange(min: 200, max: 260),
-        ])
+        ],
+        weightTracking: true)
+    /// D3's sample weigh-ins: the board's 28 days ending today.
+    private lazy var weighIns: [WeighIn] = SampleData.weightPoints.compactMap { point in
+        guard let raw = point.raw else { return nil }
+        let day = calendar.date(byAdding: .day, value: point.index - (SampleData.weightPoints.count - 1), to: calendar.startOfDay(for: .now)) ?? .now
+        return WeighIn(id: UUID(), weightKg: raw, measuredAt: day.addingTimeInterval(7 * 3600), source: .appleHealth)
+    }
     private var signIns: [Connection] = [
         Connection(id: "claude", name: "Claude", kind: .aiAssistant, signIns: [
             .init(id: UUID(), createdAt: .now.addingTimeInterval(-40 * 86_400), lastUsedAt: SampleData.lastSavedAt, isCurrent: false),
@@ -140,8 +147,63 @@ actor SampleDataSource: NutritionDataSource {
         if let timeZone = change.timeZone { userSettings.timeZone = timeZone }
         if let unit = change.energyUnit { userSettings.energyUnit = unit }
         if let calm = change.calmMode { userSettings.calmMode = calm }
+        if let tracking = change.weightTracking { userSettings.weightTracking = tracking }
+        if let unit = change.weightUnit { userSettings.weightUnit = unit }
         for (field, range) in change.targets { userSettings.targets[field] = range }
         return userSettings
+    }
+
+    // MARK: Weight (D3 sample values; the trend comes from the board, not computed here)
+
+    func weights(from: Date, to: Date) -> WeightHistory {
+        let first = calendar.startOfDay(for: from), last = calendar.startOfDay(for: to)
+        let today = calendar.startOfDay(for: .now)
+        let trend = SampleData.weightPoints.compactMap { point -> WeightTrendDay? in
+            guard let raw = point.raw,
+                  let day = calendar.date(byAdding: .day, value: point.index - (SampleData.weightPoints.count - 1), to: today),
+                  day >= first, day <= last else { return nil }
+            return WeightTrendDay(date: day, weightKg: raw, trendKg: point.trend)
+        }
+        let entries = weighIns
+            .filter { calendar.startOfDay(for: $0.measuredAt) >= first && calendar.startOfDay(for: $0.measuredAt) <= last }
+            .sorted { $0.measuredAt < $1.measuredAt }
+        return WeightHistory(
+            firstDay: first, lastDay: last, entries: entries, trend: weighIns.isEmpty ? [] : trend,
+            latestTrendKg: weighIns.isEmpty ? nil : trend.last?.trendKg,
+            weeklyChangeKg: weighIns.isEmpty ? nil : -0.3, changeDays: weighIns.isEmpty ? nil : 28)
+    }
+
+    func addWeight(kg: Double, at date: Date) -> WeighIn {
+        let entry = WeighIn(id: UUID(), weightKg: kg, measuredAt: date, source: .app)
+        weighIns.append(entry)
+        userSettings.weightTracking = true
+        return entry
+    }
+
+    func updateWeight(_ id: UUID, kg: Double?, at date: Date?) throws(APIError) -> WeighIn {
+        guard let index = weighIns.firstIndex(where: { $0.id == id }) else { throw .notFound }
+        if let kg { weighIns[index].weightKg = kg }
+        if let date { weighIns[index].measuredAt = date }
+        return weighIns[index]
+    }
+
+    func deleteWeight(_ id: UUID) throws(APIError) {
+        guard weighIns.contains(where: { $0.id == id }) else { throw .notFound }
+        weighIns.removeAll { $0.id == id }
+    }
+
+    func deleteAllWeights() -> Int {
+        defer { weighIns.removeAll() }
+        return weighIns.count
+    }
+
+    func energyEstimate() -> EnergyEstimate {
+        guard weighIns.count >= 6 else {
+            return EnergyEstimate(countedDays: 28, weighIns: weighIns.count, weighInDays: weighIns.count,
+                                  averageIntakeKcal: 2060, maintenanceKcal: nil, confidence: nil, missing: .weighIns)
+        }
+        return EnergyEstimate(countedDays: 28, weighIns: 22, weighInDays: 22, averageIntakeKcal: 2060,
+                              maintenanceKcal: 2350, confidence: .medium, missing: nil)
     }
 
     func integrationStatus() -> IntegrationState {
