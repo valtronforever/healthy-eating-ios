@@ -59,3 +59,61 @@ struct WeightFormatTests {
         #expect(WeightFormat.source(.appleHealth) == "From Apple Health")
     }
 }
+
+struct WeightAndEnergyTests {
+    private func estimate(_ missing: EnergyEstimate.MissingData?, counted: Int = 9) -> EnergyEstimate {
+        EnergyEstimate(countedDays: counted, weighIns: 22, weighInDays: 20, averageIntakeKcal: 2060,
+                       maintenanceKcal: missing == nil ? 2350 : nil, confidence: missing == nil ? .medium : nil, missing: missing)
+    }
+
+    @Test func saysWhatTheEstimateStillNeeds() {
+        #expect(WeightView.missingLine(estimate(.loggedDays))
+            == "Not enough logged days yet: the estimate needs 14 in the last 4 weeks (now 9).")
+        #expect(WeightView.missingLine(estimate(.weighIns))
+            == "Not enough weigh-ins yet: the estimate needs weigh-ins on 6 days spread over 2 weeks.")
+    }
+
+    @Test func namesWhatTheEstimateIsBasedOn() {
+        #expect(WeightView.basisLine(estimate(nil, counted: 28)) == "28 days of log, 22 weigh-ins")
+    }
+
+    @MainActor
+    @Test func boldsTheAmountInTheMaintenanceLine() {
+        let line = WeightView.maintainLine(kcal: 2350, unit: .kcal)
+        let amount = NutritionFormat.energy(2350, in: .kcal)
+        #expect(String(line.characters) == "Based on your log and weight, you maintain at about \(amount) per day.")
+        let bold = line.runs.filter { $0.inlinePresentationIntent == .stronglyEmphasized }
+        #expect(bold.map { String(line[$0.range].characters) } == [amount])
+    }
+
+    @Test func chartPlacesWeighInDaysOnTheirDayOfTheWindow() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = try #require(TimeZone(identifier: "Europe/Berlin"))
+        let first = try #require(APIDate.day("2026-09-25", calendar: calendar))
+        let last = try #require(APIDate.day("2026-10-22", calendar: calendar))
+        let day = { (offset: Int) in calendar.date(byAdding: .day, value: offset, to: first) ?? first }
+        let history = WeightHistory(firstDay: first, lastDay: last, entries: [], trend: [
+            WeightTrendDay(date: day(0), weightKg: 79.6, trendKg: 79.5),
+            WeightTrendDay(date: day(27), weightKg: 78.3, trendKg: 78.4),
+        ])
+
+        let chart = WeightView.chart(history, unit: .kg, calendar: calendar)
+
+        #expect(chart.points.map(\.index) == [0, 27])
+        #expect(chart.lastIndex == 27)
+        #expect(chart.range == 78...80)
+        #expect(chart.step == 1)
+        #expect(Set(chart.labels.keys) == [0, 13, 27])
+    }
+
+    @Test func chartUsesThePersonsUnit() throws {
+        let first = Calendar.current.startOfDay(for: .now)
+        let history = WeightHistory(firstDay: first, lastDay: first, entries: [], trend: [
+            WeightTrendDay(date: first, weightKg: 80, trendKg: 80),
+        ])
+        let chart = WeightView.chart(history, unit: .lb)
+        let point = try #require(chart.points.first)
+        #expect(abs(point.trend - 176.37) < 0.01)
+        #expect(chart.step == 2)
+    }
+}

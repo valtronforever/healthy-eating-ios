@@ -56,6 +56,47 @@ final class WeightUITests: XCTestCase {
         XCTAssertTrue(waitForGone(corrected))
     }
 
+    /// ios#33: D3 from Trends, with the trend, the energy estimate, and the off state.
+    @MainActor
+    func testWeightAndEnergyCanBeTurnedOffAndOn() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "trends", "-AppleLocale", "en_US"]
+        app.launch()
+
+        let link = app.buttons["weightAndEnergy"]
+        for _ in 0..<6 where !(link.exists && link.isHittable) { app.swipeUp() }
+        link.tap()
+        XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["−0.3 kg per week over the last 4 weeks"].exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Based on your log and weight")).firstMatch.exists)
+        keepScreenshot(named: "D3 Weight and energy on")
+
+        app.buttons["How this is calculated"].tap()
+        XCTAssertTrue(app.navigationBars["How this is calculated"].waitForExistence(timeout: 5))
+        app.navigationBars["How this is calculated"].buttons["Done"].tap()
+        XCTAssertTrue(waitForGone(app.navigationBars["How this is calculated"]))
+
+        // "Show on Trends" off hides weight: the screen turns into the intro. Scroll to the end,
+        // so the switch is clear of the floating tab bar.
+        let show = app.switches["Show on Trends"]
+        let deleteAll = app.buttons["Delete all weight data"]
+        for _ in 0..<4 where !(deleteAll.exists && deleteAll.isHittable) { app.swipeUp() }
+        app.swipeUp()
+        XCTAssertTrue(show.isHittable)
+        show.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        let turnOn = app.buttons["turnOnWeight"]
+        XCTAssertTrue(turnOn.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Optional: weight and energy"].exists)
+        keepScreenshot(named: "D3 Weight and energy off")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.staticTexts["Off"].waitForExistence(timeout: 5))
+        link.tap()
+        XCTAssertTrue(turnOn.waitForExistence(timeout: 5))
+        turnOn.tap()
+        XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 5))
+    }
+
     /// A weigh-in row is one button whose label holds the date, source and value.
     @MainActor
     private func row(_ value: String, in app: XCUIApplication) -> XCUIElement {

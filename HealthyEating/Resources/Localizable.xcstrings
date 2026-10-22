@@ -98,6 +98,9 @@
         }
       }
     },
+    "%@ pounds" : {
+
+    },
     "%@ protein on weekdays, %@ on the weekend" : {
       "localizations" : {
         "en" : {
@@ -107,6 +110,9 @@
           }
         }
       }
+    },
+    "%@ trend" : {
+
     },
     "%@ was marked partial." : {
 
@@ -185,6 +191,16 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@, target up to %2$@"
+          }
+        }
+      }
+    },
+    "%lld days of log, %lld weigh-ins" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld days of log, %2$lld weigh-ins"
           }
         }
       }
@@ -350,6 +366,9 @@
 
     },
     "Averages use the 1 complete day." : {
+
+    },
+    "Based on your log and weight, you maintain at about %@ per day." : {
 
     },
     "Baseline" : {
@@ -535,6 +554,9 @@
     "Energy" : {
 
     },
+    "Energy estimate" : {
+
+    },
     "Enter a weight between %lld and %lld %@." : {
       "localizations" : {
         "en" : {
@@ -614,6 +636,12 @@
     "Healthy Eating app icon" : {
 
     },
+    "Healthy Eating can smooth your weigh-ins into a trend and estimate how many calories you maintain at, using your own log." : {
+
+    },
+    "Healthy Eating compares what you logged with what your weight did over the last 4 weeks.\n\nIt takes the average calories of the days that count for your averages, and the change of your smoothed weight trend over the same weeks. About 7,700 kcal match one kilogram of body weight. If the trend went down, you used more than you logged; if it went up, less.\n\nBecause it uses your own log, a steady over- or underestimate in it is part of both sides, so the result fits your log. It needs at least 14 logged days and weigh-ins on 6 days spread over 2 weeks. More days and more weigh-ins give a higher confidence.\n\nThe trend smooths day-to-day changes in weight, which come mostly from water and food, not from body tissue." : {
+
+    },
     "Healthy Eating for iOS" : {
 
     },
@@ -633,6 +661,9 @@
 
     },
     "History" : {
+
+    },
+    "How this is calculated" : {
 
     },
     "In Claude, open Settings › Connectors." : {
@@ -756,16 +787,28 @@
     "No target" : {
 
     },
+    "No weigh-ins in the last 4 weeks" : {
+
+    },
     "No weigh-ins yet. Tell your assistant your weight, or add one here." : {
 
     },
     "Not enough counted days in the previous %lld days to compare." : {
 
     },
+    "Not enough logged days yet: the estimate needs 14 in the last 4 weeks (now %lld)." : {
+
+    },
+    "Not enough weigh-ins yet: the estimate needs weigh-ins on 6 days spread over 2 weeks." : {
+
+    },
     "Not logged" : {
 
     },
     "Not marked" : {
+
+    },
+    "Not now" : {
 
     },
     "Not set" : {
@@ -784,6 +827,12 @@
 
     },
     "Nutrition" : {
+
+    },
+    "Off" : {
+
+    },
+    "Off by default. Your first weigh-in turns it on." : {
 
     },
     "Offline" : {
@@ -808,6 +857,9 @@
 
     },
     "Open-source licenses" : {
+
+    },
+    "Optional: weight and energy" : {
 
     },
     "Other" : {
@@ -911,6 +963,9 @@
     "Show connection steps" : {
 
     },
+    "Show on Trends" : {
+
+    },
     "Show steps" : {
 
     },
@@ -956,6 +1011,9 @@
     "Start" : {
 
     },
+    "Stored only on your server. Hide it or delete all weight data at any time." : {
+
+    },
     "Sugar" : {
 
     },
@@ -981,6 +1039,9 @@
 
     },
     "Tell Claude or ChatGPT what you ate. Nothing new to learn." : {
+
+    },
+    "Tell your assistant your weight, or add a weigh-in below." : {
 
     },
     "The app contains no third-party code: it uses only Apple’s frameworks. Your server runs the open-source Healthy Eating backend, also MIT." : {
@@ -1046,6 +1107,9 @@
     "Try this first message" : {
 
     },
+    "Turn on" : {
+
+    },
     "Type DELETE to confirm" : {
 
     },
@@ -1089,6 +1153,15 @@
 
     },
     "Weight" : {
+
+    },
+    "Weight and energy" : {
+
+    },
+    "Weight comes from your chat or manual entry." : {
+
+    },
+    "Weight stays on your server. Turning this off hides it; deleting removes every weigh-in." : {
 
     },
     "Weight stays on your server. Turning weight tracking off hides it; deleting removes every weigh-in." : {

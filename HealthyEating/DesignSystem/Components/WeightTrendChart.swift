@@ -12,6 +12,13 @@ struct WeightTrendChart: View {
     /// Axis labels by point index, for example `[0: "Sep 21", 13: "Oct 4", 27: "Oct 18"]`.
     var xLabels: [Int: String] = [:]
     var title: String = String(localized: "Smoothed weight trend")
+    /// The last day index of the x axis when days without weigh-ins have no point.
+    var lastIndex: Int?
+    var unit: WeightUnit = .kg
+    /// Axes and legend; off for the decorative chart of the weight intro.
+    var showsAxes = true
+
+    private var xMax: Int { lastIndex ?? max(points.count - 1, 1) }
 
     @ScaledMetric(relativeTo: .body) private var chartHeight: CGFloat = 170
 
@@ -22,15 +29,17 @@ struct WeightTrendChart: View {
                 // Axis labels stay legible without colliding; values are in the legend,
                 // the text beside the chart and the accessibility chart descriptor.
                 .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            FlowLayout(horizontalSpacing: Spacing.s3) {
-                LegendItem(title: Text("Trend")) {
-                    Capsule().fill(Color.accent).frame(height: 3)
+            if showsAxes {
+                FlowLayout(horizontalSpacing: Spacing.s3) {
+                    LegendItem(title: Text("Trend")) {
+                        Capsule().fill(Color.accent).frame(height: 3)
+                    }
+                    LegendItem(title: Text("Weigh-ins")) {
+                        Circle().fill(Color.chartFaded).padding(3)
+                    }
                 }
-                LegendItem(title: Text("Weigh-ins")) {
-                    Circle().fill(Color.chartFaded).padding(3)
-                }
+                .accessibilityElement(children: .combine)
             }
-            .accessibilityElement(children: .combine)
         }
     }
 
@@ -56,7 +65,7 @@ struct WeightTrendChart: View {
             }
         }
         .chartYScale(domain: yRange)
-        .chartXScale(domain: 0...max(points.count - 1, 1))
+        .chartXScale(domain: 0...xMax)
         .chartYAxis {
             AxisMarks(position: .leading, values: Array(stride(from: yRange.lowerBound.rounded(.up), through: yRange.upperBound, by: yStep))) { value in
                 AxisGridLine(stroke: StrokeStyle(lineWidth: 1))
@@ -81,7 +90,9 @@ struct WeightTrendChart: View {
                 }
             }
         }
-        .accessibilityChartDescriptor(WeightChartDescriptor(title: title, points: points, yRange: yRange))
+        .chartYAxis(showsAxes ? .automatic : .hidden)
+        .chartXAxis(showsAxes ? .automatic : .hidden)
+        .accessibilityChartDescriptor(WeightChartDescriptor(title: title, points: points, yRange: yRange, lastIndex: xMax, unit: unit))
     }
 }
 
@@ -90,7 +101,7 @@ extension WeightTrendChart {
     fileprivate func labelAnchor(for index: Int?) -> UnitPoint {
         switch index {
         case 0: .topLeading
-        case points.count - 1: .topTrailing
+        case xMax: .topTrailing
         default: .top
         }
     }
@@ -100,15 +111,19 @@ nonisolated struct WeightChartDescriptor: AXChartDescriptorRepresentable {
     let title: String
     let points: [WeightPoint]
     let yRange: ClosedRange<Double>
+    let lastIndex: Int
+    let unit: WeightUnit
 
     func makeChartDescriptor() -> AXChartDescriptor {
         let format: @Sendable (Double) -> String = { $0.formatted(.number.precision(.fractionLength(1))) }
         let xAxis = AXNumericDataAxisDescriptor(
-            title: String(localized: "Day"), range: 0...Double(max(points.count - 1, 1)), gridlinePositions: []
+            title: String(localized: "Day"), range: 0...Double(lastIndex), gridlinePositions: []
         ) { String(localized: "Day \(Int($0) + 1)") }
         let yAxis = AXNumericDataAxisDescriptor(
             title: String(localized: "Weight"), range: yRange, gridlinePositions: []
-        ) { String(localized: "\(format($0)) kilograms") }
+        ) { value in
+            unit == .kg ? String(localized: "\(format(value)) kilograms") : String(localized: "\(format(value)) pounds")
+        }
         let trend = AXDataSeriesDescriptor(
             name: String(localized: "Trend"), isContinuous: true,
             dataPoints: points.map { AXDataPoint(x: Double($0.index), y: $0.trend) })

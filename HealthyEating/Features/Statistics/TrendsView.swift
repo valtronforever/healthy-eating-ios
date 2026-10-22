@@ -102,6 +102,19 @@ struct TrendsView: View {
                         }
                     }
                     .accessibilityIdentifier("weeklyReview")
+                    NavigationLink {
+                        WeightView { Task { await reload() } }
+                    } label: {
+                        HStack(spacing: Spacing.s3) {
+                            SymbolTile(systemName: "chart.line.uptrend.xyaxis", small: true)
+                            Text("Weight and energy").foregroundStyle(.ink)
+                            Spacer(minLength: Spacing.s2)
+                            if model.state.value?.settings.weightTracking == false {
+                                Text("Off").foregroundStyle(.inkMuted)
+                            }
+                        }
+                    }
+                    .accessibilityIdentifier("weightAndEnergy")
                 }
                 .listRowBackground(Color.surface)
             }

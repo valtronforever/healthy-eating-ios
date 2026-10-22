@@ -63,7 +63,7 @@ HealthyEating/
     Dashboard/       # Today, meal detail
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
     Settings/        # server, connection URL, Calm mode, weight tracking, sign out
-    Weight/          # weigh-ins list and form (WeighInsView, WeighInForm)
+    Weight/          # D3 Weight and energy (opened from Trends), weigh-ins list and form
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
@@ -175,7 +175,10 @@ Notes:
   While it is off no weight appears anywhere except the Settings toggle and "Delete all weight
   data". Values arrive in kg; `WeightUnit` (kg or lb, a server setting) is display and input only.
   The form accepts "," or "." and 20 to 400 kg. Weight values are plain numbers: no arrows,
-  colors, praise or warnings for a change.
+  colors, praise or warnings for a change. D3 (`WeightView`) shows the intro with "Turn on"
+  while tracking is off; on, the smoothed trend over the last 28 days with weigh-ins faded and
+  the energy estimate ("you maintain at about X per day", confidence, what it is based on, or
+  what it still needs). Calm mode hides the energy estimate.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).
