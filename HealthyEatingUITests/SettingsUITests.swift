@@ -29,7 +29,8 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.alerts["Revoke ChatGPT?"].waitForExistence(timeout: 5))
         keepScreenshot(named: "E2 Revoke confirmation")
         app.alerts.buttons["Revoke"].tap()
-        XCTAssertFalse(app.staticTexts["ChatGPT"].waitForExistence(timeout: 3))
+        // Wait until the row is gone; existence alone is true while it still animates out.
+        XCTAssertTrue(waitForValue("0", of: app.staticTexts["ChatGPT"], key: "exists", timeout: 10))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
         // Target ranges: open the protein upper bound
@@ -80,9 +81,12 @@ final class SettingsUITests: XCTestCase {
     }
 
     @MainActor
-    private func waitForValue(_ value: String, of element: XCUIElement) -> Bool {
-        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", value), object: element)
-        return XCTWaiter.wait(for: [expectation], timeout: 5) == .completed
+    private func waitForValue(_ value: String, of element: XCUIElement, key: String = "value", timeout: TimeInterval = 5) -> Bool {
+        let predicate = key == "exists"
+            ? NSPredicate(format: "exists == %@", NSNumber(value: value == "1"))
+            : NSPredicate(format: "value == %@", value)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }
 
     @MainActor
