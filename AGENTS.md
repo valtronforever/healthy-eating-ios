@@ -70,6 +70,7 @@ HealthyEating/
     API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
     Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
     Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
+    Health/          # AppleHealthWeights (HealthKit body mass, system and placeholder), AppleHealthSync (two-way)
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
@@ -83,7 +84,9 @@ their target automatically; do not add files to `project.pbxproj` by hand.
 `HealthyEating/Info.plist` holds only what build settings cannot express (the `healthyeating`
 URL scheme, `OAuthRedirect`; `UIBackgroundModes` `fetch` and `BGTaskSchedulerPermittedIdentifiers`
 for the arrival check); Xcode merges it with the generated Info.plist and the project
-excludes it from the folder's resources. Put other Info.plist keys in `INFOPLIST_KEY_*` settings.
+excludes it from the folder's resources. Put other Info.plist keys in `INFOPLIST_KEY_*` settings
+(`NSHealthShareUsageDescription` and `NSHealthUpdateUsageDescription` are). `HealthyEating/HealthyEating.entitlements` (HealthKit)
+is excluded the same way and set with `CODE_SIGN_ENTITLEMENTS`.
 
 ## Commands
 
@@ -179,6 +182,24 @@ Notes:
   while tracking is off; on, the smoothed trend over the last 28 days with weigh-ins faded and
   the energy estimate ("you maintain at about X per day", confidence, what it is based on, or
   what it still needs). Calm mode hides the energy estimate.
+- Apple Health sync (ios#32, `Core/Health/AppleHealthSync.swift`, `AppModel.setAppleHealthSync` /
+  `syncAppleHealth`) is two-way, off by default and per device; its switch ("Sync with Apple
+  Health") is in Settings and on D3 while weight tracking is on. Body mass only. It runs when the
+  switch is turned on, whenever the app becomes active, on D3's refresh and in background refresh
+  (shared with the arrival notice); the server cannot reach Apple Health, so a weigh-in logged in
+  the chat reaches Apple Health only then. Apple Health to the server: new samples from other
+  sources (anchored query, whole history on the first read) go as `apple_health` with their UUID
+  as `external_id`; their deletions go to `/api/v1/weights/apple-health-deletions`; deleting one
+  of the app's own samples deletes that weigh-in. The server to Apple Health: weigh-ins from the
+  chat and the app of the last 365 days are written with the sync identifier
+  `healthy-eating:<weigh-in id>` and the weigh-in's `updated_at` (ms) as sync version, so a
+  correction replaces the sample, a server deletion deletes it, and the import skips the app's
+  own samples. `written` (UserDefaults) remembers the version in Apple Health, so a replaced
+  sample (reported deleted with its old version) never deletes the weigh-in. The anchor moves on
+  only when everything reached the server; an empty first read keeps no anchor (Apple Health
+  returns nothing while read access is off). Weight tracking off skips the sync. Turning it off
+  or signing out forgets the anchor and `written`; data already synced stays on both sides.
+  Placeholder launches use `PlaceholderAppleHealthWeights` (three weigh-ins, no HealthKit).
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

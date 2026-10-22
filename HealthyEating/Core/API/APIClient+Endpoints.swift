@@ -166,6 +166,24 @@ nonisolated extension APIClient {
         return Self.weighIn(first)
     }
 
+    /// The server's limit per request (`MAX_BATCH` in its `services/weights.py`).
+    static let maxWeightBatch = 1000
+
+    func importWeights(_ weights: [HealthWeight]) async throws(APIError) -> Int {
+        let entries: [[String: Any]] = weights.map { weight in
+            ["weight_kg": (weight.kg * 100).rounded() / 100, "measured_at": APIDate.timeString(weight.measuredAt),
+             "source": "apple_health", "external_id": weight.id.uuidString.lowercased()]
+        }
+        let request = Request(method: "POST", path: "weights", body: Self.json(["entries": entries]))
+        return try await send(request, as: WeightsCreatedDTO.self).entries.count
+    }
+
+    func deleteAppleHealthWeights(_ sampleIDs: [UUID]) async throws(APIError) -> Int {
+        let ids = sampleIDs.map { $0.uuidString.lowercased() }
+        let request = Request(method: "POST", path: "weights/apple-health-deletions", body: Self.json(["external_ids": ids]))
+        return try await send(request, as: WeightsDeletedDTO.self).deleted
+    }
+
     func updateWeight(_ id: UUID, kg: Double?, at date: Date?) async throws(APIError) -> WeighIn {
         var fields: [String: Any?] = [:]
         if let kg { fields["weight_kg"] = kg }
@@ -194,7 +212,8 @@ nonisolated extension APIClient {
     }
 
     static func weighIn(_ dto: WeightEntryDTO) -> WeighIn {
-        WeighIn(id: dto.id, weightKg: dto.weightKg, measuredAt: dto.measuredAt, source: WeightSource(rawValue: dto.source) ?? .app)
+        WeighIn(id: dto.id, weightKg: dto.weightKg, measuredAt: dto.measuredAt, source: WeightSource(rawValue: dto.source) ?? .app,
+                updatedAt: dto.updatedAt)
     }
 
     // MARK: Account

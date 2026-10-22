@@ -487,6 +487,7 @@ nonisolated enum RequestFields {
     static let weightsCreate = ["entries"]
     static let weightUpdate = ["weight_kg", "measured_at"]
     static let deleteAllWeights = ["confirm"]
+    static let appleHealthDeletions = ["external_ids"]
     static let dayStatusUpdate = ["status"]
     static let deleteAccount = ["confirm"]
 }

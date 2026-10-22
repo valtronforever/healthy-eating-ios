@@ -97,7 +97,7 @@ struct ArrivalNoticeSettingTests {
         let (model, _) = model(center)
         await model.setArrivalNotice(true)
 
-        await model.checkArrival()
+        await model.backgroundRefresh()
 
         #expect(center.posted.isEmpty, "the sample account's meals arrive as usual")
         #expect(center.scheduledChecks == 2)

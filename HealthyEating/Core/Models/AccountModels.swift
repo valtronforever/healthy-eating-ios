@@ -213,6 +213,8 @@ nonisolated struct WeighIn: Identifiable, Sendable, Hashable {
     var weightKg: Double
     var measuredAt: Date
     var source: WeightSource
+    /// When the server last changed it (Apple Health sync version); nil in sample data.
+    var updatedAt: Date?
 }
 
 /// The smoothed trend after a day with weigh-ins.

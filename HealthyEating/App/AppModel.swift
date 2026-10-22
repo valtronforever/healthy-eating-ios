@@ -29,8 +29,17 @@ final class AppModel {
     /// The person declined notifications when turning the notice on.
     private(set) var arrivalNoticeDeclined = false
 
+    /// Two-way sync of body weight with Apple Health (ios#32); off by default, per device.
+    private(set) var appleHealthSyncEnabled: Bool
+    /// When the last sync changed something, and how many changes (the switch shows it).
+    private(set) var appleHealthLastSync: Date?
+    private(set) var appleHealthLastSyncCount = 0
+
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let noticeCenter: any ArrivalNoticeCenter
+    @ObservationIgnored private let appleHealth: any AppleHealthWeights
+    @ObservationIgnored private let healthSync: AppleHealthSync
+    @ObservationIgnored private var syncingAppleHealth = false
     /// Set while a value read from the server is applied, so it is not sent back.
     @ObservationIgnored private var adoptingServerSettings = false
     @ObservationIgnored let credentials: CredentialStore
@@ -50,7 +59,13 @@ final class AppModel {
         static let arrivalNotice = "arrivalNotice"
         /// `lastMealSavedAt` of the quiet spell the notice was posted for.
         static let arrivalNoticeNotifiedFor = "arrivalNoticeNotifiedFor"
+        static let appleHealthSync = "appleHealthSync"
+        static let appleHealthLastSync = "appleHealthLastSync"
+        static let appleHealthLastSyncCount = "appleHealthLastSyncCount"
+
+        static let appleHealth = [appleHealthSync, appleHealthLastSync, appleHealthLastSyncCount] + AppleHealthSync.keys
     }
+
 
     /// Launch arguments used by UI tests and screenshots.
     enum LaunchArgument {
@@ -79,7 +94,8 @@ final class AppModel {
         arguments: [String] = ProcessInfo.processInfo.arguments,
         secureStore: (any SecureStore)? = nil,
         signInProvider: (any SignInProviding)? = nil,
-        noticeCenter: (any ArrivalNoticeCenter)? = nil
+        noticeCenter: (any ArrivalNoticeCenter)? = nil,
+        appleHealth: (any AppleHealthWeights)? = nil
     ) {
         let placeholders = LaunchArgument.usesPlaceholders(arguments)
         let store = CredentialStore(store: secureStore ?? (placeholders ? MemoryStore() : Keychain()))
@@ -87,10 +103,13 @@ final class AppModel {
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
         self.noticeCenter = noticeCenter ?? (placeholders ? PlaceholderArrivalNoticeCenter() : SystemArrivalNoticeCenter())
+        let health = appleHealth ?? (placeholders ? PlaceholderAppleHealthWeights() : SystemAppleHealthWeights())
+        self.appleHealth = health
+        self.healthSync = AppleHealthSync(health: health, defaults: defaults)
         self.usesSampleData = placeholders
         self.skipsOnboarding = arguments.contains(LaunchArgument.skipOnboarding)
         if arguments.contains(LaunchArgument.resetOnboarding) {
-            for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode, Keys.arrivalNotice, Keys.arrivalNoticeNotifiedFor] {
+            for key in [Keys.serverURL, Keys.onboardingComplete, Keys.calmMode, Keys.arrivalNotice, Keys.arrivalNoticeNotifiedFor] + Keys.appleHealth {
                 defaults.removeObject(forKey: key)
             }
             // A clean start: no session from an earlier run (the Keychain outlives the app).
@@ -108,6 +127,9 @@ final class AppModel {
         server = storedServer
         calmMode = defaults.bool(forKey: Keys.calmMode)
         arrivalNoticeEnabled = defaults.bool(forKey: Keys.arrivalNotice)
+        appleHealthSyncEnabled = defaults.bool(forKey: Keys.appleHealthSync)
+        appleHealthLastSync = defaults.object(forKey: Keys.appleHealthLastSync) as? Date
+        appleHealthLastSyncCount = defaults.integer(forKey: Keys.appleHealthLastSyncCount)
         isSignedIn = signedIn
         hasCompletedOnboarding = defaults.bool(forKey: Keys.onboardingComplete) && signedIn
         if let storedServer, signedIn {
@@ -161,10 +183,12 @@ final class AppModel {
             }
             arrivalNoticeDeclined = false
             arrivalNoticeEnabled = true
-            noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery)
+            scheduleBackgroundRefresh()
         } else {
             arrivalNoticeEnabled = false
             noticeCenter.cancel()
+            // The Apple Health sync shares the background refresh.
+            scheduleBackgroundRefresh()
         }
         defaults.set(arrivalNoticeEnabled, forKey: Keys.arrivalNotice)
     }
@@ -172,9 +196,6 @@ final class AppModel {
     /// The background check: posts the notice when it is due, then asks for the next check.
     func checkArrival(now: Date = .now) async {
         guard arrivalNoticeEnabled, let data else { return }
-        defer {
-            if arrivalNoticeEnabled { noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery) }
-        }
         let state: IntegrationState
         do throws(APIError) {
             state = try await data.integrationStatus()
@@ -193,9 +214,71 @@ final class AppModel {
         defaults.set(state.lastMealSavedAt, forKey: Keys.arrivalNoticeNotifiedFor)
     }
 
-    /// At launch: keeps the background check scheduled while the notice is on.
-    func scheduleArrivalCheckIfEnabled() {
-        if arrivalNoticeEnabled, isSignedIn { noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery) }
+
+    /// Turns two-way sync with Apple Health on (after the system's access sheet, then syncs right
+    /// away) or off. Off forgets where the sync stopped; the server and Apple Health keep what
+    /// they have.
+    func setAppleHealthSync(_ on: Bool) async {
+        if on {
+            guard appleHealth.isAvailable else { return }
+            do {
+                try await appleHealth.requestAccess()
+            } catch {
+                return
+            }
+            appleHealthSyncEnabled = true
+            defaults.set(true, forKey: Keys.appleHealthSync)
+            await syncAppleHealth()
+            scheduleBackgroundRefresh()
+        } else {
+            appleHealthSyncEnabled = false
+            forgetAppleHealthSync()
+        }
+    }
+
+    /// One sync with Apple Health (`AppleHealthSync`): when the app becomes active, on D3's
+    /// refresh and in background refresh. Returns how many changes it made, or nil when it did
+    /// not run or failed.
+    @discardableResult
+    func syncAppleHealth(now: Date = .now) async -> Int? {
+        guard appleHealthSyncEnabled, let data, !syncingAppleHealth else { return nil }
+        syncingAppleHealth = true
+        defer { syncingAppleHealth = false }
+        let changes: Int?
+        do throws(APIError) {
+            changes = try await healthSync.run(data, now: now)
+        } catch {
+            handle(error)
+            return nil
+        }
+        if let changes, changes > 0 {
+            appleHealthLastSync = now
+            appleHealthLastSyncCount = changes
+            defaults.set(now, forKey: Keys.appleHealthLastSync)
+            defaults.set(changes, forKey: Keys.appleHealthLastSyncCount)
+        }
+        return changes
+    }
+
+    private func forgetAppleHealthSync() {
+        healthSync.forget()
+        appleHealthLastSync = nil
+        appleHealthLastSyncCount = 0
+        for key in Keys.appleHealth { defaults.removeObject(forKey: key) }
+    }
+
+    /// Background refresh: the arrival check and the Apple Health sync, then the next refresh.
+    func backgroundRefresh() async {
+        await checkArrival()
+        await syncAppleHealth()
+        scheduleBackgroundRefresh()
+    }
+
+    /// Keeps a background refresh scheduled while the notice or the Apple Health sync is on.
+    func scheduleBackgroundRefresh() {
+        if isSignedIn, arrivalNoticeEnabled || appleHealthSyncEnabled {
+            noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery)
+        }
     }
 
     /// Call with every API error a screen gets: an ended session returns to onboarding.
@@ -262,5 +345,8 @@ final class AppModel {
         arrivalNoticeDeclined = false
         defaults.removeObject(forKey: Keys.arrivalNotice)
         defaults.removeObject(forKey: Keys.arrivalNoticeNotifiedFor)
+        // The Apple Health sync belongs to the account too.
+        appleHealthSyncEnabled = false
+        forgetAppleHealthSync()
     }
 }

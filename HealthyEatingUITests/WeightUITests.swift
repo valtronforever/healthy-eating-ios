@@ -97,6 +97,31 @@ final class WeightUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 5))
     }
 
+    /// ios#32: Apple Health sync on D3 (placeholder store: three weigh-ins, no HealthKit).
+    @MainActor
+    func testAppleHealthSyncIsOptIn() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-resetOnboarding", "-skipOnboarding", "-initialTab", "trends", "-AppleLocale", "en_US"]
+        app.launch()
+
+        let link = app.buttons["weightAndEnergy"]
+        for _ in 0..<6 where !(link.exists && link.isHittable) { app.swipeUp() }
+        link.tap()
+        XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 10))
+        let toggle = app.switches["appleHealthSync"]
+        let deleteAll = app.buttons["Delete all weight data"]
+        for _ in 0..<4 where !(deleteAll.exists && deleteAll.isHittable) { app.swipeUp() }
+        app.swipeUp()
+        XCTAssertEqual(toggle.value as? String, "0", "off by default")
+        XCTAssertTrue(app.staticTexts["Body weight, both ways, when the app opens"].exists)
+
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
+        let imported = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "3 weigh-ins synced")).firstMatch
+        XCTAssertTrue(imported.waitForExistence(timeout: 5))
+        XCTAssertEqual(toggle.value as? String, "1")
+        keepScreenshot(named: "D3 Apple Health sync on")
+    }
+
     /// A weigh-in row is one button whose label holds the date, source and value.
     @MainActor
     private func row(_ value: String, in app: XCUIApplication) -> XCUIElement {

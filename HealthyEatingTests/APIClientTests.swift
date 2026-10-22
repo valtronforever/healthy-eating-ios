@@ -233,6 +233,7 @@ struct APIContractTests {
         ("WeightsCreate", RequestFields.weightsCreate),
         ("WeightUpdate", RequestFields.weightUpdate),
         ("DeleteAllWeightsRequest", RequestFields.deleteAllWeights),
+        ("AppleHealthDeletions", RequestFields.appleHealthDeletions),
         ]
 
     @Test(arguments: contract)

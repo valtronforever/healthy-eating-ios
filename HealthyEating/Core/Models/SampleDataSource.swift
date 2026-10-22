@@ -174,7 +174,7 @@ actor SampleDataSource: NutritionDataSource {
     }
 
     func addWeight(kg: Double, at date: Date) -> WeighIn {
-        let entry = WeighIn(id: UUID(), weightKg: kg, measuredAt: date, source: .app)
+        let entry = WeighIn(id: UUID(), weightKg: kg, measuredAt: date, source: .app, updatedAt: .now)
         weighIns.append(entry)
         userSettings.weightTracking = true
         return entry
@@ -184,12 +184,30 @@ actor SampleDataSource: NutritionDataSource {
         guard let index = weighIns.firstIndex(where: { $0.id == id }) else { throw .notFound }
         if let kg { weighIns[index].weightKg = kg }
         if let date { weighIns[index].measuredAt = date }
+        weighIns[index].updatedAt = .now
         return weighIns[index]
     }
 
     func deleteWeight(_ id: UUID) throws(APIError) {
         guard weighIns.contains(where: { $0.id == id }) else { throw .notFound }
         weighIns.removeAll { $0.id == id }
+    }
+
+    func importWeights(_ weights: [HealthWeight]) throws(APIError) -> Int {
+        guard userSettings.weightTracking else {
+            throw .server(code: "conflict", message: "Weight tracking is off")
+        }
+        let known = Set(weighIns.map(\.id))
+        let new = weights.filter { !known.contains($0.id) }
+        weighIns += new.map { WeighIn(id: $0.id, weightKg: $0.kg, measuredAt: $0.measuredAt, source: .appleHealth) }
+        return weights.count
+    }
+
+    func deleteAppleHealthWeights(_ sampleIDs: [UUID]) -> Int {
+        let ids = Set(sampleIDs)
+        let before = weighIns.count
+        weighIns.removeAll { $0.source == .appleHealth && ids.contains($0.id) }
+        return before - weighIns.count
     }
 
     func deleteAllWeights() -> Int {

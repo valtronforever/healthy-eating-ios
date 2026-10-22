@@ -19,6 +19,12 @@ nonisolated protocol NutritionDataSource: Sendable {
     func updateWeight(_ id: UUID, kg: Double?, at date: Date?) async throws(APIError) -> WeighIn
     func deleteWeight(_ id: UUID) async throws(APIError)
     func deleteAllWeights() async throws(APIError) -> Int
+    /// Sends Apple Health weigh-ins (at most `APIClient.maxWeightBatch`); the server refuses them
+    /// while weight tracking is off and stores a sample sent twice once. Returns how many it kept.
+    func importWeights(_ weights: [HealthWeight]) async throws(APIError) -> Int
+    /// Deletes Apple Health weigh-ins whose samples were deleted in Apple Health (by sample id,
+    /// at most `APIClient.maxWeightBatch`); unknown ids are ignored. Returns how many it deleted.
+    func deleteAppleHealthWeights(_ sampleIDs: [UUID]) async throws(APIError) -> Int
     func energyEstimate() async throws(APIError) -> EnergyEstimate
     func connections() async throws(APIError) -> [Connection]
     /// Returns true if the revoked sign-in was this app's own.

@@ -33,6 +33,7 @@
 		4E0000000000000000000021 /* Exceptions for "HealthyEating" folder in "HealthyEating" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				HealthyEating.entitlements,
 				Info.plist,
 			);
 			target = 4E0000000000000000000101 /* HealthyEating */;
@@ -414,12 +415,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthyEating/HealthyEating.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating reads your body weight and sends it to your own server for your weight trend.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves weigh-ins from your chat and the app to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,12 +447,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthyEating/HealthyEating.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating reads your body weight and sends it to your own server for your weight trend.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves weigh-ins from your chat and the app to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

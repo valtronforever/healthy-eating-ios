@@ -240,6 +240,16 @@
     "%lld weigh-ins deleted." : {
 
     },
+    "%lld weigh-ins synced %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld weigh-ins synced %2$@"
+          }
+        }
+      }
+    },
     "0.0" : {
 
     },
@@ -247,6 +257,9 @@
 
     },
     "1 weigh-in deleted." : {
+
+    },
+    "1 weigh-in synced %@" : {
 
     },
     "11 g lower" : {
@@ -372,6 +385,9 @@
 
     },
     "Baseline" : {
+
+    },
+    "Body weight, both ways, when the app opens" : {
 
     },
     "CSV (ZIP)" : {
@@ -1017,6 +1033,9 @@
     "Sugar" : {
 
     },
+    "Sync with Apple Health" : {
+
+    },
     "Target %@" : {
 
     },
@@ -1158,7 +1177,7 @@
     "Weight and energy" : {
 
     },
-    "Weight comes from your chat or manual entry." : {
+    "Weight comes from your chat, Apple Health or manual entry." : {
 
     },
     "Weight stays on your server. Turning this off hides it; deleting removes every weigh-in." : {

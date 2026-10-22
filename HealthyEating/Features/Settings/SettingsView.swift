@@ -239,6 +239,7 @@ struct SettingsView: View {
             }
             .accessibilityIdentifier("weightTracking")
             if snapshot.settings.weightTracking {
+                AppleHealthSyncToggle()
                 NavigationLink {
                     WeighInsView(unit: snapshot.settings.weightUnit)
                 } label: {

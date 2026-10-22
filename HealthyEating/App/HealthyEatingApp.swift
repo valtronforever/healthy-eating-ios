@@ -10,9 +10,9 @@ struct HealthyEatingApp: App {
                 .environment(model)
                 .tint(.accent)
         }
-        // The notice when meals stop arriving (opt-in, see ArrivalNotice).
+        // The notice when meals stop arriving and the Apple Health sync (both opt-in).
         .backgroundTask(.appRefresh(ArrivalNotice.taskIdentifier)) { [model] in
-            await model.checkArrival()
+            await model.backgroundRefresh()
         }
     }
 }
@@ -20,13 +20,19 @@ struct HealthyEatingApp: App {
 /// Shows onboarding until a server is set up, then the four tabs.
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         if model.hasCompletedOnboarding {
             MainTabView()
                 .task {
-                    model.scheduleArrivalCheckIfEnabled()
+                    model.scheduleBackgroundRefresh()
                     await model.syncTimeZoneIfNeeded()
+                    await model.syncAppleHealth()
+                }
+                // Weigh-ins sync with Apple Health whenever the app opens.
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active { Task { await model.syncAppleHealth() } }
                 }
         } else {
             OnboardingFlow()

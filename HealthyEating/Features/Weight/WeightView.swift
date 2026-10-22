@@ -82,6 +82,8 @@ struct WeightView: View {
 
     private func reload() async {
         guard let data = app.data else { return }
+        // Sync with Apple Health first, so pulling to refresh shows new weigh-ins.
+        await app.syncAppleHealth()
         if let error = await model.load(data) { app.handle(error) }
     }
 
@@ -111,7 +113,7 @@ struct WeightView: View {
                     .foregroundStyle(.inkMuted)
                 VStack(alignment: .leading, spacing: Spacing.s4) {
                     point("eye.slash", "Off by default. Your first weigh-in turns it on.")
-                    point("heart.text.square", "Weight comes from your chat or manual entry.")
+                    point("heart.text.square", "Weight comes from your chat, Apple Health or manual entry.")
                     point("lock.shield", "Stored only on your server. Hide it or delete all weight data at any time.")
                 }
                 VStack(spacing: Spacing.s3) {
@@ -155,6 +157,7 @@ struct WeightView: View {
                 .accessibilityIdentifier("weighIns")
                 Button("Add weigh-in") { adding = true }
                     .accessibilityIdentifier("addWeighIn")
+                AppleHealthSyncToggle { Task { await reload() } }
                 Toggle("Show on Trends", isOn: Binding(
                     get: { snapshot.settings.weightTracking },
                     set: { on in Task { await setTracking(on) } }))
