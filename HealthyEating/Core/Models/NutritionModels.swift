@@ -83,6 +83,8 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var optional: [OptionalNutrient: Double] = [:]
     /// Which of them the assistant estimated.
     var estimatedOptional: Set<OptionalNutrient> = []
+    /// When the server last changed it (Apple Health sync version); nil in sample data.
+    var updatedAt: Date?
 
     /// "Estimated" as soon as one value was estimated; "Your numbers" otherwise.
     var provenance: Provenance { estimatedFields.isEmpty && estimatedOptional.isEmpty ? .user : .estimated }
@@ -91,8 +93,10 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
         id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
         carbohydratesG: Double, portionGrams: Double?, estimatedFields: Set<NutrientField>,
         confidence: Confidence?, assistant: String, sourceNote: String?,
-        optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = []
+        optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = [],
+        updatedAt: Date? = nil
     ) {
+        self.updatedAt = updatedAt
         self.optional = optional
         self.estimatedOptional = estimatedOptional
         self.id = id

@@ -4,20 +4,26 @@ import Testing
 
 /// Apple Health in memory: hands out queued changes once, records what the app writes.
 @MainActor
-private final class FakeHealth: AppleHealthWeights {
+private final class FakeHealth: AppleHealthStore {
     var isAvailable = true
     var canWrite = true
+    /// Off unless a test is about meals, so weight tests count only weight changes.
+    var writableNutrients: Set<HealthNutrient> = []
     /// Apple Health returns nothing while read access is off.
     var readable = true
     var pending = AppleHealthChanges()
     private(set) var saved: [HealthWrite] = []
     private(set) var deleted: [UUID] = []
+    private(set) var savedMeals: [HealthMeal] = []
+    private(set) var deletedMeals: [UUID] = []
+    private(set) var accessRequests = 0
 
     init(added: [HealthWeight] = []) {
         pending.added = added
     }
 
     func requestAccess() async throws {}
+    func requestAccessIfNeeded() async { accessRequests += 1 }
 
     func changes(after anchor: Data?) async throws -> AppleHealthChanges {
         guard readable else { return AppleHealthChanges(anchor: Data("anchor".utf8)) }
@@ -29,6 +35,8 @@ private final class FakeHealth: AppleHealthWeights {
 
     func save(_ writes: [HealthWrite]) async throws { saved += writes }
     func delete(serverIDs: [UUID]) async throws { deleted += serverIDs }
+    func saveMeals(_ meals: [HealthMeal]) async throws { savedMeals += meals }
+    func deleteMeals(serverIDs: [UUID]) async throws { deletedMeals += serverIDs }
 }
 
 @MainActor
@@ -178,15 +186,78 @@ struct AppleHealthSyncTests {
         #expect(model.appleHealthLastSyncCount == 0)
     }
 
+    // MARK: Meals (ios#31)
+
+    @Test func writesMealsOnceThenOnlyWhatChanged() async throws {
+        let health = FakeHealth()
+        health.writableNutrients = Set(HealthNutrient.allCases)
+        let model = model(health)
+        let data = try #require(model.data)
+        let meals = try await data.allMeals(from: .now, to: .now)
+        try #require(meals.count >= 2)
+
+        await model.setAppleHealthSync(true)
+        #expect(Set(health.savedMeals.map(\.serverID)) == Set(meals.map(\.id)))
+        #expect(await model.syncAppleHealth() == 0)
+
+        try await Task.sleep(for: .milliseconds(5))
+        _ = try await data.update(meals[0].id, with: .init(caloriesKcal: meals[0].caloriesKcal + 50))
+        #expect(await model.syncAppleHealth() == 1)
+        let corrected = try #require(health.savedMeals.last)
+        #expect(corrected.serverID == meals[0].id)
+        #expect(corrected.values[.energy] == meals[0].caloriesKcal + 50)
+        #expect(corrected.version > (health.savedMeals.first { $0.serverID == meals[0].id }?.version ?? .max))
+
+        try await data.deleteMeal(meals[1].id)
+        #expect(await model.syncAppleHealth() == 1)
+        #expect(health.deletedMeals == [meals[1].id])
+    }
+
+    @Test func mealsSyncWhileWeightTrackingIsOff() async throws {
+        let health = FakeHealth(added: [scaleSample])
+        health.writableNutrients = Set(HealthNutrient.allCases)
+        let model = model(health)
+        _ = try await #require(model.data).updateSettings(.init(weightTracking: false))
+        await model.setAppleHealthSync(true)
+        #expect(!health.savedMeals.isEmpty)
+        #expect(!(try await weighIns(model).contains { $0.id == scaleSample.id }), "weight stays off")
+    }
+
+    @Test func withoutCaloriesPermissionNoMealIsWritten() async throws {
+        let health = FakeHealth()
+        health.writableNutrients = [.protein, .fat]
+        await model(health).setAppleHealthSync(true)
+        #expect(health.savedMeals.isEmpty)
+    }
+
+    @Test func aMealCarriesOnlyTheValuesItHas() {
+        let meal = Meal(id: UUID(), eatenAt: .now, dishName: "Borscht", caloriesKcal: 412, proteinG: 14, fatG: 24,
+                        carbohydratesG: 36, portionGrams: nil, estimatedFields: [], confidence: nil, assistant: "Claude",
+                        sourceNote: nil, optional: [.fiber: 6, .sodium: 820])
+        let written = HealthMeal(meal, version: 1)
+        #expect(written.values == [.energy: 412, .protein: 14, .fat: 24, .carbohydrates: 36, .fiber: 6, .sodium: 820])
+        #expect(written.dishName == "Borscht")
+        #expect(AppleHealthSyncID.meal(meal.id, .energy) == AppleHealthSyncID.meal(meal.id) + ":energy")
+    }
+
+    @Test func theForegroundAsksForNewlyAddedTypes() async {
+        let health = FakeHealth()
+        let model = model(health)
+        await model.setAppleHealthSync(true)
+        _ = await model.syncAppleHealth(foreground: true)
+        _ = await model.syncAppleHealth()
+        #expect(health.accessRequests == 1, "only in the foreground")
+    }
+
     @Test func describesTheLastSync() {
         let locale = Locale(identifier: "en_US")
         #expect(AppleHealthSyncToggle.detail(enabled: false, last: .now, count: 3, locale: locale)
-            == "Body weight, both ways, when the app opens")
+            == "Meals and body weight, when the app opens")
         #expect(AppleHealthSyncToggle.detail(enabled: true, last: nil, count: 0, locale: locale)
-            == "Body weight, both ways, when the app opens")
+            == "Meals and body weight, when the app opens")
         #expect(AppleHealthSyncToggle.detail(enabled: true, last: .now.addingTimeInterval(-7200), count: 3, locale: locale)
-            .hasPrefix("3 weigh-ins synced "))
-        #expect(AppleHealthSyncToggle.detail(enabled: true, last: .now, count: 1, locale: locale).hasPrefix("1 weigh-in synced "))
+            .hasPrefix("3 changes synced "))
+        #expect(AppleHealthSyncToggle.detail(enabled: true, last: .now, count: 1, locale: locale).hasPrefix("1 change synced "))
     }
 
     @Test func syncIDsNameTheServerWeighIn() throws {

@@ -57,6 +57,11 @@ actor SampleDataSource: NutritionDataSource {
         }.sorted { $0.eatenAt > $1.eatenAt }
     }
 
+    /// Today's meals only: the earlier sample days repeat the same meals (and ids).
+    func allMeals(from: Date, to: Date) -> [Meal] {
+        todayMeals.filter { $0.eatenAt >= calendar.startOfDay(for: from) }.sorted { $0.eatenAt > $1.eatenAt }
+    }
+
     func days(from: Date, to: Date) -> DayRange {
         var days: [DayTotals] = []
         var day = calendar.startOfDay(for: from)
@@ -274,6 +279,7 @@ actor SampleDataSource: NutritionDataSource {
                 meal.estimatedFields.remove(field)
             }
         }
+        meal.updatedAt = .now
         todayMeals[index] = meal
         return (meal, [])
     }

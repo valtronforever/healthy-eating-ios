@@ -1,7 +1,14 @@
 import Foundation
 
-/// Two-way sync of body weight between the server and Apple Health (ios#32). Runs when the app
-/// becomes active and in background refresh; the server cannot reach Apple Health itself.
+/// Sync with Apple Health: body weight both ways (ios#32) and meals from the server (ios#31).
+/// Runs when the app becomes active and in background refresh; the server cannot reach Apple
+/// Health itself.
+///
+/// Meals: those of the last year are written as one food correlation each (energy, protein, fat,
+/// carbohydrates, and fiber, sugar and sodium when the meal has them), replaced when corrected
+/// and deleted when deleted on the server. Never read back: the app never creates meals.
+///
+/// Weight, only while weight tracking is on:
 ///
 /// 1. Apple Health to the server: new samples from other sources (scales, the Health app) are
 ///    sent as `apple_health` weigh-ins, their deletions are sent too, and deleting one of the
@@ -23,27 +30,39 @@ final class AppleHealthSync {
     private enum Keys {
         static let anchor = "appleHealthSyncAnchor"
         static let written = "appleHealthWritten"
+        static let writtenMeals = "appleHealthWrittenMeals"
     }
 
-    static let keys = [Keys.anchor, Keys.written]
+    static let keys = [Keys.anchor, Keys.written, Keys.writtenMeals]
     /// How far back server weigh-ins are written to Apple Health (the API's longest range).
     static let writeDays = 365
 
-    private let health: any AppleHealthWeights
+    private let health: any AppleHealthStore
     private let defaults: UserDefaults
 
-    init(health: any AppleHealthWeights, defaults: UserDefaults) {
+    init(health: any AppleHealthStore, defaults: UserDefaults) {
         self.health = health
         self.defaults = defaults
     }
 
+    /// Which version of each weigh-in is in Apple Health.
     private(set) var written: [UUID: Written] {
-        get {
-            defaults.data(forKey: Keys.written).flatMap { try? JSONDecoder().decode([UUID: Written].self, from: $0) } ?? [:]
-        }
-        set {
-            defaults.set(try? JSONEncoder().encode(newValue), forKey: Keys.written)
-        }
+        get { stored(Keys.written) }
+        set { store(newValue, Keys.written) }
+    }
+
+    /// Which version of each meal is in Apple Health.
+    private(set) var writtenMeals: [UUID: Written] {
+        get { stored(Keys.writtenMeals) }
+        set { store(newValue, Keys.writtenMeals) }
+    }
+
+    private func stored(_ key: String) -> [UUID: Written] {
+        defaults.data(forKey: key).flatMap { try? JSONDecoder().decode([UUID: Written].self, from: $0) } ?? [:]
+    }
+
+    private func store(_ value: [UUID: Written], _ key: String) {
+        defaults.set(try? JSONEncoder().encode(value), forKey: key)
     }
 
     /// The sync version of a weigh-in: when the server last changed it, in milliseconds.
@@ -51,16 +70,60 @@ final class AppleHealthSync {
         Int(((weighIn.updatedAt ?? weighIn.measuredAt).timeIntervalSince1970 * 1000).rounded())
     }
 
-    /// One sync. Returns how many changes it made (imported, deleted or written), or nil when
-    /// weight tracking is off or Apple Health could not be read.
+    /// The sync version of a meal, the same way.
+    nonisolated static func version(_ meal: Meal) -> Int {
+        Int(((meal.updatedAt ?? meal.eatenAt).timeIntervalSince1970 * 1000).rounded())
+    }
+
+    /// One sync. Returns how many changes it made (meals written or deleted, weigh-ins imported,
+    /// deleted or written), or nil when Apple Health could not be read.
     func run(_ data: any NutritionDataSource, calendar: Calendar = .current, now: Date = .now) async throws(APIError) -> Int? {
-        guard try await data.settings().weightTracking else { return nil }
+        var changes = try await pushMeals(data, calendar: calendar, now: now)
+        guard try await data.settings().weightTracking else { return changes }
         guard let fromHealth = try await pull(data) else { return nil }
-        return fromHealth + (try await push(data, calendar: calendar, now: now))
+        changes += fromHealth
+        changes += try await push(data, calendar: calendar, now: now)
+        return changes
     }
 
     func forget() {
         for key in Self.keys { defaults.removeObject(forKey: key) }
+    }
+
+    // MARK: Meals to Apple Health
+
+    /// Meals written per call, so a first sync of a year of meals goes in steps.
+    static let mealBatch = 100
+
+    private func pushMeals(_ data: any NutritionDataSource, calendar: Calendar, now: Date) async throws(APIError) -> Int {
+        guard health.writableNutrients.contains(.energy) else { return 0 }
+        let today = calendar.startOfDay(for: now)
+        let first = calendar.date(byAdding: .day, value: -Self.writeDays, to: today) ?? today
+        let meals = try await data.allMeals(from: first, to: today)
+        var written = writtenMeals
+        let writes = meals.compactMap { meal -> HealthMeal? in
+            let version = Self.version(meal)
+            return written[meal.id]?.version == version ? nil : HealthMeal(meal, version: version)
+        }
+        let current = Set(meals.map(\.id))
+        let gone = written.filter { !current.contains($0.key) && $0.value.measuredAt >= first }.map(\.key)
+        var count = 0
+        do {
+            for batch in writes.chunks(of: Self.mealBatch) {
+                try await health.saveMeals(batch)
+                for meal in batch { written[meal.serverID] = Written(version: meal.version, measuredAt: meal.eatenAt) }
+                count += batch.count
+            }
+            if !gone.isEmpty {
+                try await health.deleteMeals(serverIDs: gone)
+                for id in gone { written[id] = nil }
+                count += gone.count
+            }
+        } catch {
+            // Keep what was written; the rest is tried again next time.
+        }
+        writtenMeals = written
+        return count
     }
 
     // MARK: Apple Health to the server

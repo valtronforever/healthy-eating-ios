@@ -423,7 +423,7 @@
 				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating reads your body weight and sends it to your own server for your weight trend.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves weigh-ins from your chat and the app to Apple Health.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves your meals (calories and nutrients) and weigh-ins from your chat and the app to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -455,7 +455,7 @@
 				INFOPLIST_FILE = HealthyEating/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating reads your body weight and sends it to your own server for your weight trend.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves weigh-ins from your chat and the app to Apple Health.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "When you turn on Sync with Apple Health, Healthy Eating saves your meals (calories and nutrients) and weigh-ins from your chat and the app to Apple Health.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

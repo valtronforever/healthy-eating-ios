@@ -238,8 +238,9 @@ struct SettingsView: View {
                 }
             }
             .accessibilityIdentifier("weightTracking")
+            // Meals sync too, so the switch is there whether or not weight tracking is on.
+            AppleHealthSyncToggle()
             if snapshot.settings.weightTracking {
-                AppleHealthSyncToggle()
                 NavigationLink {
                     WeighInsView(unit: snapshot.settings.weightUnit)
                 } label: {

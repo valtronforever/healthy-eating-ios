@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// "Sync with Apple Health" (ios#32), in Settings and on D3 while weight tracking is on.
-/// Turning it on shows the system's access sheet once and syncs right away; after that weigh-ins
-/// sync both ways whenever the app opens (and in background refresh). Off by default, per device.
+/// "Sync with Apple Health" (ios#31, ios#32), in Settings and on D3. Turning it on shows the
+/// system's access sheet once and syncs right away; after that meals go to Apple Health and
+/// weigh-ins sync both ways whenever the app opens (and in background refresh). Off by default,
+/// per device.
 struct AppleHealthSyncToggle: View {
     @Environment(AppModel.self) private var app
     /// Called after a sync, so the screen can show the new weigh-ins.
@@ -31,12 +32,12 @@ struct AppleHealthSyncToggle: View {
         .accessibilityIdentifier("appleHealthSync")
     }
 
-    /// "Body weight, both ways, when the app opens", or what the last sync changed.
+    /// "Meals and body weight, when the app opens", or what the last sync changed.
     nonisolated static func detail(enabled: Bool, last: Date?, count: Int, locale: Locale = .current) -> String {
-        guard enabled, let last, count > 0 else { return String(localized: "Body weight, both ways, when the app opens") }
+        guard enabled, let last, count > 0 else { return String(localized: "Meals and body weight, when the app opens") }
         let when = last.formatted(.relative(presentation: .named).locale(locale))
-        return count == 1 ? String(localized: "1 weigh-in synced \(when)")
-            : String(localized: "\(count) weigh-ins synced \(when)")
+        return count == 1 ? String(localized: "1 change synced \(when)")
+            : String(localized: "\(count) changes synced \(when)")
     }
 }
 

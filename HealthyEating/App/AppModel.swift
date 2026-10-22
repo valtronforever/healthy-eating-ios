@@ -37,7 +37,7 @@ final class AppModel {
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let noticeCenter: any ArrivalNoticeCenter
-    @ObservationIgnored private let appleHealth: any AppleHealthWeights
+    @ObservationIgnored private let appleHealth: any AppleHealthStore
     @ObservationIgnored private let healthSync: AppleHealthSync
     @ObservationIgnored private var syncingAppleHealth = false
     /// Set while a value read from the server is applied, so it is not sent back.
@@ -95,7 +95,7 @@ final class AppModel {
         secureStore: (any SecureStore)? = nil,
         signInProvider: (any SignInProviding)? = nil,
         noticeCenter: (any ArrivalNoticeCenter)? = nil,
-        appleHealth: (any AppleHealthWeights)? = nil
+        appleHealth: (any AppleHealthStore)? = nil
     ) {
         let placeholders = LaunchArgument.usesPlaceholders(arguments)
         let store = CredentialStore(store: secureStore ?? (placeholders ? MemoryStore() : Keychain()))
@@ -103,7 +103,7 @@ final class AppModel {
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
         self.noticeCenter = noticeCenter ?? (placeholders ? PlaceholderArrivalNoticeCenter() : SystemArrivalNoticeCenter())
-        let health = appleHealth ?? (placeholders ? PlaceholderAppleHealthWeights() : SystemAppleHealthWeights())
+        let health = appleHealth ?? (placeholders ? PlaceholderAppleHealthStore() : SystemAppleHealthStore())
         self.appleHealth = health
         self.healthSync = AppleHealthSync(health: health, defaults: defaults)
         self.usesSampleData = placeholders
@@ -237,13 +237,15 @@ final class AppModel {
     }
 
     /// One sync with Apple Health (`AppleHealthSync`): when the app becomes active, on D3's
-    /// refresh and in background refresh. Returns how many changes it made, or nil when it did
-    /// not run or failed.
+    /// refresh and in background refresh. In the foreground it first shows the access sheet for
+    /// types a newer version added (meals, for people who turned the sync on for weight).
+    /// Returns how many changes it made, or nil when it did not run or failed.
     @discardableResult
-    func syncAppleHealth(now: Date = .now) async -> Int? {
+    func syncAppleHealth(now: Date = .now, foreground: Bool = false) async -> Int? {
         guard appleHealthSyncEnabled, let data, !syncingAppleHealth else { return nil }
         syncingAppleHealth = true
         defer { syncingAppleHealth = false }
+        if foreground { await appleHealth.requestAccessIfNeeded() }
         let changes: Int?
         do throws(APIError) {
             changes = try await healthSync.run(data, now: now)

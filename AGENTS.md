@@ -70,7 +70,7 @@ HealthyEating/
     API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
     Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
     Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
-    Health/          # AppleHealthWeights (HealthKit body mass, system and placeholder), AppleHealthSync (two-way)
+    Health/          # AppleHealthStore (HealthKit: body mass and nutrition, system and placeholder), AppleHealthSync
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
@@ -182,9 +182,16 @@ Notes:
   while tracking is off; on, the smoothed trend over the last 28 days with weigh-ins faded and
   the energy estimate ("you maintain at about X per day", confidence, what it is based on, or
   what it still needs). Calm mode hides the energy estimate.
-- Apple Health sync (ios#32, `Core/Health/AppleHealthSync.swift`, `AppModel.setAppleHealthSync` /
-  `syncAppleHealth`) is two-way, off by default and per device; its switch ("Sync with Apple
-  Health") is in Settings and on D3 while weight tracking is on. Body mass only. It runs when the
+- Apple Health sync (ios#31, ios#32, `Core/Health/AppleHealthSync.swift`, `AppModel.setAppleHealthSync`
+  / `syncAppleHealth`) is off by default and per device; its switch ("Sync with Apple Health") is
+  in Settings (always) and on D3. Meals go one way, the server to Apple Health: the meals of the
+  last 365 days are written as one food correlation each (`HKMetadataKeyFoodType` = dish name)
+  with energy, protein, fat, carbohydrates, and fiber, sugar and sodium when the meal has them;
+  sync identifiers `healthy-eating-meal:<meal id>` (correlation) and `...:<nutrient>` (samples),
+  version = the meal's `updated_at` in ms, so a correction replaces it (a value it no longer has
+  is deleted) and a server deletion deletes it. Meals sync whether or not weight tracking is on,
+  and only when writing dietary energy is allowed. Body mass syncs both ways. In the foreground
+  the app asks once more for types a newer version added (`requestAccessIfNeeded`). It runs when the
   switch is turned on, whenever the app becomes active, on D3's refresh and in background refresh
   (shared with the arrival notice); the server cannot reach Apple Health, so a weigh-in logged in
   the chat reaches Apple Health only then. Apple Health to the server: new samples from other
@@ -197,9 +204,9 @@ Notes:
   own samples. `written` (UserDefaults) remembers the version in Apple Health, so a replaced
   sample (reported deleted with its old version) never deletes the weigh-in. The anchor moves on
   only when everything reached the server; an empty first read keeps no anchor (Apple Health
-  returns nothing while read access is off). Weight tracking off skips the sync. Turning it off
+  returns nothing while read access is off). Weight tracking off skips the weight part. Turning it off
   or signing out forgets the anchor and `written`; data already synced stays on both sides.
-  Placeholder launches use `PlaceholderAppleHealthWeights` (three weigh-ins, no HealthKit).
+  Placeholder launches use `PlaceholderAppleHealthStore` (three weigh-ins, no HealthKit).
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

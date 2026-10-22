@@ -315,7 +315,8 @@ nonisolated extension APIClient {
             assistant: dto.clientName ?? String(localized: "your AI assistant"),
             sourceNote: dto.sourceNote,
             optional: compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg]),
-            estimatedOptional: Set(dto.estimatedFields.compactMap(OptionalNutrient.init(rawValue:))))
+            estimatedOptional: Set(dto.estimatedFields.compactMap(OptionalNutrient.init(rawValue:))),
+            updatedAt: dto.updatedAt)
     }
 
     /// Keeps the nutrients that have a value.

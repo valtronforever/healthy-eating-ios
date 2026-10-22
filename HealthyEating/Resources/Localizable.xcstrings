@@ -195,6 +195,16 @@
         }
       }
     },
+    "%lld changes synced %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld changes synced %2$@"
+          }
+        }
+      }
+    },
     "%lld days of log, %lld weigh-ins" : {
       "localizations" : {
         "en" : {
@@ -240,26 +250,16 @@
     "%lld weigh-ins deleted." : {
 
     },
-    "%lld weigh-ins synced %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld weigh-ins synced %2$@"
-          }
-        }
-      }
-    },
     "0.0" : {
+
+    },
+    "1 change synced %@" : {
 
     },
     "1 meal" : {
 
     },
     "1 weigh-in deleted." : {
-
-    },
-    "1 weigh-in synced %@" : {
 
     },
     "11 g lower" : {
@@ -385,9 +385,6 @@
 
     },
     "Baseline" : {
-
-    },
-    "Body weight, both ways, when the app opens" : {
 
     },
     "CSV (ZIP)" : {
@@ -759,6 +756,9 @@
 
     },
     "Meals" : {
+
+    },
+    "Meals and body weight, when the app opens" : {
 
     },
     "Meals you log in Claude or ChatGPT appear here." : {

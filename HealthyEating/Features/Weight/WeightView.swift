@@ -83,7 +83,7 @@ struct WeightView: View {
     private func reload() async {
         guard let data = app.data else { return }
         // Sync with Apple Health first, so pulling to refresh shows new weigh-ins.
-        await app.syncAppleHealth()
+        await app.syncAppleHealth(foreground: true)
         if let error = await model.load(data) { app.handle(error) }
     }
 

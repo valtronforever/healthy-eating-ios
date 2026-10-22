@@ -6,6 +6,8 @@ import Foundation
 nonisolated protocol NutritionDataSource: Sendable {
     /// All meals of one local day, newest first.
     func meals(on day: Date) async throws(APIError) -> [Meal]
+    /// All meals of a range of local days, newest first (every page).
+    func allMeals(from: Date, to: Date) async throws(APIError) -> [Meal]
     func days(from: Date, to: Date) async throws(APIError) -> DayRange
     func trends(window: Int) async throws(APIError) -> Trends
     /// The local week, Monday to Sunday, that contains `week`.
@@ -39,10 +41,14 @@ nonisolated protocol NutritionDataSource: Sendable {
 
 nonisolated extension APIClient: NutritionDataSource {
     func meals(on day: Date) async throws(APIError) -> [Meal] {
+        try await allMeals(from: day, to: day)
+    }
+
+    func allMeals(from: Date, to: Date) async throws(APIError) -> [Meal] {
         var meals: [Meal] = []
         var cursor: String?
         repeat {
-            let page = try await self.meals(from: day, to: day, cursor: cursor)
+            let page = try await self.meals(from: from, to: to, cursor: cursor, limit: 200)
             meals += page.meals
             cursor = page.nextCursor
         } while cursor != nil

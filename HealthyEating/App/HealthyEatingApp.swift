@@ -28,11 +28,11 @@ struct RootView: View {
                 .task {
                     model.scheduleBackgroundRefresh()
                     await model.syncTimeZoneIfNeeded()
-                    await model.syncAppleHealth()
+                    await model.syncAppleHealth(foreground: true)
                 }
-                // Weigh-ins sync with Apple Health whenever the app opens.
+                // Meals and weigh-ins sync with Apple Health whenever the app opens.
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { Task { await model.syncAppleHealth() } }
+                    if phase == .active { Task { await model.syncAppleHealth(foreground: true) } }
                 }
         } else {
             OnboardingFlow()

@@ -113,10 +113,10 @@ final class WeightUITests: XCTestCase {
         for _ in 0..<4 where !(deleteAll.exists && deleteAll.isHittable) { app.swipeUp() }
         app.swipeUp()
         XCTAssertEqual(toggle.value as? String, "0", "off by default")
-        XCTAssertTrue(app.staticTexts["Body weight, both ways, when the app opens"].exists)
+        XCTAssertTrue(app.staticTexts["Meals and body weight, when the app opens"].exists)
 
         toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
-        let imported = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "3 weigh-ins synced")).firstMatch
+        let imported = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "changes synced")).firstMatch
         XCTAssertTrue(imported.waitForExistence(timeout: 5))
         XCTAssertEqual(toggle.value as? String, "1")
         keepScreenshot(named: "D3 Apple Health sync on")
