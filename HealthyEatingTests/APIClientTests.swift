@@ -226,6 +226,8 @@ struct APIContractTests {
         ("WeightsDeleted", WeightsDeletedDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ExpenditureResponse", ExpenditureDTO.CodingKeys.allCases.map(\.stringValue)),
         ("WidgetTokenResponse", WidgetTokenDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("UsualMealResponse", UsualMealDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("UsualMealsResponse", UsualMealsDTO.CodingKeys.allCases.map(\.stringValue)),
         ("WidgetTodayResponse", WidgetTodayDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MealUpdate", RequestFields.mealUpdate),
         ("SettingsUpdate", RequestFields.settingsUpdate),
@@ -235,6 +237,7 @@ struct APIContractTests {
         ("WeightsCreate", RequestFields.weightsCreate),
         ("WeightUpdate", RequestFields.weightUpdate),
         ("DeleteAllWeightsRequest", RequestFields.deleteAllWeights),
+        ("MealRelog", RequestFields.mealRelog),
         ("AppleHealthDeletions", RequestFields.appleHealthDeletions),
         ]
 

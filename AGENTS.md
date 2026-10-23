@@ -60,7 +60,7 @@ HealthyEating/
     Preview/         # preview helpers
   Features/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
-    Dashboard/       # Today, meal detail
+    Dashboard/       # Today, meal detail, usual meals (log one again)
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
     Settings/        # server, connection URL, Calm mode, weight tracking, sign out; Connected assistants
                      # with the connection guide (the A4 steps, to read again after onboarding)
@@ -244,6 +244,13 @@ Notes:
   free Apple developer team can't use App Groups but can share Keychain groups under its prefix.
   The app's entitlements list its own group first, so its tokens stay out of the shared group.
   The widget extension has no String Catalog yet (English only).
+- Usual meals (ios#39, `Features/Dashboard/UsualMealsView.swift`, `GET /api/v1/usual-meals`,
+  `POST /api/v1/meals/{id}/relog`): "Log a usual meal" on Today (under the meals, or under "No
+  meals yet today") lists dishes eaten at least twice in 90 days; choosing one shows its values
+  and provenance, a time (default now) and "Log meal". The server copies the meal (values,
+  provenance, confidence) with the new time; the app sends a UUID it chose once per screen, so a
+  repeated tap saves one meal. This is the only way the app adds a meal: it never creates meals
+  from scratch. Calm mode hides the calories there too.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

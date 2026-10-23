@@ -9,6 +9,21 @@ nonisolated extension APIClient {
         var nextCursor: String?
     }
 
+    /// Dishes eaten at least twice in the last 90 days, most often first (`listUsualMeals`).
+    func usualMeals() async throws(APIError) -> [UsualMeal] {
+        try await send(Request(path: "usual-meals"), as: UsualMealsDTO.self).meals.map { usual in
+            UsualMeal(meal: Self.meal(usual.meal), times: usual.times)
+        }
+    }
+
+    /// Logs a meal again at `date`: same values and provenance (`relogMeal`). `newID` is chosen
+    /// here, so sending the same request twice saves the meal once.
+    func relog(_ mealID: UUID, as newID: UUID, at date: Date) async throws(APIError) -> Meal {
+        let body = Self.json(["id": newID.uuidString.lowercased(), "eaten_at": APIDate.timeString(date)])
+        let request = Request(method: "POST", path: "meals/\(mealID.uuidString.lowercased())/relog", body: body)
+        return Self.meal(try await send(request, as: MealDTO.self))
+    }
+
     /// Meals on the local days `from`...`to`, newest first (`listMeals`).
     func meals(from: Date? = nil, to: Date? = nil, cursor: String? = nil, limit: Int = 100) async throws(APIError) -> MealPage {
         var query = [URLQueryItem(name: "limit", value: String(limit))]

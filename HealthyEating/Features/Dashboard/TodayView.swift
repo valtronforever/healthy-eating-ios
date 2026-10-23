@@ -62,6 +62,7 @@ final class TodayModel {
 struct TodayView: View {
     @Environment(AppModel.self) private var app
     @State private var model = TodayModel()
+    @State private var showingUsualMeals = false
 
     var body: some View {
         NavigationStack {
@@ -70,6 +71,11 @@ struct TodayView: View {
                 .navigationTitle("Today")
                 .navigationDestination(for: Meal.self) { meal in
                     MealDetailView(meal: meal) { Task { await reload() } }
+                }
+                .sheet(isPresented: $showingUsualMeals) {
+                    UsualMealsView(energyUnit: model.state.value?.settings.energyUnit ?? .kcal) {
+                        Task { await reload() }
+                    }
                 }
         }
         .task(id: app.foregrounds) { await reload() }
@@ -156,12 +162,29 @@ struct TodayView: View {
                 }
                 .listRowBackground(Color.surface)
 
+                usualMealsSection
+
                 Section { markDay(snapshot.day).plainListRow() }
+            } else if !isNewUser {
+                usualMealsSection
             }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .refreshable { await reload() }
+    }
+
+    /// Usual meals (ios#39): log one again, also before today's first meal. New food is still
+    /// logged in the chat.
+    private var usualMealsSection: some View {
+        Section {
+            Button { showingUsualMeals = true } label: {
+                Label("Log a usual meal", systemImage: "arrow.clockwise")
+            }
+            .foregroundStyle(.accent)
+            .accessibilityIdentifier("logUsualMeal")
+        }
+        .listRowBackground(Color.surface)
     }
 
     private func summary(_ snapshot: TodayModel.Snapshot) -> some View {

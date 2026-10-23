@@ -6,6 +6,10 @@ import Foundation
 nonisolated protocol NutritionDataSource: Sendable {
     /// All meals of one local day, newest first.
     func meals(on day: Date) async throws(APIError) -> [Meal]
+    /// Dishes eaten at least twice in the last 90 days, most often first.
+    func usualMeals() async throws(APIError) -> [UsualMeal]
+    /// Logs one of the person's meals again: the app never creates meals from scratch.
+    func relog(_ mealID: UUID, as newID: UUID, at date: Date) async throws(APIError) -> Meal
     /// All meals of a range of local days, newest first (every page).
     func allMeals(from: Date, to: Date) async throws(APIError) -> [Meal]
     func days(from: Date, to: Date) async throws(APIError) -> DayRange

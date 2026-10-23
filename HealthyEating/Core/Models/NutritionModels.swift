@@ -62,6 +62,15 @@ nonisolated enum OptionalNutrient: String, Sendable, CaseIterable, Identifiable 
 }
 
 /// One logged meal, as the backend stores it (`meals` table).
+/// A dish eaten at least twice in the last 90 days (`/api/v1/usual-meals`): its latest meal,
+/// which a re-log copies, and how often it was eaten.
+nonisolated struct UsualMeal: Identifiable, Hashable, Sendable {
+    var meal: Meal
+    var times: Int
+
+    var id: UUID { meal.id }
+}
+
 nonisolated struct Meal: Identifiable, Hashable, Sendable {
     let id: UUID
     var eatenAt: Date

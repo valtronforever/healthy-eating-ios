@@ -57,6 +57,24 @@ actor SampleDataSource: NutritionDataSource {
         }.sorted { $0.eatenAt > $1.eatenAt }
     }
 
+    /// The sample days repeat the same meals, so each of today's is a usual one.
+    func usualMeals() -> [UsualMeal] {
+        todayMeals.enumerated().map { index, meal in UsualMeal(meal: meal, times: 9 - index * 2) }
+    }
+
+    func relog(_ mealID: UUID, as newID: UUID, at date: Date) throws(APIError) -> Meal {
+        if let existing = todayMeals.first(where: { $0.id == newID }) { return existing }
+        guard var meal = todayMeals.first(where: { $0.id == mealID }) else { throw .notFound }
+        meal = Meal(
+            id: newID, eatenAt: date, dishName: meal.dishName, caloriesKcal: meal.caloriesKcal,
+            proteinG: meal.proteinG, fatG: meal.fatG, carbohydratesG: meal.carbohydratesG,
+            portionGrams: meal.portionGrams, estimatedFields: meal.estimatedFields, confidence: meal.confidence,
+            assistant: String(localized: "Healthy Eating for iOS"), sourceNote: meal.sourceNote,
+            optional: meal.optional, estimatedOptional: meal.estimatedOptional, updatedAt: .now)
+        todayMeals.append(meal)
+        return meal
+    }
+
     /// Today's meals only: the earlier sample days repeat the same meals (and ids).
     func allMeals(from: Date, to: Date) -> [Meal] {
         todayMeals.filter { $0.eatenAt >= calendar.startOfDay(for: from) }.sorted { $0.eatenAt > $1.eatenAt }

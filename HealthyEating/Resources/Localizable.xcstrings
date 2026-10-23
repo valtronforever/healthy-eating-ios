@@ -250,6 +250,9 @@
         }
       }
     },
+    "%lld times in the last 90 days" : {
+
+    },
     "%lld weigh-ins deleted." : {
 
     },
@@ -731,13 +734,25 @@
     "Loading" : {
 
     },
+    "Log a usual meal" : {
+
+    },
+    "Log again" : {
+
+    },
     "Log in your chat" : {
+
+    },
+    "Log meal" : {
 
     },
     "Log my breakfast: oatmeal with berries" : {
 
     },
     "Logged %lld of the last 7 days." : {
+
+    },
+    "Logging a meal again copies its values and where they came from. New food is logged in your chat." : {
 
     },
     "Low" : {
@@ -762,6 +777,9 @@
 
     },
     "Meals and body weight, when the app opens" : {
+
+    },
+    "Meals you log at least twice within 90 days appear here, ready to log again." : {
 
     },
     "Meals you log in Claude or ChatGPT appear here." : {
@@ -804,6 +822,9 @@
 
     },
     "No target" : {
+
+    },
+    "No usual meals yet" : {
 
     },
     "No weigh-ins in the last 4 weeks" : {
@@ -1164,6 +1185,9 @@
 
     },
     "Use this iPhone’s time zone" : {
+
+    },
+    "Usual meals" : {
 
     },
     "Values" : {

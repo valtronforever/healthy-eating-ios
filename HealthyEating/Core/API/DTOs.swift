@@ -4,6 +4,23 @@ import Foundation
 // so `APIContractTests` can check them against the contract. Views never see these types:
 // `APIClient` maps them to domain models.
 
+nonisolated struct UsualMealDTO: Decodable, Sendable {
+    let meal: MealDTO
+    let times: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case meal, times
+    }
+}
+
+nonisolated struct UsualMealsDTO: Decodable, Sendable {
+    let meals: [UsualMealDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case meals
+    }
+}
+
 nonisolated struct MealDTO: Decodable, Sendable {
     let id: UUID
     let dishName: String
@@ -490,6 +507,7 @@ nonisolated enum RequestFields {
         "dish_name", "portion_grams", "calories_kcal", "protein_g", "fat_g", "carbohydrates_g",
         "fiber_g", "sugar_g", "sodium_mg", "eaten_at",
     ]
+    static let mealRelog = ["id", "eaten_at"]
     static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets", "weight_tracking", "weight_unit"]
     static let weightCreate = ["weight_kg", "measured_at", "source", "external_id"]
     static let weightsCreate = ["entries"]
