@@ -6,10 +6,24 @@ The native dashboard for the self-hosted Healthy Eating nutrition tracker. Food 
 an AI assistant connected to the backend's MCP server; the app shows trends, provenance and the
 connection status.
 
-Status: v1 (MVP) screens done. You sign in to your own server (OAuth in the system web sheet,
-tokens in the Keychain), and Today, meal detail and edit, History, Trends and Settings show and
-change the data on that server. See [AGENTS.md](AGENTS.md) for the stack, layout, commands and
-product rules.
+Status: early, in daily use on the owner's iPhone. You sign in to your own server (OAuth in the
+system web sheet, tokens in the Keychain); everything the app shows and changes lives on that
+server. What it does:
+
+- **Today, History, Trends:** daily totals against your target ranges, meals with provenance
+  (your numbers or estimated, with confidence), meal edit and delete, complete and partial days,
+  7, 30 and 90 day trends, fiber, sugar and sodium when meals have them, and a weekly review.
+- **Weight and energy (opt-in):** weigh-ins from the chat, the app or Apple Health, a smoothed
+  trend and an estimate of how many calories you maintain at, from your own log.
+- **Apple Health (opt-in):** meals and weigh-ins go to Apple Health; weigh-ins from scales and the
+  Health app come back.
+- **Widgets:** today's totals on the Home Screen and Lock Screen, updated by the widget itself.
+- **Works offline:** the last data stays readable when your server can't be reached.
+- **Calm mode:** hides calories everywhere, including the widgets.
+- **Settings:** connected assistants with a connection guide, time zone, kcal or kJ, targets, a
+  notice when meals stop arriving, data export and account deletion.
+
+See [AGENTS.md](AGENTS.md) for the stack, layout, commands and product rules.
 
 - [Design system spec](design/system/README.md): tokens, copy rules, component guidelines.
 - [App icon package](design/README.md): the approved R4 Fork + knife conversation icon.
