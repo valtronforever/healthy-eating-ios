@@ -32,7 +32,9 @@ struct RootView: View {
                 }
                 // Meals and weigh-ins sync with Apple Health whenever the app opens.
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { Task { await model.syncAppleHealth(foreground: true) } }
+                    guard phase == .active else { return }
+                    model.cameToForeground()
+                    Task { await model.syncAppleHealth(foreground: true) }
                 }
         } else {
             OnboardingFlow()

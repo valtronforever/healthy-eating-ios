@@ -56,6 +56,7 @@ struct TrendsView: View {
         NavigationStack {
             List {
                 Section {
+                    OfflineBanner(bottomSpacing: Spacing.s2).plainListRow()
                     Picker("Period", selection: $period) {
                         ForEach(Period.allCases) { Text($0.title).tag($0) }
                     }
@@ -124,7 +125,7 @@ struct TrendsView: View {
             .navigationTitle("Trends")
             .refreshable { await reload() }
         }
-        .task(id: period) { await reload() }
+        .task(id: "\(period.rawValue)-\(app.foregrounds)") { await reload() }
     }
 
     private func reload() async {

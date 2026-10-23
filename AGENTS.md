@@ -43,7 +43,7 @@ type style, spacing value, component and screen in the app; read it before build
 | Networking | `URLSession` with async/await |
 | Auth | `ASWebAuthenticationSession` (OAuth 2.1 Authorization Code + PKCE) |
 | Secure storage | Keychain (Security framework) |
-| Local cache | SwiftData (optional, for offline viewing) |
+| Local cache | `ResponseCache`: the last answer of each GET request as files (offline viewing) |
 | Tests | Swift Testing (unit), XCTest/XCUITest (UI) |
 | Min deployment target | iOS 18 (revisit before release) |
 
@@ -68,7 +68,7 @@ HealthyEating/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
     API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
-    Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server)
+    Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server), ResponseCache
     Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
     Health/          # AppleHealthStore (HealthKit: body mass and nutrition, system and placeholder), AppleHealthSync
     Models/          # domain models, display formatting, SampleData (until the API exists)
@@ -107,7 +107,8 @@ writes light, dark and AX5 PNGs of every component to the simulator's temporary 
 (`HealthyEatingRenders`) for visual review; the onboarding UI test keeps named screenshots of A2
 (https error) and A4 in the result bundle. Launch arguments (`AppModel.LaunchArgument`):
 `-resetOnboarding`, `-skipOnboarding` (signed in with placeholder credentials, no network),
-`-placeholderSignIn` (sign-in succeeds without the web sheet), `-initialTab today|history|trends|settings`;
+`-placeholderSignIn` (sign-in succeeds without the web sheet), `-initialTab today|history|trends|settings`,
+`-showOffline` (with placeholders: the G1 offline banner);
 both placeholder arguments keep tokens in memory, never in the Keychain; with
 `xcrun simctl ui <device> appearance dark` and `content_size accessibility-extra-extra-extra-large`
 they give headless screenshots of every tab in light, dark and AX5. Tests pass on iOS 27 and on
@@ -207,6 +208,15 @@ Notes:
   returns nothing while read access is off). Weight tracking off skips the weight part. Turning it off
   or signing out forgets the anchor and `written`; data already synced stays on both sides.
   Placeholder launches use `PlaceholderAppleHealthStore` (three weigh-ins, no HealthKit).
+- Offline (ios#20, `Core/Storage/ResponseCache.swift`, G1): `APIClient` keeps the last answer of
+  every GET request on the device (Application Support, one folder per server, file protection
+  until first unlock, excluded from backups) and returns it when the server can't be reached,
+  telling `AppModel.cacheUsed` when it was saved; any answer from the server clears that. Every
+  screen therefore works read-only offline. Today, History and Trends show `OfflineBanner`
+  ("Offline. Showing data from 09:42. It updates when you are back online.") while
+  `AppModel.offlineSince` is set; changes still need the server and fail as before. Today, History
+  and Trends reload whenever the app comes back to the foreground (`AppModel.foregrounds`).
+  Signing out, an ended session and deleting the account delete the cache.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

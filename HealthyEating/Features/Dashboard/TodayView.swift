@@ -72,7 +72,7 @@ struct TodayView: View {
                     MealDetailView(meal: meal) { Task { await reload() } }
                 }
         }
-        .task { await reload() }
+        .task(id: app.foregrounds) { await reload() }
     }
 
     @ViewBuilder
@@ -112,6 +112,7 @@ struct TodayView: View {
         return List {
             Section {
                 dateLine.plainListRow()
+                OfflineBanner(bottomSpacing: Spacing.s3).plainListRow()
                 if let error = model.refreshError {
                     Banner(kind: .error, message: error.message, actionTitle: "Retry") { Task { await reload() } }
                         .plainListRow()

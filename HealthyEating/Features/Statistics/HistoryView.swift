@@ -50,6 +50,7 @@ struct HistoryView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Spacing.s5) {
+                    OfflineBanner()
                     switch model.state {
                     case .loading:
                         LoadingCards()
@@ -73,7 +74,7 @@ struct HistoryView: View {
                 DayView(date: day.date) { Task { await reload() } }
             }
         }
-        .task(id: model.month) { await reload() }
+        .task(id: "\(model.month.timeIntervalSince1970)-\(app.foregrounds)") { await reload() }
     }
 
     private func reload() async {

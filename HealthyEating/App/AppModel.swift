@@ -29,6 +29,12 @@ final class AppModel {
     /// The person declined notifications when turning the notice on.
     private(set) var arrivalNoticeDeclined = false
 
+    /// Set while screens show answers kept on the device because the server can't be reached:
+    /// when the oldest of them was saved (the G1 offline banner). Cleared by the next answer.
+    private(set) var offlineSince: Date?
+    /// Counts the times the app came back to the foreground; screens reload on it.
+    private(set) var foregrounds = 0
+
     /// Two-way sync of body weight with Apple Health (ios#32); off by default, per device.
     private(set) var appleHealthSyncEnabled: Bool
     /// When the last sync changed something, and how many changes (the switch shows it).
@@ -47,6 +53,8 @@ final class AppModel {
     @ObservationIgnored private(set) var authSession: AuthSession?
     /// Where the screens read and change data: the server, or sample data in UI tests.
     @ObservationIgnored private(set) var data: (any NutritionDataSource)?
+    /// The offline copy of the signed-in server's answers (ios#20).
+    @ObservationIgnored private var cache: ResponseCache?
     @ObservationIgnored private let usesSampleData: Bool
     /// `-skipOnboarding` shows a filled account; `-placeholderSignIn` a new one whose first meal
     /// arrives while A5 waits.
@@ -77,6 +85,8 @@ final class AppModel {
         static let placeholderSignIn = "-placeholderSignIn"
         /// `-initialTab history` opens that tab first (screenshots).
         static let initialTab = "-initialTab"
+        /// With placeholders: show the G1 offline banner as if answers were kept since 09:42.
+        static let showOffline = "-showOffline"
 
         static func initialTab(in arguments: [String]) -> AppTab? {
             guard let index = arguments.firstIndex(of: initialTab), arguments.indices.contains(index + 1) else { return nil }
@@ -135,12 +145,39 @@ final class AppModel {
         if let storedServer, signedIn {
             startSession(for: storedServer)
         }
+        if placeholders, arguments.contains(LaunchArgument.showOffline) {
+            offlineSince = Calendar.current.date(bySettingHour: 9, minute: 42, second: 0, of: .now)
+        }
     }
 
     private func startSession(for server: ServerAddress) {
         let session = AuthSession(server: server, store: credentials)
         authSession = session
-        data = usesSampleData ? SampleDataSource(newAccount: !skipsOnboarding) : APIClient(server: server, auth: session)
+        guard !usesSampleData else {
+            data = SampleDataSource(newAccount: !skipsOnboarding)
+            return
+        }
+        cache = ResponseCache.directory(for: server).map(ResponseCache.init(directory:))
+        var client = APIClient(server: server, auth: session)
+        client.cache = cache
+        client.onCacheUse = { [weak self] savedAt in
+            Task { @MainActor in self?.cacheUsed(savedAt) }
+        }
+        data = client
+    }
+
+    /// An answer arrived (nil) or a kept one was shown (its save time).
+    func cacheUsed(_ savedAt: Date?) {
+        guard let savedAt else {
+            offlineSince = nil
+            return
+        }
+        offlineSince = min(offlineSince ?? savedAt, savedAt)
+    }
+
+    /// The app came back to the foreground: screens reload (and leave offline when they can).
+    func cameToForeground() {
+        foregrounds += 1
     }
 
     /// Applies settings read from the server that the app also keeps locally (Calm mode), so a
@@ -334,6 +371,10 @@ final class AppModel {
     }
 
     private func reset() {
+        // The offline copy belongs to the account: signing out or deleting it removes it.
+        cache?.removeAll()
+        cache = nil
+        offlineSince = nil
         authSession = nil
         data = nil
         isSignedIn = false

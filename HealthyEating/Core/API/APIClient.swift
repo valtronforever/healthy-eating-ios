@@ -8,6 +8,11 @@ nonisolated struct APIClient: Sendable {
     let auth: AuthSession
     var session: URLSession = .shared
     var calendar: Calendar = .current
+    /// GET answers kept for offline use (ios#20); nil keeps nothing.
+    var cache: ResponseCache?
+    /// Told after every GET: nil when the server answered, the save time when a kept answer was
+    /// shown because the server could not be reached.
+    var onCacheUse: @Sendable (Date?) -> Void = { _ in }
 
     struct Request: Sendable {
         var method = "GET"
@@ -16,8 +21,24 @@ nonisolated struct APIClient: Sendable {
         var body: Data?
     }
 
-    /// Sends the request and returns the body of a 2xx answer (empty for 204).
+    /// Sends the request and returns the body of a 2xx answer (empty for 204). A GET answer is
+    /// kept; when the server can't be reached the kept answer is returned instead, if there is one.
     func data(for request: Request) async throws(APIError) -> Data {
+        guard request.method == "GET", let cache else { return try await fetch(request) }
+        let key = ResponseCache.key(path: request.path, query: request.query)
+        do {
+            let data = try await fetch(request)
+            cache.store(data, for: key)
+            onCacheUse(nil)
+            return data
+        } catch .unreachable(let detail) {
+            guard let kept = cache.entry(for: key) else { throw .unreachable(detail) }
+            onCacheUse(kept.savedAt)
+            return kept.body
+        }
+    }
+
+    private func fetch(_ request: Request) async throws(APIError) -> Data {
         let token: String
         do {
             token = try await auth.accessToken()

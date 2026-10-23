@@ -26,6 +26,11 @@ final class StubProtocol: URLProtocol, @unchecked Sendable {
         }
         Self.requests.append(request)
         let (status, body) = Self.handler?(request) ?? (500, Data())
+        // A negative status stands for a network failure (no answer at all).
+        guard status >= 0 else {
+            client?.urlProtocol(self, didFailWithError: URLError(.notConnectedToInternet))
+            return
+        }
         let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: body)
