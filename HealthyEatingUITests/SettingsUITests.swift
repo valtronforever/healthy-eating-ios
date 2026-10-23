@@ -65,7 +65,9 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
         // The list renders rows as they scroll into view.
         let notice = app.switches["arrivalNotice"]
-        for _ in 0..<6 where !(notice.exists && notice.isHittable) { app.swipeUp() }
+        // Clear of the floating tab bar, which covers the bottom rows.
+        let tabBar = app.tabBars.firstMatch
+        for _ in 0..<8 where !(notice.exists && notice.isHittable && notice.frame.maxY < tabBar.frame.minY - 20) { app.swipeUp() }
         XCTAssertTrue(notice.isHittable)
         XCTAssertEqual(notice.value as? String, "0", "off by default")
         XCTAssertTrue(app.staticTexts["One quiet notification after 2 days"].exists)

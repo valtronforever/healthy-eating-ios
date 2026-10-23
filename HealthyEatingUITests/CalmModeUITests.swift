@@ -14,7 +14,9 @@ final class CalmModeUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
         let calm = app.switches.matching(NSPredicate(format: "label BEGINSWITH 'Calm mode'")).firstMatch
-        for _ in 0..<6 where !(calm.exists && calm.isHittable) { app.swipeUp() }
+        // Scroll until the switch is clear of the floating tab bar, which covers the bottom rows.
+        let tabBar = app.tabBars.firstMatch
+        for _ in 0..<8 where !(calm.exists && calm.isHittable && calm.frame.maxY < tabBar.frame.minY - 20) { app.swipeUp() }
         calm.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
         XCTAssertTrue(wait(for: calm, value: "1"))
 
