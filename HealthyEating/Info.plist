@@ -19,6 +19,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>SharedKeychainGroup</key>
+	<string>$(AppIdentifierPrefix)io.github.valtronforever.HealthyEating.shared</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

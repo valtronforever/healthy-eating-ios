@@ -1262,6 +1262,9 @@
     "complete" : {
 
     },
+    "from %@" : {
+
+    },
     "g" : {
       "comment" : "Unit symbol for grams"
     },

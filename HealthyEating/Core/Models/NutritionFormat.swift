@@ -23,22 +23,10 @@ nonisolated enum NutrientUnit: Sendable {
     }
 }
 
-/// The unit the person wants energy shown in (a server setting). Values always arrive in kcal;
-/// kJ is a display conversion only.
-nonisolated enum EnergyUnit: String, Sendable, CaseIterable {
-    case kcal
-    case kj
-
+/// The design system's unit for energy in this unit (`EnergyUnit` itself is in `Shared/`).
+nonisolated extension EnergyUnit {
     var nutrientUnit: NutrientUnit {
         self == .kcal ? .kcal : .kilojoules
-    }
-
-    /// The value in this unit, converted with `Measurement` (1 kcal = 4.184 kJ).
-    func amount(fromKcal kcal: Double) -> Double {
-        switch self {
-        case .kcal: kcal
-        case .kj: Measurement(value: kcal, unit: UnitEnergy.kilocalories).converted(to: .kilojoules).value
-        }
     }
 }
 

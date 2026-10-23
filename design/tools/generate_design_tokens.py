@@ -3,11 +3,12 @@
 
 Writes, relative to the repository root:
 
-- HealthyEating/Resources/Assets.xcassets/Colors/<token>.colorset
-  (one color set per color token, Any and Dark appearances)
+- Shared/DesignTokens.xcassets/<token>.colorset
+  (one color set per color token, Any and Dark appearances; `Shared/` is compiled into the app
+  and the widget extension)
 - HealthyEating/Resources/Assets.xcassets/AccentColor.colorset
-  (the global accent color, a copy of the `accent` token)
-- HealthyEating/DesignSystem/Tokens/DesignTokens.generated.swift
+  (the app's global accent color, a copy of the `accent` token)
+- Shared/DesignTokens.generated.swift
   (Color and ShapeStyle extensions, Spacing and Radius enums)
 
 Usage (standard library only):
@@ -30,9 +31,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TOKENS = ROOT / "design" / "system" / "tokens.json"
 ASSETS = ROOT / "HealthyEating" / "Resources" / "Assets.xcassets"
-COLORS_DIR = ASSETS / "Colors"
+COLORS_DIR = ROOT / "Shared" / "DesignTokens.xcassets"
 ACCENT_DIR = ASSETS / "AccentColor.colorset"
-SWIFT_OUT = ROOT / "HealthyEating" / "DesignSystem" / "Tokens" / "DesignTokens.generated.swift"
+SWIFT_OUT = ROOT / "Shared" / "DesignTokens.generated.swift"
 
 # Names that already exist on `ShapeStyle` in SwiftUI (for example `LinkShapeStyle.link`).
 # They get a `Color` static only, so `.foregroundStyle(.link)` stays unambiguous.
@@ -149,7 +150,7 @@ def planned_files() -> dict[Path, str]:
     data = json.loads(TOKENS.read_text(encoding="utf-8"))
     colors = resolve_colors(data["color"]["tokens"])
     files: dict[Path, str] = {
-        COLORS_DIR / "Contents.json": json.dumps({"info": XCODE_INFO, "properties": {"provides-namespace": False}}, indent=2) + "\n",
+        COLORS_DIR / "Contents.json": json.dumps({"info": XCODE_INFO}, indent=2) + "\n",
     }
     for name, value, _ in colors:
         files[COLORS_DIR / f"{name}.colorset" / "Contents.json"] = colorset(value["light"], value["dark"])

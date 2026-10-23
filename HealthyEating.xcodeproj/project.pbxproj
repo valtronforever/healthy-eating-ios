@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4E0000000000000000000701 /* HealthyEatingWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4E0000000000000000000204 /* HealthyEatingWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4E0000000000000000000301 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,12 +25,34 @@
 			remoteGlobalIDString = 4E0000000000000000000101;
 			remoteInfo = HealthyEating;
 		};
+		4E0000000000000000000303 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4E0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4E0000000000000000000104;
+			remoteInfo = HealthyEatingWidgets;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4E0000000000000000000414 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4E0000000000000000000701 /* HealthyEatingWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4E0000000000000000000201 /* HealthyEating.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthyEating.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E0000000000000000000202 /* HealthyEatingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthyEatingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E0000000000000000000203 /* HealthyEatingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthyEatingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E0000000000000000000204 /* HealthyEatingWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HealthyEatingWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -37,6 +63,14 @@
 				Info.plist,
 			);
 			target = 4E0000000000000000000101 /* HealthyEating */;
+		};
+		4E0000000000000000000022 /* Exceptions for "HealthyEatingWidgets" folder in "HealthyEatingWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				HealthyEatingWidgets.entitlements,
+				Info.plist,
+			);
+			target = 4E0000000000000000000104 /* HealthyEatingWidgets */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -57,6 +91,19 @@
 		4E0000000000000000000013 /* HealthyEatingUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HealthyEatingUITests;
+			sourceTree = "<group>";
+		};
+		4E0000000000000000000014 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		4E0000000000000000000015 /* HealthyEatingWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4E0000000000000000000022 /* Exceptions for "HealthyEatingWidgets" folder in "HealthyEatingWidgets" target */,
+			);
+			path = HealthyEatingWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -83,6 +130,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4E0000000000000000000441 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -90,6 +144,8 @@
 			isa = PBXGroup;
 			children = (
 				4E0000000000000000000011 /* HealthyEating */,
+				4E0000000000000000000014 /* Shared */,
+				4E0000000000000000000015 /* HealthyEatingWidgets */,
 				4E0000000000000000000012 /* HealthyEatingTests */,
 				4E0000000000000000000013 /* HealthyEatingUITests */,
 				4E0000000000000000000003 /* Products */,
@@ -102,6 +158,7 @@
 				4E0000000000000000000201 /* HealthyEating.app */,
 				4E0000000000000000000202 /* HealthyEatingTests.xctest */,
 				4E0000000000000000000203 /* HealthyEatingUITests.xctest */,
+				4E0000000000000000000204 /* HealthyEatingWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,13 +173,16 @@
 				4E0000000000000000000412 /* Sources */,
 				4E0000000000000000000411 /* Frameworks */,
 				4E0000000000000000000413 /* Resources */,
+				4E0000000000000000000414 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4E0000000000000000000313 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4E0000000000000000000011 /* HealthyEating */,
+				4E0000000000000000000014 /* Shared */,
 			);
 			name = HealthyEating;
 			packageProductDependencies = (
@@ -177,6 +237,29 @@
 			productReference = 4E0000000000000000000203 /* HealthyEatingUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		4E0000000000000000000104 /* HealthyEatingWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E0000000000000000000541 /* Build configuration list for PBXNativeTarget "HealthyEatingWidgets" */;
+			buildPhases = (
+				4E0000000000000000000442 /* Sources */,
+				4E0000000000000000000441 /* Frameworks */,
+				4E0000000000000000000443 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4E0000000000000000000015 /* HealthyEatingWidgets */,
+				4E0000000000000000000014 /* Shared */,
+			);
+			name = HealthyEatingWidgets;
+			packageProductDependencies = (
+			);
+			productName = HealthyEatingWidgets;
+			productReference = 4E0000000000000000000204 /* HealthyEatingWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -198,6 +281,9 @@
 						CreatedOnToolsVersion = 27.1;
 						TestTargetID = 4E0000000000000000000101;
 					};
+					4E0000000000000000000104 = {
+						CreatedOnToolsVersion = 27.1;
+					};
 				};
 			};
 			buildConfigurationList = 4E0000000000000000000501 /* Build configuration list for PBXProject "HealthyEating" */;
@@ -217,6 +303,7 @@
 				4E0000000000000000000101 /* HealthyEating */,
 				4E0000000000000000000102 /* HealthyEatingTests */,
 				4E0000000000000000000103 /* HealthyEatingUITests */,
+				4E0000000000000000000104 /* HealthyEatingWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -237,6 +324,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4E0000000000000000000433 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4E0000000000000000000443 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -267,6 +361,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4E0000000000000000000442 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -279,6 +380,11 @@
 			isa = PBXTargetDependency;
 			target = 4E0000000000000000000101 /* HealthyEating */;
 			targetProxy = 4E0000000000000000000302 /* PBXContainerItemProxy */;
+		};
+		4E0000000000000000000313 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4E0000000000000000000104 /* HealthyEatingWidgets */;
+			targetProxy = 4E0000000000000000000303 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -540,6 +646,56 @@
 			};
 			name = Release;
 		};
+		4E0000000000000000000641 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HealthyEatingWidgets/HealthyEatingWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthyEatingWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.valtronforever.HealthyEating.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		4E0000000000000000000642 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HealthyEatingWidgets/HealthyEatingWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthyEatingWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Healthy Eating";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.valtronforever.HealthyEating.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -575,6 +731,15 @@
 			buildConfigurations = (
 				4E0000000000000000000631 /* Debug */,
 				4E0000000000000000000632 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E0000000000000000000541 /* Build configuration list for PBXNativeTarget "HealthyEatingWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4E0000000000000000000641 /* Debug */,
+				4E0000000000000000000642 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

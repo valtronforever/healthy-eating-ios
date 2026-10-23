@@ -16,6 +16,7 @@ final class AppModel {
     var calmMode: Bool {
         didSet {
             defaults.set(calmMode, forKey: Keys.calmMode)
+            if oldValue != calmMode { WidgetUpdates.setCalmMode(calmMode) }
             // Also stored on the server, so it follows the person to another device.
             if let data, oldValue != calmMode, !adoptingServerSettings {
                 let calm = calmMode
@@ -306,18 +307,38 @@ final class AppModel {
         for key in Keys.appleHealth { defaults.removeObject(forKey: key) }
     }
 
-    /// Background refresh: the arrival check and the Apple Health sync, then the next refresh.
+    /// Background refresh: the arrival check, the Apple Health sync and the widgets' totals,
+    /// then the next refresh.
     func backgroundRefresh() async {
         await checkArrival()
         await syncAppleHealth()
+        await refreshWidgets()
         scheduleBackgroundRefresh()
     }
 
-    /// Keeps a background refresh scheduled while the notice or the Apple Health sync is on.
+    /// Keeps a background refresh scheduled while signed in: the widgets need it, and iOS decides
+    /// how often it really runs.
     func scheduleBackgroundRefresh() {
-        if isSignedIn, arrivalNoticeEnabled || appleHealthSyncEnabled {
-            noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery)
+        if isSignedIn { noticeCenter.scheduleCheck(after: ArrivalNotice.checkEvery) }
+    }
+
+    /// Today's totals for the widgets, outside Today (background refresh).
+    func refreshWidgets(now: Date = .now, calendar: Calendar = .current) async {
+        guard let data else { return }
+        do throws(APIError) {
+            let today = try await data.days(from: now, to: now).days.first { calendar.isDate($0.date, inSameDayAs: now) }
+            let settings = try await data.settings()
+            let integration = try await data.integrationStatus()
+            WidgetUpdates.publish(WidgetUpdates.snapshot(
+                day: today, settings: settings, integration: integration, now: now, calendar: calendar))
+        } catch {
+            handle(error)
         }
+    }
+
+    /// Today loaded: the widgets show the same numbers.
+    func todayLoaded(day: DayTotals?, settings: UserSettings, integration: IntegrationState) {
+        WidgetUpdates.publish(WidgetUpdates.snapshot(day: day, settings: settings, integration: integration))
     }
 
     /// Call with every API error a screen gets: an ended session returns to onboarding.
@@ -371,8 +392,10 @@ final class AppModel {
     }
 
     private func reset() {
-        // The offline copy belongs to the account: signing out or deleting it removes it.
+        // The offline copy and the widgets' totals belong to the account: signing out or deleting
+        // it removes them.
         cache?.removeAll()
+        WidgetUpdates.clear()
         cache = nil
         offlineSince = nil
         authSession = nil

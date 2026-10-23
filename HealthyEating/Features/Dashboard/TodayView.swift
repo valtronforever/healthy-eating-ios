@@ -212,7 +212,10 @@ struct TodayView: View {
     private func reload() async {
         guard let data = app.data else { return }
         if let error = await model.load(data) { app.handle(error) }
-        if let settings = model.state.value?.settings { app.adopt(settings) }
+        if let snapshot = model.state.value {
+            app.adopt(snapshot.settings)
+            app.todayLoaded(day: snapshot.day, settings: snapshot.settings, integration: snapshot.integration)
+        }
     }
 
     /// Calm mode's consistency line: a plain count, never a streak.

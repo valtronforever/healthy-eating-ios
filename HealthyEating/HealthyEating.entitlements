@@ -6,5 +6,10 @@
 	<true/>
 	<key>com.apple.developer.healthkit.access</key>
 	<array/>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)io.github.valtronforever.HealthyEating</string>
+		<string>$(AppIdentifierPrefix)io.github.valtronforever.HealthyEating.shared</string>
+	</array>
 </dict>
 </plist>

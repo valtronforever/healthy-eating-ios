@@ -55,7 +55,7 @@ Optional: `swift-openapi-generator` (Apache-2.0) to generate the REST client fro
 HealthyEating/
   App/               # @main app, root navigation (TabView), AppModel (server, onboarding state)
   DesignSystem/
-    Tokens/          # DesignTokens.generated.swift (colors, Spacing, Radius), Typography.swift
+    Tokens/          # Typography.swift (the generated tokens are in Shared/)
     Components/      # SwiftUI versions of the design system components, each with #Preview blocks
     Preview/         # preview helpers
   Features/
@@ -72,18 +72,22 @@ HealthyEating/
     Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
     Health/          # AppleHealthStore (HealthKit: body mass and nutrition, system and placeholder), AppleHealthSync
     Models/          # domain models, display formatting, SampleData (until the API exists)
-  Resources/         # Assets.xcassets (AppIcon, AppIconImage, Colors/, AccentColor), Localizable.xcstrings
+  Resources/         # Assets.xcassets (AppIcon, AppIconImage, AccentColor), Localizable.xcstrings
+Shared/              # compiled into the app and the widget extension: DesignTokens.generated.swift and
+                     # DesignTokens.xcassets (colors, Spacing, Radius), EnergyUnit, TodaySnapshot
+HealthyEatingWidgets/  # WidgetKit extension: F1 "Today" widget (small, medium, Lock Screen circular and
+                       # rectangular); Info.plist and entitlements excluded from the synced folder
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
   Fixtures/openapi.json  # copy of the backend's /api/v1 contract; APIContractTests check the DTOs against it
 HealthyEatingUITests/  # XCUITest: onboarding flow, tabs
-design/tools/generate_design_tokens.py   # tokens.json -> color sets + DesignTokens.generated.swift
+design/tools/generate_design_tokens.py   # tokens.json -> Shared/ color sets + DesignTokens.generated.swift, app AccentColor
 ```
 
 The project uses Xcode folder-synchronized groups: files added under these folders are part of
 their target automatically; do not add files to `project.pbxproj` by hand.
 `HealthyEating/Info.plist` holds only what build settings cannot express (the `healthyeating`
 URL scheme, `OAuthRedirect`; `UIBackgroundModes` `fetch` and `BGTaskSchedulerPermittedIdentifiers`
-for the arrival check); Xcode merges it with the generated Info.plist and the project
+for background refresh; `SharedKeychainGroup` for the widgets); Xcode merges it with the generated Info.plist and the project
 excludes it from the folder's resources. Put other Info.plist keys in `INFOPLIST_KEY_*` settings
 (`NSHealthShareUsageDescription` and `NSHealthUpdateUsageDescription` are). `HealthyEating/HealthyEating.entitlements` (HealthKit)
 is excluded the same way and set with `CODE_SIGN_ENTITLEMENTS`.
@@ -217,6 +221,19 @@ Notes:
   `AppModel.offlineSince` is set; changes still need the server and fail as before. Today, History
   and Trends reload whenever the app comes back to the foreground (`AppModel.foregrounds`).
   Signing out, an ended session and deleting the account delete the cache.
+- Widgets (ios#35, `HealthyEatingWidgets/TodayWidget.swift`, F1): one "Today" widget in four
+  families. They read only `TodaySnapshot` (today's totals, ranges, energy unit, Calm mode, last
+  saved meal), which the app writes after Today loads, in background refresh (now scheduled
+  whenever signed in) and when Calm mode changes (`WidgetUpdates`), and removes on sign-out; they
+  never reach the server or see a token. Only a changed snapshot reloads the timeline; the timeline
+  has a second entry at midnight, after which the widget says "Open Healthy Eating to update"
+  instead of showing yesterday's numbers. Calm mode shows protein (and the other macros) instead
+  of calories. Bars use the range band's look: no colors for over or under. The snapshot is a
+  Keychain item in the access group `<team>.io.github.valtronforever.HealthyEating.shared`
+  (`KeychainSnapshotStorage`; the app's Info.plist `SharedKeychainGroup` names it), because a
+  free Apple developer team can't use App Groups but can share Keychain groups under its prefix.
+  The app's entitlements list its own group first, so its tokens stay out of the shared group.
+  The widget extension has no String Catalog yet (English only).
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).
