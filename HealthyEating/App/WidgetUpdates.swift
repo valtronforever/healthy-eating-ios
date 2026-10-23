@@ -33,8 +33,13 @@ nonisolated enum WidgetUpdates {
         publish(snapshot, storage: storage)
     }
 
-    static func clear(storage: any SnapshotStorage = KeychainSnapshotStorage()) {
+    /// Signing out: the widgets lose the totals and their token.
+    static func clear(
+        storage: any SnapshotStorage = KeychainSnapshotStorage(),
+        access: any SnapshotStorage = KeychainSnapshotStorage(account: "access")
+    ) {
         TodaySnapshot.remove(from: storage)
+        WidgetAccess.remove(from: access)
         WidgetCenter.shared.reloadTimelines(ofKind: TodaySnapshot.widgetKind)
     }
 }

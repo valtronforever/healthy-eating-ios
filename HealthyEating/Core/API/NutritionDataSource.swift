@@ -28,6 +28,8 @@ nonisolated protocol NutritionDataSource: Sendable {
     /// at most `APIClient.maxWeightBatch`); unknown ids are ignored. Returns how many it deleted.
     func deleteAppleHealthWeights(_ sampleIDs: [UUID]) async throws(APIError) -> Int
     func energyEstimate() async throws(APIError) -> EnergyEstimate
+    /// A read-only token for the widgets, tied to this sign-in (`WidgetAccess`).
+    func createWidgetToken() async throws(APIError) -> String
     func connections() async throws(APIError) -> [Connection]
     /// Returns true if the revoked sign-in was this app's own.
     func revoke(signIn id: UUID) async throws(APIError) -> Bool

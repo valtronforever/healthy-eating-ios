@@ -99,6 +99,22 @@ nonisolated struct TodaySnapshot: Codable, Equatable, Sendable {
         return calmMode ? carbs : "F \(Self.grams(fatG, locale: locale)) · \(carbs)"
     }
 
+    /// "Saved 20 min ago via Claude" at minute precision ("just now", "2 h ago"), or "No meals yet
+    /// today"; nil when the server sent no save time.
+    func savedLine(now: Date = .now) -> String? {
+        if mealCount == 0 { return String(localized: "No meals yet today") }
+        guard let saved = lastMealSavedAt else { return nil }
+        let minutes = Int(max(now.timeIntervalSince(saved), 0) / 60)
+        let age = switch minutes {
+        case ..<1: String(localized: "just now")
+        case ..<60: String(localized: "\(minutes) min ago")
+        case ..<(24 * 60): String(localized: "\(minutes / 60) h ago")
+        default: String(localized: "\(minutes / (24 * 60)) d ago")
+        }
+        guard let lastAssistant else { return String(localized: "Saved \(age)") }
+        return String(localized: "Saved \(age) via \(lastAssistant)")
+    }
+
     /// The end of a bar's track: past the range's upper bound (like the app's range band), or
     /// the value when it is further. Being over and under look the same.
     static func scale(_ value: Double, _ range: Range?) -> Double {
@@ -121,13 +137,14 @@ nonisolated protocol SnapshotStorage: Sendable {
 /// in its own group, which the widget can't read.
 nonisolated struct KeychainSnapshotStorage: SnapshotStorage {
     static let service = "io.github.valtronforever.HealthyEating.widget"
-    private static let account = "today"
+    /// "today" for the snapshot, "access" for the widget token (`WidgetAccess`).
+    var account = "today"
 
     /// The full group name from the app's Info.plist; the widget reads without one (its only group).
     var accessGroup: String? = Bundle.main.object(forInfoDictionaryKey: "SharedKeychainGroup") as? String
 
     private var base: [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: Self.service, kSecAttrAccount as String: Self.account]
+        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: Self.service, kSecAttrAccount as String: account]
     }
 
     func read() -> Data? {

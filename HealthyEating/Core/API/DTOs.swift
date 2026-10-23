@@ -307,6 +307,14 @@ nonisolated struct SettingsDTO: Decodable, Sendable {
     }
 }
 
+nonisolated struct WidgetTokenDTO: Decodable, Sendable {
+    let token: String
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case token
+    }
+}
+
 nonisolated struct WeightEntryDTO: Decodable, Sendable {
     let id: UUID
     let weightKg: Double

@@ -74,7 +74,8 @@ HealthyEating/
     Models/          # domain models, display formatting, SampleData (until the API exists)
   Resources/         # Assets.xcassets (AppIcon, AppIconImage, AccentColor), Localizable.xcstrings
 Shared/              # compiled into the app and the widget extension: DesignTokens.generated.swift and
-                     # DesignTokens.xcassets (colors, Spacing, Radius), EnergyUnit, TodaySnapshot
+                     # DesignTokens.xcassets (colors, Spacing, Radius), EnergyUnit, APIDate, TodaySnapshot,
+                     # WidgetAccess (the widget's token and its fetch)
 HealthyEatingWidgets/  # WidgetKit extension: F1 "Today" widget (small, medium, Lock Screen circular and
                        # rectangular); Info.plist and entitlements excluded from the synced folder
 HealthyEatingTests/    # Swift Testing: validation, formatting, token contrast, component renders, auth, API
@@ -222,14 +223,21 @@ Notes:
   and Trends reload whenever the app comes back to the foreground (`AppModel.foregrounds`).
   Signing out, an ended session and deleting the account delete the cache.
 - Widgets (ios#35, `HealthyEatingWidgets/TodayWidget.swift`, F1): one "Today" widget in four
-  families. They read only `TodaySnapshot` (today's totals, ranges, energy unit, Calm mode, last
-  saved meal), which the app writes after Today loads, in background refresh (now scheduled
-  whenever signed in) and when Calm mode changes (`WidgetUpdates`), and removes on sign-out; they
-  never reach the server or see a token. Only a changed snapshot reloads the timeline; the timeline
-  has a second entry at midnight, after which the widget says "Open Healthy Eating to update"
-  instead of showing yesterday's numbers. Calm mode shows protein (and the other macros) instead
-  of calories. Bars use the range band's look: no colors for over or under. The snapshot is a
-  Keychain item in the access group `<team>.io.github.valtronforever.HealthyEating.shared`
+  families, showing `TodaySnapshot` (today's totals, ranges, energy unit, Calm mode, last saved
+  meal). The widget fetches it itself from `GET /api/v1/widget/today` with a read-only widget
+  token (`Shared/WidgetAccess.swift`), asking for the next reload after 30 minutes (WidgetKit sets
+  the real pace), and saves it; when the server can't be reached it shows the last snapshot, and a
+  refused token is dropped. The app asks the server for that token (`POST /api/v1/widget-token`,
+  `AppModel.ensureWidgetAccess`) after Today loads when it has none for this server, and never
+  shares its own tokens. The app also writes the snapshot after Today loads, in background refresh
+  (scheduled whenever signed in) and when Calm mode changes (`WidgetUpdates`); sign-out removes the
+  snapshot and the widget token. Only a changed snapshot reloads the timeline; the timeline has a
+  second entry at midnight, after which the widget says "Open Healthy Eating to update" until it
+  has today's numbers. "Saved 20 min ago via Claude" has minute precision
+  (`TodaySnapshot.savedLine`), kept current by a timeline entry every 10 minutes (entries cost no
+  refresh budget); never the system timer, which shows seconds. Calm mode shows protein (and the other macros) instead
+  of calories. Bars use the range band's look: no colors for over or under. The snapshot and the widget token are
+  Keychain items in the access group `<team>.io.github.valtronforever.HealthyEating.shared`
   (`KeychainSnapshotStorage`; the app's Info.plist `SharedKeychainGroup` names it), because a
   free Apple developer team can't use App Groups but can share Keychain groups under its prefix.
   The app's entitlements list its own group first, so its tokens stay out of the shared group.

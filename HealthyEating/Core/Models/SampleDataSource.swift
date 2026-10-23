@@ -215,6 +215,9 @@ actor SampleDataSource: NutritionDataSource {
         return before - weighIns.count
     }
 
+    /// Sample data has no server; the widgets keep using the snapshot.
+    func createWidgetToken() -> String { "sample" }
+
     func deleteAllWeights() -> Int {
         defer { weighIns.removeAll() }
         return weighIns.count

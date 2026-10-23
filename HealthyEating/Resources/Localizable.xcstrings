@@ -205,6 +205,9 @@
         }
       }
     },
+    "%lld d ago" : {
+
+    },
     "%lld days of log, %lld weigh-ins" : {
       "localizations" : {
         "en" : {
@@ -939,6 +942,19 @@
     },
     "Save" : {
 
+    },
+    "Saved %@" : {
+
+    },
+    "Saved %@ via %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Saved %1$@ via %2$@"
+          }
+        }
+      }
     },
     "Saved by" : {
 

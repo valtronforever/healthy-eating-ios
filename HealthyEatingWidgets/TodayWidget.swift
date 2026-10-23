@@ -1,9 +1,11 @@
 import SwiftUI
 import WidgetKit
 
-/// F1 Home Screen and Lock Screen widgets (ios#35): today's totals from the snapshot the app
-/// writes (`TodaySnapshot`). Calm mode shows protein instead of calories. After midnight, or
-/// before the app wrote anything, they ask to open the app instead of showing old numbers.
+/// F1 Home Screen and Lock Screen widgets (ios#35): today's totals, fetched by the widget itself
+/// with its read-only token (`WidgetAccess`) about every 30 minutes, or the last snapshot the app
+/// or the widget saved (`TodaySnapshot`) when the server can't be reached. Calm mode shows protein
+/// instead of calories. With nothing from today they ask to open the app instead of showing old
+/// numbers.
 @main
 struct HealthyEatingWidgets: WidgetBundle {
     var body: some Widget {
@@ -25,13 +27,40 @@ struct TodayProvider: TimelineProvider {
         completion(TodayEntry(date: .now, snapshot: context.isPreview ? .sample : TodaySnapshot.load()))
     }
 
-    /// The snapshot now, and again at midnight (when it stops being today's). The app reloads the
-    /// timeline whenever it writes a new snapshot, so nothing polls.
+    /// Fetches today from the server when the widget has a token, then shows it now and again at
+    /// midnight (when it stops being today's), and asks WidgetKit for the next reload in about 30
+    /// minutes; WidgetKit decides the real pace within its daily budget. The app also reloads the
+    /// timeline whenever it saves a new snapshot.
     func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
-        let snapshot = TodaySnapshot.load()
-        let midnight = Calendar.current.nextDate(after: .now, matching: DateComponents(hour: 0), matchingPolicy: .nextTime) ?? .now
-        let entries = [TodayEntry(date: .now, snapshot: snapshot), TodayEntry(date: midnight, snapshot: snapshot)]
-        completion(Timeline(entries: entries, policy: .never))
+        Task {
+            let snapshot = await Self.latest()
+            let now = Date.now
+            let midnight = Calendar.current.nextDate(after: now, matching: DateComponents(hour: 0), matchingPolicy: .nextTime) ?? now
+            // An entry every 10 minutes keeps "Saved 20 min ago" right until the next fetch; entries
+            // cost no refresh budget.
+            let last = min(now.addingTimeInterval(3 * 3600), midnight)
+            var entries = stride(from: now, to: last, by: 10 * 60).map { TodayEntry(date: $0, snapshot: snapshot) }
+            entries.append(TodayEntry(date: midnight, snapshot: snapshot))
+            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(Self.refreshEvery))))
+        }
+    }
+
+    static let refreshEvery: TimeInterval = 30 * 60
+
+    /// Today from the server, saved for the next time; the last snapshot when that fails. A
+    /// refused token is dropped: the app asks for a new one when it signs in again.
+    static func latest() async -> TodaySnapshot? {
+        guard let access = WidgetAccess.load() else { return TodaySnapshot.load() }
+        do throws(WidgetAccess.FetchError) {
+            let fresh = try await access.today()
+            fresh.save()
+            return fresh
+        } catch .revoked {
+            WidgetAccess.remove()
+            return TodaySnapshot.load()
+        } catch {
+            return TodaySnapshot.load()
+        }
     }
 }
 
@@ -55,8 +84,8 @@ struct TodayWidgetView: View {
         if let snapshot = entry.snapshot, snapshot.isCurrent(now: entry.date) {
             switch family {
             case .accessoryCircular: CircularView(snapshot: snapshot)
-            case .accessoryRectangular: RectangularView(snapshot: snapshot)
-            case .systemMedium: MediumView(snapshot: snapshot)
+            case .accessoryRectangular: RectangularView(snapshot: snapshot, now: entry.date)
+            case .systemMedium: MediumView(snapshot: snapshot, now: entry.date)
             default: SmallView(snapshot: snapshot)
             }
         } else {
@@ -142,13 +171,14 @@ private struct SmallView: View {
 
 private struct MediumView: View {
     let snapshot: TodaySnapshot
+    let now: Date
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.s4) {
             VStack(alignment: .leading, spacing: 0) {
                 Hero(snapshot: snapshot)
                 Spacer(minLength: Spacing.s2)
-                SavedLine(snapshot: snapshot)
+                SavedLine(snapshot: snapshot, now: now)
             }
             VStack(alignment: .leading, spacing: Spacing.s2) {
                 if !snapshot.calmMode {
@@ -161,25 +191,19 @@ private struct MediumView: View {
     }
 }
 
-/// "Saved 20 min ago via Claude", updating by itself; "No meals yet today" before the first.
+/// "Saved 20 min ago via Claude" at minute precision, as of the timeline entry (entries every 10
+/// minutes keep it current); "No meals yet today" before the first.
 private struct SavedLine: View {
     let snapshot: TodaySnapshot
+    let now: Date
 
     var body: some View {
-        Group {
-            if snapshot.mealCount == 0 {
-                Text("No meals yet today")
-            } else if let saved = snapshot.lastMealSavedAt {
-                if let assistant = snapshot.lastAssistant {
-                    Text("Saved \(Text(saved, style: .relative)) ago via \(assistant)")
-                } else {
-                    Text("Saved \(Text(saved, style: .relative)) ago")
-                }
-            }
+        if let line = snapshot.savedLine(now: now) {
+            Text(verbatim: line)
+                .font(.footnote)
+                .foregroundStyle(.inkMuted)
+                .lineLimit(2)
         }
-        .font(.footnote)
-        .foregroundStyle(.inkMuted)
-        .lineLimit(2)
     }
 }
 
@@ -205,13 +229,14 @@ private struct CircularView: View {
 
 private struct RectangularView: View {
     let snapshot: TodaySnapshot
+    let now: Date
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(snapshot.lockScreenHeadline()).font(.headline).widgetAccentable().lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(snapshot.lockScreenDetail()).lineLimit(1)
-            SavedLine(snapshot: snapshot).foregroundStyle(.secondary)
+            SavedLine(snapshot: snapshot, now: now).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

@@ -225,6 +225,8 @@ struct APIContractTests {
         ("WeightsCreated", WeightsCreatedDTO.CodingKeys.allCases.map(\.stringValue)),
         ("WeightsDeleted", WeightsDeletedDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ExpenditureResponse", ExpenditureDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WidgetTokenResponse", WidgetTokenDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("WidgetTodayResponse", WidgetTodayDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MealUpdate", RequestFields.mealUpdate),
         ("SettingsUpdate", RequestFields.settingsUpdate),
         ("DayStatusUpdate", RequestFields.dayStatusUpdate),

@@ -202,6 +202,10 @@ nonisolated extension APIClient {
         return try await send(request, as: WeightsDeletedDTO.self).deleted
     }
 
+    func createWidgetToken() async throws(APIError) -> String {
+        try await send(Request(method: "POST", path: "widget-token"), as: WidgetTokenDTO.self).token
+    }
+
     func energyEstimate() async throws(APIError) -> EnergyEstimate {
         let dto = try await send(Request(path: "expenditure"), as: ExpenditureDTO.self)
         return EnergyEstimate(

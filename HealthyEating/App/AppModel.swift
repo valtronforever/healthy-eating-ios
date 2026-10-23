@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import WidgetKit
 
 /// App-wide state: the person's server, whether they are signed in, onboarding progress and
 /// Calm mode. Injected through the environment. Tokens never live here: they are in the
@@ -336,9 +337,24 @@ final class AppModel {
         }
     }
 
-    /// Today loaded: the widgets show the same numbers.
+    /// Today loaded: the widgets show the same numbers, and get their own token if they have none.
     func todayLoaded(day: DayTotals?, settings: UserSettings, integration: IntegrationState) {
         WidgetUpdates.publish(WidgetUpdates.snapshot(day: day, settings: settings, integration: integration))
+        Task { await ensureWidgetAccess() }
+    }
+
+    /// Gives the widgets a read-only token for this server so they fetch today's totals without
+    /// the app (`WidgetAccess`). Asked once per sign-in; a failure is tried again on the next load.
+    func ensureWidgetAccess(storage: any SnapshotStorage = KeychainSnapshotStorage(account: "access")) async {
+        guard !usesSampleData, let server, let data else { return }
+        guard WidgetAccess.load(from: storage)?.server != server.baseURL else { return }
+        do throws(APIError) {
+            let token = try await data.createWidgetToken()
+            WidgetAccess(server: server.baseURL, token: token).save(to: storage)
+            WidgetCenter.shared.reloadTimelines(ofKind: TodaySnapshot.widgetKind)
+        } catch {
+            handle(error)
+        }
     }
 
     /// Call with every API error a screen gets: an ended session returns to onboarding.
