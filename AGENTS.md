@@ -106,7 +106,8 @@ python3 design/tools/generate_design_tokens.py --check  # fails if generated tok
 
 Adjust the simulator name to one installed locally (`xcrun simctl list devices`). Before finishing
 any change, the project must build without warnings and tests must pass. CI
-(`.github/workflows/ci.yml`, on pushes to `main` and on pull requests) runs the token check and
+(`.github/workflows/ci.yml`, on pushes to `main` and on pull requests, except when only `README.md`
+changed) runs the token check and
 `xcodebuild test` with warnings as errors on the newest Xcode and iPhone simulator of the
 `macos-26` runner. `ComponentRenderTests`
 writes light, dark and AX5 PNGs of every component to the simulator's temporary directory
