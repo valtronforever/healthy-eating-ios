@@ -55,6 +55,27 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
     }
 
+    /// The connection steps can be read again after onboarding (Connected assistants › Add another).
+    @MainActor
+    func testConnectionGuideIsUnderConnectedAssistants() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "settings"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
+        app.buttons["connectedAssistants"].tap()
+        let guide = app.buttons["connectionGuide"]
+        for _ in 0..<4 where !(guide.exists && guide.isHittable) { app.swipeUp() }
+        keepScreenshot(named: "E2 Connected assistants")
+        guide.tap()
+
+        XCTAssertTrue(app.navigationBars["Connection guide"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["In Claude, open Settings › Connectors."].exists)
+        keepScreenshot(named: "Connection guide")
+        app.segmentedControls.buttons["ChatGPT"].tap()
+        XCTAssertTrue(app.staticTexts["On a computer, open chatgpt.com/plugins."].waitForExistence(timeout: 5))
+    }
+
     @MainActor
     func testNoticeWhenMealsStopArrivingIsOptIn() throws {
         let app = XCUIApplication()

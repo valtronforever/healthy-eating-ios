@@ -42,6 +42,15 @@ struct ConnectedAssistantsView: View {
                             Text("Add this URL to your assistant (a connector in Claude, a plugin in ChatGPT):").foregroundStyle(.ink)
                             CopyField(value: server.mcpURL.absoluteString)
                         }
+                        // The separator would start at the Copy button's label; keep it full width.
+                        .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
+                        // The A4 steps, to read again after onboarding (Claude, ChatGPT and Other inside).
+                        NavigationLink {
+                            ConnectionGuideView(server: server)
+                        } label: {
+                            Text("Connection guide").foregroundStyle(.ink)
+                        }
+                        .accessibilityIdentifier("connectionGuide")
                     } header: {
                         Text("Add another").sectionTextStyle()
                     }

@@ -258,7 +258,6 @@ struct ServerErrorMessage: View {
 struct TodayConnectCard: View {
     let server: ServerAddress?
     @State private var showingSteps = false
-    @State private var assistant: AssistantKind = .claude
 
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.s3) {
@@ -278,17 +277,12 @@ struct TodayConnectCard: View {
         .cardStyle(padding: Spacing.s5)
         .sheet(isPresented: $showingSteps) {
             NavigationStack {
-                ScrollView {
-                    ConnectionSteps(assistant: $assistant, mcpURL: server?.mcpURL).padding(Spacing.s5)
-                }
-                .background(Color.bg)
-                .navigationTitle("Connection steps")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { showingSteps = false }
+                ConnectionGuideView(server: server)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { showingSteps = false }
+                        }
                     }
-                }
             }
             .presentationDetents([.medium, .large])
         }

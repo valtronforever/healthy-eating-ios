@@ -62,7 +62,8 @@ HealthyEating/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
-    Settings/        # server, connection URL, Calm mode, weight tracking, sign out
+    Settings/        # server, connection URL, Calm mode, weight tracking, sign out; Connected assistants
+                     # with the connection guide (the A4 steps, to read again after onboarding)
     Weight/          # D3 Weight and energy (opened from Trends), weigh-ins list and form
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
