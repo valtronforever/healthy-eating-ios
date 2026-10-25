@@ -108,20 +108,16 @@ python3 design/tools/generate_design_tokens.py --check  # fails if generated tok
 Adjust the simulator name to one installed locally (`xcrun simctl list devices`). Before finishing
 any change, the project must build without warnings and tests must pass. CI
 (`.github/workflows/ci.yml`, on pushes to `main` and on pull requests, except when only `README.md`
-changed) runs four jobs at once on `macos-26` runners with the newest Xcode and iPhone simulator:
-the unit tests (with the token check) and the UI tests in three shards. Each job runs
-`xcodebuild build-for-testing` with warnings as errors, boots the simulator (only after the build:
-booting during it slowed the build several times over on the 3-CPU runner), then runs
-`test-without-building` with its `-only-testing` list; a failed UI test is retried once
-(`-retry-tests-on-failure -test-iterations 2`), because on a just-booted CI simulator a tap is
-sometimes lost. `.github/scripts/ui_test_shard.py`
-assigns every `XCTestCase` class in `HealthyEatingUITests/` to a shard by its CI duration (update
-`SECONDS` there when a class gets much slower or faster; new classes count 40 s). In UI tests,
+changed) runs the token check and
+`xcodebuild test` with warnings as errors on the newest Xcode and iPhone simulator of the
+`macos-26` runner; a failed test is retried once (`-retry-tests-on-failure -test-iterations 2`),
+because on the CI simulator a UI tap is sometimes lost. (Splitting it into a unit job and three
+UI shards was tried on 2026-10-25 and saved about 2 minutes at best, within the runner's
+variance, so it was reverted.) In UI tests,
 scroll with `app.scrollTo(element)` (`HealthyEatingUITests/ScrollHelpers.swift`) before tapping
 anything that may need scrolling: one snapshot per check (every separate
 `exists`/`isHittable`/`frame` query costs seconds on CI), and after a swipe it waits until the
-element stops moving, since a tap on a gliding list only stops it.
-`ComponentRenderTests`
+element stops moving, since a tap on a gliding list only stops it. `ComponentRenderTests`
 writes light, dark and AX5 PNGs of every component to the simulator's temporary directory
 (`HealthyEatingRenders`) for visual review; the onboarding UI test keeps named screenshots of A2
 (https error) and A4 in the result bundle. Launch arguments (`AppModel.LaunchArgument`):

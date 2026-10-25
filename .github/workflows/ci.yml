@@ -17,20 +17,10 @@ permissions:
   contents: read
 
 jobs:
-  # Four runners at once: the unit tests, and the UI tests split into three shards
-  # (.github/scripts/ui_test_shard.py balances the test classes by their CI durations).
-  test:
-    name: ${{ matrix.name }}
+  build-and-test:
+    name: Build and test
     runs-on: macos-26
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { name: Unit tests, tests: unit, shard: 0 }
-          - { name: UI tests 1 of 3, tests: ui, shard: 0 }
-          - { name: UI tests 2 of 3, tests: ui, shard: 1 }
-          - { name: UI tests 3 of 3, tests: ui, shard: 2 }
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +32,6 @@ jobs:
           xcodebuild -version
 
       - name: Check generated design tokens
-        if: matrix.tests == 'unit'
         run: python3 design/tools/generate_design_tokens.py --check
 
       - name: Pick an iPhone simulator
@@ -62,43 +51,25 @@ jobs:
 
       # Simulator builds sign ad hoc ("Sign to Run Locally"), which needs no certificate.
       # Keep signing on: unsigned apps get no Keychain access, and the Keychain tests fail.
-      - name: Build for testing (warnings are errors)
+      # A test that fails gets one more try: on the CI simulator a UI tap is sometimes lost.
+      # A real bug fails both times; the log shows every retry.
+      - name: Build and test (warnings are errors)
         run: |
           set -o pipefail
-          xcodebuild build-for-testing \
-            -project HealthyEating.xcodeproj \
-            -scheme HealthyEating \
-            -destination "id=${{ steps.simulator.outputs.udid }}" \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
-            GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-      # Booted only after the build: booting during it (3 CPUs) slowed the build from 1.5 to
-      # 4 to 7 minutes and left the simulator too busy for the first UI tests (CI run 40176477601).
-      - name: Boot the simulator
-        run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
-
-      - name: Test
-        run: |
-          set -o pipefail
-          if [ "${{ matrix.tests }}" = unit ]; then
-            only="-only-testing:HealthyEatingTests"
-          else
-            # A UI test that fails gets one more try: on a just-booted CI simulator a tap is
-            # sometimes lost. A real bug fails both times; the log shows every retry.
-            only="$(python3 .github/scripts/ui_test_shard.py ${{ matrix.shard }} 3) -retry-tests-on-failure -test-iterations 2"
-          fi
-          echo "Running: $only"
-          xcodebuild test-without-building \
+          xcodebuild test \
             -project HealthyEating.xcodeproj \
             -scheme HealthyEating \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult \
-            $only
+            -retry-tests-on-failure \
+            -test-iterations 2 \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: TestResults-${{ matrix.tests }}-${{ matrix.shard }}
+          name: TestResults
           path: TestResults.xcresult
           retention-days: 7
