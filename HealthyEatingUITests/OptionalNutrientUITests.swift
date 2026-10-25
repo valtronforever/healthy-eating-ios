@@ -25,7 +25,7 @@ final class OptionalNutrientUITests: XCTestCase {
         app.tabBars.buttons["Trends"].tap()
         XCTAssertTrue(app.navigationBars["Trends"].waitForExistence(timeout: 5))
         let sodium = app.staticTexts["Sodium"]
-        for _ in 0..<4 where !(sodium.exists && sodium.isHittable) { app.swipeUp() }
+        app.scrollTo(sodium, maxSwipes: 4)
         XCTAssertTrue(sodium.exists)
         keepScreenshot(named: "D1 Trends with fiber, sugar and sodium")
     }

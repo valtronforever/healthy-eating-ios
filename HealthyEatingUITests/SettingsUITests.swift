@@ -42,7 +42,7 @@ final class SettingsUITests: XCTestCase {
 
         // E3 delete account
         let delete = app.buttons["Delete account"]
-        while !delete.isHittable { app.swipeUp() }
+        app.scrollTo(delete)
         delete.tap()
         let confirmField = app.textFields["deleteConfirmation"]
         XCTAssertTrue(confirmField.waitForExistence(timeout: 5))
@@ -65,7 +65,7 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
         app.buttons["connectedAssistants"].tap()
         let guide = app.buttons["connectionGuide"]
-        for _ in 0..<4 where !(guide.exists && guide.isHittable) { app.swipeUp() }
+        app.scrollTo(guide, maxSwipes: 4)
         keepScreenshot(named: "E2 Connected assistants")
         guide.tap()
 
@@ -86,9 +86,7 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
         // The list renders rows as they scroll into view.
         let notice = app.switches["arrivalNotice"]
-        // Clear of the floating tab bar, which covers the bottom rows.
-        let tabBar = app.tabBars.firstMatch
-        for _ in 0..<8 where !(notice.exists && notice.isHittable && notice.frame.maxY < tabBar.frame.minY - 20) { app.swipeUp() }
+        app.scrollTo(notice, maxSwipes: 8)
         XCTAssertTrue(notice.isHittable)
         XCTAssertEqual(notice.value as? String, "0", "off by default")
         XCTAssertTrue(app.staticTexts["One quiet notification after 2 days"].exists)

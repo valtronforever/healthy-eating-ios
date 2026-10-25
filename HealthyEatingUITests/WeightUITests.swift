@@ -16,11 +16,11 @@ final class WeightUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
         let unit = app.segmentedControls["weightUnit"]
-        for _ in 0..<4 where !(unit.exists && unit.isHittable) { app.swipeUp() }
+        app.scrollTo(unit, maxSwipes: 4)
         XCTAssertTrue(unit.buttons["kg"].isSelected)
 
         let weighIns = app.buttons["weighIns"]
-        for _ in 0..<6 where !(weighIns.exists && weighIns.isHittable) { app.swipeUp() }
+        app.scrollTo(weighIns, maxSwipes: 6)
         XCTAssertTrue(app.switches["weightTracking"].exists)
         keepScreenshot(named: "E1 Weight settings")
         weighIns.tap()
@@ -64,7 +64,7 @@ final class WeightUITests: XCTestCase {
         app.launch()
 
         let link = app.buttons["weightAndEnergy"]
-        for _ in 0..<6 where !(link.exists && link.isHittable) { app.swipeUp() }
+        app.scrollTo(link, maxSwipes: 6)
         link.tap()
         XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["−0.3 kg per week over the last 4 weeks"].exists)
@@ -80,7 +80,7 @@ final class WeightUITests: XCTestCase {
         // so the switch is clear of the floating tab bar.
         let show = app.switches["Show on Trends"]
         let deleteAll = app.buttons["Delete all weight data"]
-        for _ in 0..<4 where !(deleteAll.exists && deleteAll.isHittable) { app.swipeUp() }
+        app.scrollTo(deleteAll, maxSwipes: 4)
         app.swipeUp()
         XCTAssertTrue(show.isHittable)
         show.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5)).tap()
@@ -105,12 +105,12 @@ final class WeightUITests: XCTestCase {
         app.launch()
 
         let link = app.buttons["weightAndEnergy"]
-        for _ in 0..<6 where !(link.exists && link.isHittable) { app.swipeUp() }
+        app.scrollTo(link, maxSwipes: 6)
         link.tap()
         XCTAssertTrue(app.staticTexts["kg trend"].waitForExistence(timeout: 10))
         let toggle = app.switches["appleHealthSync"]
         let deleteAll = app.buttons["Delete all weight data"]
-        for _ in 0..<4 where !(deleteAll.exists && deleteAll.isHittable) { app.swipeUp() }
+        app.scrollTo(deleteAll, maxSwipes: 4)
         app.swipeUp()
         XCTAssertEqual(toggle.value as? String, "0", "off by default")
         XCTAssertTrue(app.staticTexts["Meals and body weight, when the app opens"].exists)

@@ -31,7 +31,7 @@ final class MealUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["650 kcal"].waitForExistence(timeout: 5))
 
         let delete = app.buttons["Delete meal"]
-        while !delete.isHittable { app.swipeUp() }
+        app.scrollTo(delete)
         delete.tap()
         let confirm = app.sheets.buttons["Delete meal"].firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 5))

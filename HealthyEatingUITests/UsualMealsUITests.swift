@@ -13,7 +13,7 @@ final class UsualMealsUITests: XCTestCase {
         app.launch()
 
         let entry = app.buttons["logUsualMeal"]
-        for _ in 0..<6 where !(entry.exists && entry.isHittable) { app.swipeUp() }
+        app.scrollTo(entry, maxSwipes: 6)
         let yogurt = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Greek yogurt with honey"))
         let before = yogurt.count
         entry.tap()

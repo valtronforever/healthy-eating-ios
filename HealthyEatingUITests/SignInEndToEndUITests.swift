@@ -53,7 +53,7 @@ final class SignInEndToEndUITests: XCTestCase {
         // Signing out revokes the session and returns to Welcome.
         app.tabBars.buttons["Settings"].tap()
         let signOut = app.buttons["Sign out"]
-        while !signOut.isHittable { app.swipeUp() }
+        app.scrollTo(signOut)
         signOut.tap()
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
     }
@@ -93,7 +93,7 @@ final class SignInEndToEndUITests: XCTestCase {
 
         app.tabBars.buttons["Settings"].tap()
         let signOut = app.buttons["Sign out"]
-        for _ in 0..<8 where !signOut.isHittable { app.swipeUp() }
+        app.scrollTo(signOut, maxSwipes: 8)
         signOut.tap()
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
     }

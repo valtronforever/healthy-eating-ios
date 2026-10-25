@@ -14,7 +14,7 @@ final class WeeklyReviewUITests: XCTestCase {
 
         XCTAssertTrue(app.navigationBars["Trends"].waitForExistence(timeout: 10))
         let entry = app.buttons["weeklyReview"]
-        for _ in 0..<6 where !(entry.exists && entry.isHittable) { app.swipeUp() }
+        app.scrollTo(entry, maxSwipes: 6)
         entry.tap()
 
         XCTAssertTrue(app.navigationBars["Weekly review"].waitForExistence(timeout: 5))
@@ -27,7 +27,7 @@ final class WeeklyReviewUITests: XCTestCase {
         app.buttons["previousWeek"].tap()
         XCTAssertTrue(app.buttons["nextWeek"].waitForEnabled(timeout: 5))
         XCTAssertTrue(app.staticTexts["Days logged"].waitForExistence(timeout: 5))
-        for _ in 0..<4 where !app.staticTexts["Low-confidence estimates"].isHittable { app.swipeUp() }
+        app.scrollTo(app.staticTexts["Low-confidence estimates"], maxSwipes: 4)
         XCTAssertTrue(app.staticTexts["Where values came from"].exists || app.otherElements["Where values came from"].exists)
         keepScreenshot(named: "D2 Weekly review last week")
     }
