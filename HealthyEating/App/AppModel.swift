@@ -52,6 +52,8 @@ final class AppModel {
     @ObservationIgnored private var adoptingServerSettings = false
     @ObservationIgnored let credentials: CredentialStore
     @ObservationIgnored private let signInProvider: any SignInProviding
+    /// The web sheet for adding a login (`LoginLinking`); a placeholder in UI tests.
+    @ObservationIgnored let webAuthenticator: any WebAuthenticating
     @ObservationIgnored private(set) var authSession: AuthSession?
     /// Where the screens read and change data: the server, or sample data in UI tests.
     @ObservationIgnored private(set) var data: (any NutritionDataSource)?
@@ -106,6 +108,7 @@ final class AppModel {
         arguments: [String] = ProcessInfo.processInfo.arguments,
         secureStore: (any SecureStore)? = nil,
         signInProvider: (any SignInProviding)? = nil,
+        webAuthenticator: (any WebAuthenticating)? = nil,
         noticeCenter: (any ArrivalNoticeCenter)? = nil,
         appleHealth: (any AppleHealthStore)? = nil
     ) {
@@ -114,6 +117,7 @@ final class AppModel {
         self.defaults = defaults
         self.credentials = store
         self.signInProvider = signInProvider ?? (placeholders ? PlaceholderSignIn() : OAuthSignIn())
+        self.webAuthenticator = webAuthenticator ?? (placeholders ? PlaceholderWebAuthenticator() : SystemWebAuthenticator())
         self.noticeCenter = noticeCenter ?? (placeholders ? PlaceholderArrivalNoticeCenter() : SystemArrivalNoticeCenter())
         let health = appleHealth ?? (placeholders ? PlaceholderAppleHealthStore() : SystemAppleHealthStore())
         self.appleHealth = health

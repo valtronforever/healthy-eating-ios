@@ -34,6 +34,9 @@
         }
       }
     },
+    "%@ account linked. You can sign in with it from now on." : {
+
+    },
     "%@ at %@" : {
       "localizations" : {
         "en" : {
@@ -301,6 +304,9 @@
     "Accept the risk warning and select Create as a plugin." : {
 
     },
+    "Account linked. You can sign in with it from now on." : {
+
+    },
     "Add Healthy Eating to ChatGPT" : {
 
     },
@@ -320,6 +326,9 @@
 
     },
     "Add weigh-in" : {
+
+    },
+    "Added %@" : {
 
     },
     "Added in the app" : {
@@ -722,6 +731,9 @@
         }
       }
     },
+    "Last sign-in %@" : {
+
+    },
     "Last used %@" : {
 
     },
@@ -729,6 +741,15 @@
 
     },
     "Leave a field empty for an open range. Your days are shown against these ranges, never judged by them." : {
+
+    },
+    "Link an account" : {
+
+    },
+    "Link another Google, Microsoft or Apple account. An account that already signs in to another Healthy Eating account is not linked; Healthy Eating accounts are never merged." : {
+
+    },
+    "Linked accounts" : {
 
     },
     "Loading" : {
@@ -1031,6 +1052,9 @@
     "Shown once both weekdays and the weekend have counted days" : {
 
     },
+    "Sign in with any of these, in this app or in your assistant, to reach the same data." : {
+
+    },
     "Sign in with the same account you use here." : {
 
     },
@@ -1118,6 +1142,12 @@
     "The start of a range can’t be above its end." : {
 
     },
+    "This account already signs in to another Healthy Eating account, so it was not linked. Healthy Eating accounts are never merged." : {
+
+    },
+    "This account was already linked." : {
+
+    },
     "This address does not look like a Healthy Eating server. Check the address." : {
 
     },
@@ -1130,10 +1160,16 @@
     "This iPhone · now" : {
 
     },
+    "This is the only account you sign in with, so it stays linked." : {
+
+    },
     "This item is no longer on your server." : {
 
     },
     "This signs this iPhone out of %@. Your data stays on your server." : {
+
+    },
+    "This took too long or was already used. Try linking the account again." : {
 
     },
     "Time" : {
@@ -1176,6 +1212,12 @@
 
     },
     "Units and targets" : {
+
+    },
+    "Unlink" : {
+
+    },
+    "Unlink the %@ account?" : {
 
     },
     "Unnamed assistant" : {
@@ -1239,6 +1281,9 @@
 
     },
     "Yesterday, %@" : {
+
+    },
+    "You can no longer sign in with %@. Your data stays on your server." : {
 
     },
     "You sign in on your server’s page. An account is created the first time." : {

@@ -43,7 +43,7 @@ final class SettingsModel {
     }
 }
 
-/// E1 Settings: the account, server and time zone, energy unit and target ranges, connected
+/// E1 Settings: the account and its linked accounts, server and time zone, energy unit and target ranges, connected
 /// assistants, Calm mode, export, licenses, sign out and delete account.
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
@@ -118,6 +118,17 @@ struct SettingsView: View {
                         .foregroundStyle(.inkMuted)
                 }
             }
+            NavigationLink {
+                LinkedAccountsView { Task { await reload() } }
+            } label: {
+                HStack(spacing: Spacing.s3) {
+                    SymbolTile(systemName: "person.badge.key", small: true)
+                    LabeledContent("Linked accounts") {
+                        Text(verbatim: "\(snapshot.account.linkedLogins.count)").foregroundStyle(.inkMuted)
+                    }
+                }
+            }
+            .accessibilityIdentifier("linkedAccounts")
         }
         .listRowBackground(Color.surface)
 

@@ -7,18 +7,46 @@ nonisolated struct Account: Sendable, Equatable {
     /// Social logins linked to the account: "google", "microsoft", "apple" (or "dev").
     var linkedLogins: [String]
 
-    /// "Google and Apple" for the account row.
+    /// "Google and Apple" for the account row; two logins of one provider name it once.
     var loginsText: String {
-        let names = linkedLogins.map { login -> String in
-            switch login {
-            case "google": "Google"
-            case "microsoft": "Microsoft"
-            case "apple": "Apple"
-            default: login.capitalized
-            }
+        var names: [String] = []
+        for name in linkedLogins.map(Login.providerName) where !names.contains(name) {
+            names.append(name)
         }
         return names.formatted(.list(type: .and))
     }
+}
+
+/// One social login that signs in to the account (`GET /api/v1/me/logins`, #20).
+nonisolated struct Login: Identifiable, Sendable, Equatable {
+    let id: UUID
+    /// "google", "microsoft", "apple" (or "dev" on development servers).
+    var provider: String
+    var email: String?
+    var createdAt: Date
+    var lastLoginAt: Date?
+
+    var providerName: String { Self.providerName(provider) }
+
+    static func providerName(_ provider: String) -> String {
+        switch provider {
+        case "google": "Google"
+        case "microsoft": "Microsoft"
+        case "apple": "Apple"
+        default: provider.capitalized
+        }
+    }
+}
+
+/// How adding a login ended. Accounts are never merged: a login of another account stays there.
+nonisolated enum LinkResult: Sendable, Equatable {
+    case linked
+    /// It was one of this account's logins already.
+    case alreadyLinked
+    /// It belongs to another Healthy Eating account, so it was not added.
+    case otherAccount
+    /// The person closed the web sheet or chose Cancel there.
+    case cancelled
 }
 
 /// A day's totals and completeness, computed by the backend (`GET /api/v1/days`).

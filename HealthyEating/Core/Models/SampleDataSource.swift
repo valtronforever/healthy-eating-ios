@@ -44,6 +44,12 @@ actor SampleDataSource: NutritionDataSource {
             .init(id: UUID(), createdAt: .now.addingTimeInterval(-40 * 86_400), lastUsedAt: .now, isCurrent: true),
         ]),
     ]
+    private var sampleLogins: [Login] = [
+        Login(id: UUID(), provider: "google", email: "alex@example.com",
+              createdAt: .now.addingTimeInterval(-40 * 86_400), lastLoginAt: .now.addingTimeInterval(-2 * 86_400)),
+        Login(id: UUID(), provider: "apple", email: nil,
+              createdAt: .now.addingTimeInterval(-30 * 86_400), lastLoginAt: nil),
+    ]
     private let calendar = Calendar.current
 
     func meals(on day: Date) -> [Meal] {
@@ -161,7 +167,28 @@ actor SampleDataSource: NutritionDataSource {
     }
 
     func account() -> Account {
-        Account(displayName: "Alex Kim", email: "alex@example.com", linkedLogins: ["google", "apple"])
+        Account(displayName: "Alex Kim", email: "alex@example.com", linkedLogins: sampleLogins.map(\.provider))
+    }
+
+    func logins() -> [Login] { sampleLogins }
+
+    func startLink(challenge: String) -> URL {
+        URL(string: "\(SampleData.exampleServer)/link?request=sample") ?? URL(filePath: "/")
+    }
+
+    /// The placeholder web sheet "signs in" with Microsoft.
+    func completeLink(code: String, verifier: String) -> LinkResult {
+        if sampleLogins.contains(where: { $0.provider == "microsoft" }) { return .alreadyLinked }
+        sampleLogins.append(Login(id: UUID(), provider: "microsoft", email: "alex@outlook.com", createdAt: .now, lastLoginAt: nil))
+        return .linked
+    }
+
+    func deleteLogin(_ id: UUID) throws(APIError) {
+        guard sampleLogins.contains(where: { $0.id == id }) else { throw .notFound }
+        guard sampleLogins.count > 1 else {
+            throw .invalid(message: String(localized: "This is the only account you sign in with, so it stays linked."), fields: [:])
+        }
+        sampleLogins.removeAll { $0.id == id }
     }
 
     func settings() -> UserSettings { userSettings }

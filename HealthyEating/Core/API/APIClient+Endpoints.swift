@@ -242,6 +242,42 @@ nonisolated extension APIClient {
         return Account(displayName: dto.displayName, email: dto.email, linkedLogins: dto.linkedLogins)
     }
 
+    /// The social logins that sign in to this account, oldest first (`listLogins`).
+    func logins() async throws(APIError) -> [Login] {
+        try await send(Request(path: "me/logins"), as: LoginListDTO.self).logins.map {
+            Login(id: $0.id, provider: $0.provider, email: $0.email, createdAt: $0.createdAt, lastLoginAt: $0.lastLoginAt)
+        }
+    }
+
+    /// Starts adding a login (`startLoginLink`): returns the server page to open in the web sheet.
+    func startLink(challenge: String) async throws(APIError) -> URL {
+        let body = Self.json(["code_challenge": challenge, "code_challenge_method": "S256"])
+        return try await send(Request(method: "POST", path: "me/logins/link", body: body), as: LinkStartDTO.self).url
+    }
+
+    /// Finishes adding a login with the code from the web sheet and the PKCE verifier
+    /// (`completeLoginLink`). A login of another account comes back as `.otherAccount`.
+    func completeLink(code: String, verifier: String) async throws(APIError) -> LinkResult {
+        let body = Self.json(["code": code, "code_verifier": verifier])
+        do {
+            let dto = try await send(Request(method: "POST", path: "me/logins/link/complete", body: body), as: LinkCompleteDTO.self)
+            return dto.result == "already_linked" ? .alreadyLinked : .linked
+        } catch .server(code: "conflict", _) {
+            return .otherAccount
+        } catch .invalid {
+            throw .invalid(message: String(localized: "This took too long or was already used. Try linking the account again."), fields: [:])
+        }
+    }
+
+    /// Removes a login (`deleteLogin`); the server keeps the account's only login.
+    func deleteLogin(_ id: UUID) async throws(APIError) {
+        do {
+            _ = try await data(for: Request(method: "DELETE", path: "me/logins/\(id.uuidString.lowercased())"))
+        } catch .server(code: "conflict", _) {
+            throw .invalid(message: String(localized: "This is the only account you sign in with, so it stays linked."), fields: [:])
+        }
+    }
+
     func settings() async throws(APIError) -> UserSettings {
         Self.settings(try await send(Request(path: "me/settings"), as: SettingsDTO.self))
     }

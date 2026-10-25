@@ -501,6 +501,49 @@ nonisolated struct MeDTO: Decodable, Sendable {
     }
 }
 
+nonisolated struct LoginDTO: Decodable, Sendable {
+    let id: UUID
+    let provider: String
+    let email: String?
+    let createdAt: Date
+    let lastLoginAt: Date?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case id
+        case provider
+        case email
+        case createdAt = "created_at"
+        case lastLoginAt = "last_login_at"
+    }
+}
+
+nonisolated struct LoginListDTO: Decodable, Sendable {
+    let logins: [LoginDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case logins
+    }
+}
+
+nonisolated struct LinkStartDTO: Decodable, Sendable {
+    let url: URL
+    let expiresAt: Date
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case url
+        case expiresAt = "expires_at"
+    }
+}
+
+nonisolated struct LinkCompleteDTO: Decodable, Sendable {
+    /// "linked" or "already_linked".
+    let result: String
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case result
+    }
+}
+
 /// Field names of request bodies, checked against the contract like the response keys.
 nonisolated enum RequestFields {
     static let mealUpdate = [
@@ -516,4 +559,6 @@ nonisolated enum RequestFields {
     static let appleHealthDeletions = ["external_ids"]
     static let dayStatusUpdate = ["status"]
     static let deleteAccount = ["confirm"]
+    static let linkStart = ["code_challenge", "code_challenge_method"]
+    static let linkComplete = ["code", "code_verifier"]
 }

@@ -17,6 +17,14 @@ nonisolated protocol NutritionDataSource: Sendable {
     /// The local week, Monday to Sunday, that contains `week`.
     func weeklyReview(week: Date) async throws(APIError) -> WeeklyReview
     func account() async throws(APIError) -> Account
+    /// The social logins that sign in to this account, oldest first.
+    func logins() async throws(APIError) -> [Login]
+    /// Starts adding a login with a PKCE challenge; returns the page to open in the web sheet.
+    func startLink(challenge: String) async throws(APIError) -> URL
+    /// Finishes adding a login with the web sheet's code and the PKCE verifier.
+    func completeLink(code: String, verifier: String) async throws(APIError) -> LinkResult
+    /// Removes a login; the account's only login stays.
+    func deleteLogin(_ id: UUID) async throws(APIError)
     func settings() async throws(APIError) -> UserSettings
     func updateSettings(_ change: APIClient.SettingsChange) async throws(APIError) -> UserSettings
     func integrationStatus() async throws(APIError) -> IntegrationState

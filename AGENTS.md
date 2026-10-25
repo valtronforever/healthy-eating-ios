@@ -62,12 +62,13 @@ HealthyEating/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail, usual meals (log one again)
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
-    Settings/        # server, connection URL, Calm mode, weight tracking, sign out; Connected assistants
-                     # with the connection guide (the A4 steps, to read again after onboarding)
+    Settings/        # server, connection URL, Calm mode, weight tracking, sign out; Linked accounts (link, unlink);
+                     # Connected assistants with the connection guide (the A4 steps, to read again)
     Weight/          # D3 Weight and energy (opened from Trends), weigh-ins list and form
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
-                     # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh)
+                     # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh),
+                     # LoginLinking (add another login to the account)
     API/             # APIClient (+Endpoints: one method per /api/v1 operation), DTOs, APIError (all copy)
     Storage/         # Keychain (SecureStore), MemoryStore for tests, CredentialStore (per server), ResponseCache
     Notices/         # ArrivalNotice: opt-in local notification when meals stop arriving (background app refresh)
@@ -251,6 +252,17 @@ Notes:
   provenance, confidence) with the new time; the app sends a UUID it chose once per screen, so a
   repeated tap saves one meal. This is the only way the app adds a meal: it never creates meals
   from scratch. Calm mode hides the calories there too.
+- Linked accounts (backend #20, `Features/Settings/LinkedAccountsView.swift`, opened from the
+  account in Settings, `/api/v1/me/logins`): lists the Google, Microsoft or Apple accounts that
+  sign in to this account (provider, email, last sign-in or when it was linked). The UI says
+  "linked account", "Link an account" and "Unlink" (owner decision 2026-10-25); the API and code
+  say "login". "Link an account" (`Core/Auth/LoginLinking.swift`) posts a PKCE
+  challenge, opens the returned server page in the same web sheet as sign-in
+  (`AppModel.webAuthenticator`; `PlaceholderWebAuthenticator` with placeholders, which "adds"
+  Microsoft), reads `healthyeating://link/callback?code=…` (or `error=cancelled|expired`) and
+  finishes with the code and verifier. An account that already signs in to another Healthy Eating
+  account is reported in a neutral note (never an error, never merged); the only linked account
+  has no Unlink (the server refuses it too). Unlinking asks for confirmation. Never linked by email.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).
