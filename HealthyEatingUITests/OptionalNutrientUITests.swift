@@ -17,8 +17,12 @@ final class OptionalNutrientUITests: XCTestCase {
         XCTAssertTrue(line.waitForExistence(timeout: 5))
         keepScreenshot(named: "B1 Today with fiber, sugar and sodium")
 
-        app.staticTexts["Chicken with rice and salad"].tap()
-        XCTAssertTrue(app.staticTexts["Sodium"].waitForExistence(timeout: 5))
+        // Scroll the row into place first: a tap during XCUITest's own scroll-to-visible can land
+        // while the list still moves and only stop it (CI run 40190320139).
+        let meal = app.staticTexts["Chicken with rice and salad"]
+        app.scrollTo(meal)
+        meal.tap()
+        XCTAssertTrue(app.staticTexts["Sodium"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Fiber"].exists)
         keepScreenshot(named: "B3 Meal detail with fiber, sugar and sodium")
 

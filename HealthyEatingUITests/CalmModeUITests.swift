@@ -25,8 +25,11 @@ final class CalmModeUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'kcal'")).firstMatch.exists)
         keepScreenshot(named: "G3 Today in Calm mode")
 
-        app.staticTexts["Chicken with rice and salad"].tap()
-        XCTAssertTrue(app.staticTexts["Protein"].waitForExistence(timeout: 5))
+        // Scroll the row into place first, so the tap opens it instead of stopping a scroll.
+        let meal = app.staticTexts["Chicken with rice and salad"]
+        app.scrollTo(meal)
+        meal.tap()
+        XCTAssertTrue(app.staticTexts["Protein"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.staticTexts["Calories"].exists)
     }
 
