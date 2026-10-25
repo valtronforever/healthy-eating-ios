@@ -45,9 +45,7 @@ jobs:
         if: matrix.tests == 'unit'
         run: python3 design/tools/generate_design_tokens.py --check
 
-      # The first boot on a fresh runner takes minutes; it runs in the background while the
-      # app builds, and the test step waits for it.
-      - name: Pick and boot an iPhone simulator
+      - name: Pick an iPhone simulator
         id: simulator
         run: |
           udid="$(xcrun simctl list devices available --json | python3 -c '
@@ -61,7 +59,6 @@ jobs:
           ')"
           xcrun simctl list devices | grep "$udid"
           echo "udid=$udid" >> "$GITHUB_OUTPUT"
-          nohup xcrun simctl boot "$udid" > "$RUNNER_TEMP/simulator-boot.log" 2>&1 &
 
       # Simulator builds sign ad hoc ("Sign to Run Locally"), which needs no certificate.
       # Keep signing on: unsigned apps get no Keychain access, and the Keychain tests fail.
@@ -75,10 +72,10 @@ jobs:
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
-      - name: Wait for the simulator
-        run: |
-          xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
-          cat "$RUNNER_TEMP/simulator-boot.log" || true
+      # Booted only after the build: booting during it (3 CPUs) slowed the build from 1.5 to
+      # 4 to 7 minutes and left the simulator too busy for the first UI tests (CI run 40176477601).
+      - name: Boot the simulator
+        run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
 
       - name: Test
         run: |

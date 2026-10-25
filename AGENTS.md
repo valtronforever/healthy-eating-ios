@@ -109,9 +109,10 @@ Adjust the simulator name to one installed locally (`xcrun simctl list devices`)
 any change, the project must build without warnings and tests must pass. CI
 (`.github/workflows/ci.yml`, on pushes to `main` and on pull requests, except when only `README.md`
 changed) runs four jobs at once on `macos-26` runners with the newest Xcode and iPhone simulator:
-the unit tests (with the token check) and the UI tests in three shards. Each job boots the
-simulator in the background while it runs `xcodebuild build-for-testing` with warnings as errors,
-then `test-without-building` with its `-only-testing` list. `.github/scripts/ui_test_shard.py`
+the unit tests (with the token check) and the UI tests in three shards. Each job runs
+`xcodebuild build-for-testing` with warnings as errors, boots the simulator (only after the build:
+booting during it slowed the build several times over on the 3-CPU runner), then runs
+`test-without-building` with its `-only-testing` list. `.github/scripts/ui_test_shard.py`
 assigns every `XCTestCase` class in `HealthyEatingUITests/` to a shard by its CI duration (update
 `SECONDS` there when a class gets much slower or faster; new classes count 40 s). In UI tests,
 scroll with `app.scrollTo(element)` (`HealthyEatingUITests/ScrollHelpers.swift`): one snapshot per

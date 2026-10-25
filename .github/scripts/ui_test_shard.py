@@ -12,18 +12,20 @@ import sys
 from pathlib import Path
 
 TARGET = "HealthyEatingUITests"
-# Seconds per class on the macos-26 runner (CI run 39998666888); only used to balance shards.
+# Seconds per class on the macos-26 runner, about the mean of CI runs 39998666888 and
+# 40176477601 (without a one-off 2-minute stall); only used to balance shards.
 SECONDS = {
-    "CalmModeUITests": 136,
-    "WeightUITests": 99,
-    "SettingsUITests": 82,
-    "OnboardingUITests": 71,
-    "MealUITests": 52,
-    "OptionalNutrientUITests": 32,
-    "OfflineUITests": 26,
-    "WeeklyReviewUITests": 24,
-    "HistoryUITests": 23,
-    "UsualMealsUITests": 19,
+    "CalmModeUITests": 120,
+    "WeightUITests": 115,
+    "SettingsUITests": 77,
+    "MealUITests": 60,
+    "OnboardingUITests": 60,
+    "LinkedAccountsUITests": 46,
+    "HistoryUITests": 35,
+    "OptionalNutrientUITests": 26,
+    "WeeklyReviewUITests": 25,
+    "OfflineUITests": 24,
+    "UsualMealsUITests": 21,
     "SignInEndToEndUITests": 1,
 }
 DEFAULT_SECONDS = 40
