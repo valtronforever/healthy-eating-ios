@@ -112,11 +112,15 @@ changed) runs four jobs at once on `macos-26` runners with the newest Xcode and 
 the unit tests (with the token check) and the UI tests in three shards. Each job runs
 `xcodebuild build-for-testing` with warnings as errors, boots the simulator (only after the build:
 booting during it slowed the build several times over on the 3-CPU runner), then runs
-`test-without-building` with its `-only-testing` list. `.github/scripts/ui_test_shard.py`
+`test-without-building` with its `-only-testing` list; a failed UI test is retried once
+(`-retry-tests-on-failure -test-iterations 2`), because on a just-booted CI simulator a tap is
+sometimes lost. `.github/scripts/ui_test_shard.py`
 assigns every `XCTestCase` class in `HealthyEatingUITests/` to a shard by its CI duration (update
 `SECONDS` there when a class gets much slower or faster; new classes count 40 s). In UI tests,
-scroll with `app.scrollTo(element)` (`HealthyEatingUITests/ScrollHelpers.swift`): one snapshot per
-check, because every separate `exists`/`isHittable`/`frame` query costs seconds on CI.
+scroll with `app.scrollTo(element)` (`HealthyEatingUITests/ScrollHelpers.swift`) before tapping
+anything that may need scrolling: one snapshot per check (every separate
+`exists`/`isHittable`/`frame` query costs seconds on CI), and after a swipe it waits until the
+element stops moving, since a tap on a gliding list only stops it.
 `ComponentRenderTests`
 writes light, dark and AX5 PNGs of every component to the simulator's temporary directory
 (`HealthyEatingRenders`) for visual review; the onboarding UI test keeps named screenshots of A2

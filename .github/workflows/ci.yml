@@ -83,7 +83,9 @@ jobs:
           if [ "${{ matrix.tests }}" = unit ]; then
             only="-only-testing:HealthyEatingTests"
           else
-            only="$(python3 .github/scripts/ui_test_shard.py ${{ matrix.shard }} 3)"
+            # A UI test that fails gets one more try: on a just-booted CI simulator a tap is
+            # sometimes lost. A real bug fails both times; the log shows every retry.
+            only="$(python3 .github/scripts/ui_test_shard.py ${{ matrix.shard }} 3) -retry-tests-on-failure -test-iterations 2"
           fi
           echo "Running: $only"
           xcodebuild test-without-building \

@@ -21,7 +21,7 @@ final class HistoryUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars.element.waitForExistence(timeout: 5))
         // The mark control is under the meals: scroll until the list shows it.
         let partial = app.segmentedControls.buttons["Partial"]
-        for _ in 0..<6 where !partial.exists { app.swipeUp() }
+        app.scrollTo(partial, maxSwipes: 6)
         XCTAssertTrue(partial.waitForExistence(timeout: 5))
         partial.tap()
         XCTAssertTrue(partial.waitForSelection(timeout: 5))
