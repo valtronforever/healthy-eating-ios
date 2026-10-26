@@ -236,6 +236,9 @@ struct APIContractTests {
         ("LoginList", LoginListDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LinkStartResponse", LinkStartDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LinkCompleteResponse", LinkCompleteDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("ImportResponse", ImportResponseDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("ImportCounts", ImportCountsDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("RejectedImportEntry", RejectedImportEntryDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LinkStart", RequestFields.linkStart),
         ("LinkComplete", RequestFields.linkComplete),
         ("MealUpdate", RequestFields.mealUpdate),
@@ -464,6 +467,49 @@ extension NetworkTests {
             let body = try #require(JSONSerialization.jsonObject(with: StubProtocol.requests.last?.httpBody ?? Data()) as? [String: Any])
             #expect(body["weight_tracking"] as? Bool == true)
             #expect(body["weight_unit"] as? String == "lb")
+        }
+    }
+}
+
+extension NetworkTests {
+    struct ImportAPITests {
+        private let answer = json("""
+        {"dry_run":true,"format":"csv","exported_at":"2026-10-20T08:00:00+00:00",
+         "meals":{"imported":42,"skipped_duplicates":3},"weights":{"imported":5,"skipped_duplicates":0},
+         "days_marked":14,"first_day":"2026-09-01","last_day":"2026-09-21","rejected_count":1,
+         "rejected":[{"kind":"weight","index":5,"reason":"source: unknown"}]}
+        """)
+
+        @Test func sendsTheFileAsItIsAndMapsThePreview() async throws {
+            let (api, _) = client { [answer] _ in (200, answer) }
+            let zip = Data([0x50, 0x4B, 0x03, 0x04])
+
+            let summary = try await api.importData(zip, isZip: true, preview: true)
+
+            let request = try #require(StubProtocol.requests.last)
+            #expect(request.httpMethod == "POST")
+            #expect(request.url?.path() == "/api/v1/import")
+            #expect(request.url?.query() == "dry_run=true")
+            #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/zip")
+            #expect(request.httpBody == zip)
+            #expect(request.timeoutInterval == 300)
+            #expect(summary.isPreview && summary.format == .csv)
+            #expect((summary.newMeals, summary.knownMeals, summary.newWeights) == (42, 3, 5))
+            #expect(summary.daysMarked == 14)
+            var berlin = Calendar(identifier: .gregorian)
+            berlin.timeZone = try #require(TimeZone(identifier: "Europe/Berlin"))
+            #expect(summary.firstDay == APIDate.day("2026-09-01", calendar: berlin))
+            #expect(summary.rejected == [.init(kind: .weight, position: 6, reason: "source: unknown")])
+        }
+
+        @Test func aFileThatIsNotAnExportIsReportedWithTheServersMessage() async throws {
+            let (api, _) = client { _ in
+                (400, json(#"{"code":"bad_request","message":"Choose the JSON or ZIP file of a HealthyEating export","details":[]}"#))
+            }
+            await #expect(throws: APIError.invalid(message: "Choose the JSON or ZIP file of a HealthyEating export", fields: [:])) {
+                _ = try await api.importData(Data("a,b".utf8), isZip: false, preview: true)
+            }
+            #expect(StubProtocol.requests.last?.value(forHTTPHeaderField: "Content-Type") == "application/json")
         }
     }
 }

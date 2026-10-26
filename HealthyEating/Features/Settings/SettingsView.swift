@@ -44,7 +44,7 @@ final class SettingsModel {
 }
 
 /// E1 Settings: the account and its linked accounts, server and time zone, energy unit and target ranges, connected
-/// assistants, Calm mode, export, licenses, sign out and delete account.
+/// assistants, Calm mode, export and import, licenses, sign out and delete account.
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
     @State private var model = SettingsModel()
@@ -314,6 +314,15 @@ struct SettingsView: View {
                 }
             }
             .disabled(exportFormat != nil)
+            NavigationLink {
+                ImportDataView()
+            } label: {
+                HStack(spacing: Spacing.s3) {
+                    SymbolTile(systemName: "square.and.arrow.down", small: true)
+                    Text("Import data").foregroundStyle(.ink)
+                }
+            }
+            .accessibilityIdentifier("importData")
             NavigationLink {
                 LicensesView()
             } label: {

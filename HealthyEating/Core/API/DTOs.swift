@@ -619,3 +619,48 @@ nonisolated enum RequestFields {
     static let linkStart = ["code_challenge", "code_challenge_method"]
     static let linkComplete = ["code", "code_verifier"]
 }
+
+nonisolated struct ImportCountsDTO: Decodable, Sendable {
+    let imported: Int
+    let skippedDuplicates: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case imported
+        case skippedDuplicates = "skipped_duplicates"
+    }
+}
+
+nonisolated struct RejectedImportEntryDTO: Decodable, Sendable {
+    let kind: String
+    let index: Int
+    let reason: String
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case kind, index, reason
+    }
+}
+
+nonisolated struct ImportResponseDTO: Decodable, Sendable {
+    let dryRun: Bool
+    let format: String
+    let exportedAt: Date?
+    let meals: ImportCountsDTO
+    let weights: ImportCountsDTO
+    let daysMarked: Int
+    let firstDay: String?
+    let lastDay: String?
+    let rejectedCount: Int
+    let rejected: [RejectedImportEntryDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case dryRun = "dry_run"
+        case format
+        case exportedAt = "exported_at"
+        case meals, weights
+        case daysMarked = "days_marked"
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case rejectedCount = "rejected_count"
+        case rejected
+    }
+}

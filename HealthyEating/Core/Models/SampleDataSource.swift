@@ -362,6 +362,19 @@ actor SampleDataSource: NutritionDataSource {
         return url
     }
 
+    /// Any file: a history of 42 meals over three weeks, 3 of them already here, and one weigh-in
+    /// with an unknown source.
+    func importData(_ file: Data, isZip: Bool, preview: Bool) -> ImportSummary {
+        let today = calendar.startOfDay(for: .now)
+        return ImportSummary(
+            isPreview: preview, format: isZip ? .csv : .json, exportedAt: today.addingTimeInterval(-3_600),
+            newMeals: 42, knownMeals: 3, newWeights: 5, knownWeights: 0, daysMarked: 14,
+            firstDay: calendar.date(byAdding: .day, value: -60, to: today),
+            lastDay: calendar.date(byAdding: .day, value: -40, to: today),
+            rejectedCount: 1,
+            rejected: [.init(kind: .weight, position: 6, reason: "source: Input should be 'apple_health', 'assistant' or 'app'")])
+    }
+
     func deleteAccount() {}
 
     // MARK: Helpers

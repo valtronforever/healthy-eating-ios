@@ -59,6 +59,23 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Get started"].waitForExistence(timeout: 10))
     }
 
+    /// Import data opens from "Your data"; the system file picker itself is not driven here.
+    @MainActor
+    func testImportDataOpensFromYourData() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "settings"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
+        let importData = app.buttons["importData"]
+        app.scrollTo(importData, maxSwipes: 8)
+        importData.tap()
+
+        XCTAssertTrue(app.buttons["chooseImportFile"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Import data"].exists)
+        keepScreenshot(named: "Import data")
+    }
+
     /// The connection steps can be read again after onboarding (Connected assistants › Add another).
     @MainActor
     func testConnectionGuideIsUnderConnectedAssistants() throws {

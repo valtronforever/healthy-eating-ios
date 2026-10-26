@@ -364,6 +364,29 @@ nonisolated extension APIClient {
         return url
     }
 
+    /// Imports a Healthy Eating export (`importData`): its JSON file, or its ZIP when `isZip`.
+    /// With `preview` the server only checks the file and counts what it would add.
+    func importData(_ file: Data, isZip: Bool, preview: Bool) async throws(APIError) -> ImportSummary {
+        let request = Request(
+            method: "POST", path: "import",
+            query: [URLQueryItem(name: "dry_run", value: preview ? "true" : "false")],
+            body: file, contentType: isZip ? "application/zip" : "application/json", timeout: 300)
+        let dto = try await send(request, as: ImportResponseDTO.self)
+        return ImportSummary(
+            isPreview: dto.dryRun, format: ImportSummary.Format(rawValue: dto.format) ?? .json,
+            exportedAt: dto.exportedAt,
+            newMeals: dto.meals.imported, knownMeals: dto.meals.skippedDuplicates,
+            newWeights: dto.weights.imported, knownWeights: dto.weights.skippedDuplicates,
+            daysMarked: dto.daysMarked,
+            firstDay: dto.firstDay.flatMap { APIDate.day($0, calendar: calendar) },
+            lastDay: dto.lastDay.flatMap { APIDate.day($0, calendar: calendar) },
+            rejectedCount: dto.rejectedCount,
+            rejected: dto.rejected.map {
+                ImportSummary.Rejected(
+                    kind: ImportSummary.Rejected.Kind(rawValue: $0.kind) ?? .meal, position: $0.index + 1, reason: $0.reason)
+            })
+    }
+
     func deleteAccount() async throws(APIError) {
         _ = try await data(for: Request(method: "DELETE", path: "me", body: Self.json(["confirm": "delete-account"])))
     }

@@ -186,6 +186,12 @@ final class AppModel {
         foregrounds += 1
     }
 
+    /// History was added outside the screens (an import): Today, History and Trends reload as
+    /// they do after a return to the foreground.
+    func historyChanged() {
+        foregrounds += 1
+    }
+
     /// Applies settings read from the server that the app also keeps locally (Calm mode), so a
     /// change made on another device shows here too.
     func adopt(_ settings: UserSettings) {

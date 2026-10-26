@@ -62,7 +62,7 @@ HealthyEating/
     Onboarding/      # A1 Welcome, A2 Server (Continue signs in: A3 web sheet), A4 Connect your AI assistant
     Dashboard/       # Today, meal detail, usual meals (log one again)
     Statistics/      # History, Trends, Weekly review (D2, opened from Trends)
-    Settings/        # server, connection URL, Calm mode, weight tracking, sign out; Linked accounts (link, unlink);
+    Settings/        # server, connection URL, Calm mode, weight tracking, export and import, sign out; Linked accounts (link, unlink);
                      # Connected assistants with the connection guide (the A4 steps, to read again)
     Weight/          # D3 Weight and energy (opened from Trends), weigh-ins list and form
   Core/
@@ -287,6 +287,15 @@ Notes:
   finishes with the code and verifier. An account that already signs in to another Healthy Eating
   account is reported in a neutral note (never an error, never merged); the only linked account
   has no Unlink (the server refuses it too). Unlinking asks for confirmation. Never linked by email.
+- Import data (backend #27, owner decision 2026-10-26, `Features/Settings/ImportDataView.swift`,
+  `POST /api/v1/import`): Settings › Your data › Import data takes a Healthy Eating export (its
+  JSON or ZIP, from this or another server) through the system file picker. The server checks it
+  first (`?dry_run=true`) and the screen shows what it would add (new and already-present meals
+  and weigh-ins, the days, entries left out with their reason); "Import" then sends the same file.
+  Files over 50 MB are refused before sending; a ZIP is recognized by its content. A successful
+  import reloads Today, History and Trends (`AppModel.historyChanged`). This moves history the
+  person already owns; it is not creating meals, so the rule above still holds. Other apps'
+  files are imported through the assistant (MCP `import_meals`), not here.
 - Every screen has loading, empty, and error states. The empty state for a new user explains how to connect the MCP server and shows the connection URL with a copy button.
 - Support Dynamic Type, Dark Mode and VoiceOver labels on charts.
 - All user-facing strings go through the String Catalog (`Localizable.xcstrings`).

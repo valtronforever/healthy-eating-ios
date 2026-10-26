@@ -19,6 +19,9 @@ nonisolated struct APIClient: Sendable {
         var path: String
         var query: [URLQueryItem] = []
         var body: Data?
+        var contentType = "application/json"
+        /// Seconds; an import of a long history takes longer than an ordinary request.
+        var timeout: TimeInterval = 20
     }
 
     /// Sends the request and returns the body of a 2xx answer (empty for 204). A GET answer is
@@ -72,12 +75,12 @@ nonisolated struct APIClient: Sendable {
         if !request.query.isEmpty { url.append(queryItems: request.query) }
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = request.method
-        urlRequest.timeoutInterval = 20
+        urlRequest.timeoutInterval = request.timeout
         urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
         if let body = request.body {
             urlRequest.httpBody = body
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.setValue(request.contentType, forHTTPHeaderField: "Content-Type")
         }
         do {
             let (data, response) = try await session.data(for: urlRequest)

@@ -50,6 +50,7 @@ nonisolated protocol NutritionDataSource: Sendable {
     func update(_ id: UUID, with edit: APIClient.MealEdit) async throws(APIError) -> (meal: Meal, warnings: [String])
     func deleteMeal(_ id: UUID) async throws(APIError)
     func export(format: String) async throws(APIError) -> URL
+    func importData(_ file: Data, isZip: Bool, preview: Bool) async throws(APIError) -> ImportSummary
     func deleteAccount() async throws(APIError)
 }
 
