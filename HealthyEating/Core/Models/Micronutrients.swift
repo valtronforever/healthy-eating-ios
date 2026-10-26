@@ -56,6 +56,26 @@ nonisolated enum Micronutrient: String, Sendable, CaseIterable, Identifiable {
     static var minerals: [Micronutrient] { allCases.filter { !$0.isVitamin } }
 }
 
+/// The optional group whose reference values Settings shows for vitamins and minerals.
+nonisolated enum ReferenceGroup: String, Sendable, CaseIterable {
+    case adultWomen = "adult_women"
+    case adultMen = "adult_men"
+
+    var name: String {
+        switch self {
+        case .adultWomen: String(localized: "Adult women")
+        case .adultMen: String(localized: "Adult men")
+        }
+    }
+}
+
+/// A reference value from the server: `min` is the RDA or AI, `max` the upper limit where it
+/// applies to food. Reference values, never targets.
+nonisolated struct ReferenceRange: Hashable, Sendable {
+    var min: Double
+    var max: Double?
+}
+
 /// A food of a meal with its weight, and the USDA food its vitamins and minerals came from.
 nonisolated struct MealItem: Hashable, Sendable {
     enum Status: String, Sendable {
@@ -72,6 +92,24 @@ nonisolated struct MealItem: Hashable, Sendable {
 }
 
 nonisolated extension NutritionFormat {
+    /// "Reference 8–45 mg", "Reference at least 1.1 mg": never "target", never judged.
+    static func reference(_ range: ReferenceRange, _ unit: NutrientUnit, locale: Locale = .current) -> String {
+        guard let high = range.max else {
+            return String(localized: "Reference at least \(micronutrient(range.min, unit, locale: locale))")
+        }
+        let low = micronutrient(range.min, unit, locale: locale).replacingOccurrences(of: " \(unit.symbol)", with: "")
+        return String(localized: "Reference \(low)–\(micronutrient(high, unit, locale: locale))")
+    }
+
+    /// "5.3 milligrams, reference 8 to 45 milligrams" for VoiceOver.
+    static func spokenReference(value: Double, _ range: ReferenceRange, _ unit: NutrientUnit, locale: Locale = .current) -> String {
+        let spoken = { (v: Double) in unit.spokenValue(micronutrient(v, unit, locale: locale).replacingOccurrences(of: " \(unit.symbol)", with: "")) }
+        guard let high = range.max else {
+            return String(localized: "\(spoken(value)), reference at least \(spoken(range.min))")
+        }
+        return String(localized: "\(spoken(value)), reference \(spoken(range.min)) to \(spoken(high))")
+    }
+
     /// A vitamin or mineral amount: whole numbers from 10, one decimal from 1, two below
     /// ("0.25 mg", "2.4 µg", "18 mg").
     static func micronutrient(_ value: Double, _ unit: NutrientUnit, locale: Locale = .current) -> String {

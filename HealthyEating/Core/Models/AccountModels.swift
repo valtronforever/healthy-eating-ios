@@ -215,6 +215,10 @@ nonisolated struct UserSettings: Sendable, Equatable {
     /// Opt-in: off until the first weigh-in or until the person turns it on. Off hides weight.
     var weightTracking = false
     var weightUnit: WeightUnit = .kg
+    /// Optional; nil shows vitamins and minerals without reference values.
+    var referenceGroup: ReferenceGroup?
+    /// The group's reference values from the server; empty when the group is off.
+    var micronutrientReferences: [Micronutrient: ReferenceRange] = [:]
 }
 
 /// The unit the person wants weight shown in (a server setting). Values always arrive in kg.

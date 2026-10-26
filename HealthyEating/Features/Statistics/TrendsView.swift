@@ -93,8 +93,9 @@ struct TrendsView: View {
                     Section {
                         MicronutrientsLink(
                             subtitle: String(localized: "Last \(period.rawValue) days"),
-                            values: MicronutrientsView.periodValues(snapshot.trends.current),
-                            footer: MicronutrientsView.periodFooter)
+                            values: MicronutrientsView.periodValues(
+                                snapshot.trends.current, references: snapshot.settings.micronutrientReferences),
+                            footer: MicronutrientsView.periodFooter(snapshot.settings.referenceGroup))
                     }
                     .listRowBackground(Color.surface)
                 }

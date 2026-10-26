@@ -21,6 +21,7 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(app.segmentedControls.buttons["kJ"].isSelected)
 
         // E2 connected assistants: revoke ChatGPT
+        app.scrollTo(app.buttons["connectedAssistants"])
         app.buttons["connectedAssistants"].tap()
         XCTAssertTrue(app.staticTexts["ChatGPT"].waitForExistence(timeout: 5))
         let revokeButtons = app.buttons.matching(identifier: "Revoke")
@@ -33,7 +34,10 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(waitForValue("0", of: app.staticTexts["ChatGPT"], key: "exists", timeout: 10))
         app.navigationBars.buttons.element(boundBy: 0).tap()
 
-        // Target ranges: open the protein upper bound
+        // Target ranges: open the protein upper bound. The list is still scrolled down from
+        // Connected assistants, which is below them.
+        app.swipeDown()
+        app.swipeDown()
         app.buttons["targetRanges"].tap()
         let save = app.navigationBars["Target ranges"].buttons["Save"]
         XCTAssertTrue(save.waitForExistence(timeout: 5))
@@ -63,6 +67,7 @@ final class SettingsUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
+        app.scrollTo(app.buttons["connectedAssistants"])
         app.buttons["connectedAssistants"].tap()
         let guide = app.buttons["connectionGuide"]
         app.scrollTo(guide, maxSwipes: 4)

@@ -190,8 +190,12 @@ Notes:
   day show a "Vitamins and minerals" row (`MicronutrientsLink`) when the day has values, opening
   `MicronutrientsView` with "2 of 3 meals" when only some meals have a value; Trends shows the same
   row with averages over the counted days on which every meal has a value ("on 4 of 7 counted
-  days"). Calm mode does not hide them. Servers without them decode as none. Reference ranges
-  (an optional reference group) are not built yet.
+  days"). Calm mode does not hide them. Servers without them decode as none. An optional reference
+  group (Settings, "Vitamin and mineral references": Off, Adult women, Adult men; a server setting)
+  adds the server's reference values (`UserSettings.micronutrientReferences`) to day and Trends
+  values as a compact `RangeBand` captioned "Reference 8–45 mg" or "Reference at least 320 mg"
+  (`NutritionFormat.reference`), never "target" and never judged; meal detail has no bands (a
+  daily reference does not fit one meal).
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

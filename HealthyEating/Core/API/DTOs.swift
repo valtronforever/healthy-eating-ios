@@ -341,6 +341,9 @@ nonisolated struct SettingsDTO: Decodable, Sendable {
     /// Missing on servers from before weight tracking.
     let weightTracking: Bool?
     let weightUnit: String?
+    /// Missing on servers from before reference values (backend #25).
+    let referenceGroup: String?
+    let micronutrientReferences: [String: ReferenceRangeDTO]?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case timezone
@@ -349,6 +352,17 @@ nonisolated struct SettingsDTO: Decodable, Sendable {
         case targets
         case weightTracking = "weight_tracking"
         case weightUnit = "weight_unit"
+        case referenceGroup = "reference_group"
+        case micronutrientReferences = "micronutrient_references"
+    }
+}
+
+nonisolated struct ReferenceRangeDTO: Decodable, Sendable {
+    let min: Double
+    let max: Double?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case min, max
     }
 }
 
@@ -579,7 +593,7 @@ nonisolated enum RequestFields {
         "fiber_g", "sugar_g", "sodium_mg", "eaten_at",
     ]
     static let mealRelog = ["id", "eaten_at"]
-    static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets", "weight_tracking", "weight_unit"]
+    static let settingsUpdate = ["timezone", "energy_unit", "calm_mode", "targets", "weight_tracking", "weight_unit", "reference_group"]
     static let weightCreate = ["weight_kg", "measured_at", "source", "external_id"]
     static let weightsCreate = ["entries"]
     static let weightUpdate = ["weight_kg", "measured_at"]

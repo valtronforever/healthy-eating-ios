@@ -206,6 +206,10 @@ actor SampleDataSource: NutritionDataSource {
         if let calm = change.calmMode { userSettings.calmMode = calm }
         if let tracking = change.weightTracking { userSettings.weightTracking = tracking }
         if let unit = change.weightUnit { userSettings.weightUnit = unit }
+        if let group = change.referenceGroup {
+            userSettings.referenceGroup = group
+            userSettings.micronutrientReferences = group.map(SampleData.references(for:)) ?? [:]
+        }
         for (field, range) in change.targets { userSettings.targets[field] = range }
         return userSettings
     }

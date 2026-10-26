@@ -30,6 +30,25 @@ struct MicronutrientFormatTests {
         #expect(values[.zinc] == MicronutrientValue(amount: 4, note: nil))
     }
 
+    @Test func referencesAreWordedAsReferences() {
+        #expect(NutritionFormat.reference(ReferenceRange(min: 8, max: 45), .milligrams, locale: locale) == "Reference 8–45 mg")
+        #expect(NutritionFormat.reference(ReferenceRange(min: 1.1, max: nil), .milligrams, locale: locale) == "Reference at least 1.1 mg")
+        #expect(NutritionFormat.spokenReference(value: 5.3, ReferenceRange(min: 8, max: 45), .milligrams, locale: locale)
+                == "5.3 milligrams, reference 8 milligrams to 45 milligrams")
+        #expect(MicronutrientsView.referenceNote(nil) == "")
+        #expect(MicronutrientsView.referenceNote(.adultMen).contains("Adult men"))
+    }
+
+    @Test func dayValuesCarryTheReferenceOfEachNutrient() {
+        let day = DayTotals(
+            date: .now, mealCount: 1, caloriesKcal: 500, proteinG: 30, fatG: 10, carbohydratesG: 60,
+            estimatedCaloriesShare: nil, status: nil, markedBy: nil, counted: true,
+            micronutrients: [.iron: OptionalTotal(amount: 5.3, mealCount: 1), .vitaminK: OptionalTotal(amount: 20, mealCount: 1)])
+        let values = MicronutrientsView.dayValues(day, references: [.iron: ReferenceRange(min: 18, max: 45)])
+        #expect(values[.iron]?.reference == ReferenceRange(min: 18, max: 45))
+        #expect(values[.vitaminK]?.reference == nil)
+    }
+
     @Test func itemSourcesAreNamed() {
         let matched = MealItem(name: "boiled rice", grams: 150, status: .matched, foodDescription: "Rice, cooked, NFS")
         let weak = MealItem(name: "house salad", grams: 50, status: .weak, foodDescription: nil)
@@ -64,6 +83,25 @@ extension NetworkTests {
             let meal = try #require(try await api.meals(from: nil, to: nil).meals.first)
             #expect(meal.micronutrients == [.iron: 1.79])
             #expect(meal.items == [MealItem(name: "boiled rice", grams: 150, status: .matched, foodDescription: "Rice, cooked, NFS")])
+        }
+
+        @Test func sendsAndReadsTheReferenceGroup() async throws {
+            let body = """
+            {"timezone":"Europe/Berlin","energy_unit":"kcal","calm_mode":false,
+             "targets":{"calories_kcal":null,"protein_g":null,"fat_g":null,"carbohydrates_g":null},
+             "weight_tracking":false,"weight_unit":"kg","reference_group":"adult_women",
+             "micronutrient_references":{"iron_mg":{"min":18.0,"max":45.0},"vitamin_k_ug":{"min":90.0,"max":null}}}
+            """
+            let api = try api { _ in (200, Data(body.utf8)) }
+            let settings = try await api.updateSettings(.init(referenceGroup: .some(.adultWomen)))
+            let sent = try #require(JSONSerialization.jsonObject(with: StubProtocol.requests.last?.httpBody ?? Data()) as? [String: Any])
+            #expect(sent["reference_group"] as? String == "adult_women")
+            #expect(settings.referenceGroup == .adultWomen)
+            #expect(settings.micronutrientReferences[.vitaminK] == ReferenceRange(min: 90, max: nil))
+
+            _ = try await api.updateSettings(.init(referenceGroup: .some(nil)))
+            let off = try #require(JSONSerialization.jsonObject(with: StubProtocol.requests.last?.httpBody ?? Data()) as? [String: Any])
+            #expect(off["reference_group"] is NSNull)
         }
 
         @Test func readsDayTotals() async throws {

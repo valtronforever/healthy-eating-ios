@@ -295,6 +295,8 @@ nonisolated extension APIClient {
         var targets: [NutrientField: TargetRange?] = [:]
         var weightTracking: Bool?
         var weightUnit: WeightUnit?
+        /// `.some(nil)` turns the reference values off.
+        var referenceGroup: ReferenceGroup??
     }
 
     func updateSettings(_ change: SettingsChange) async throws(APIError) -> UserSettings {
@@ -304,6 +306,7 @@ nonisolated extension APIClient {
         if let calm = change.calmMode { fields["calm_mode"] = calm }
         if let tracking = change.weightTracking { fields["weight_tracking"] = tracking }
         if let unit = change.weightUnit { fields["weight_unit"] = unit.rawValue }
+        if let group = change.referenceGroup { fields["reference_group"] = .some(group?.rawValue ?? NSNull()) }
         if !change.targets.isEmpty {
             var targets: [String: Any] = [:]
             for (field, range) in change.targets {
@@ -412,6 +415,9 @@ nonisolated extension APIClient {
             timeZone: dto.timezone, energyUnit: EnergyUnit(rawValue: dto.energyUnit) ?? .kcal,
             calmMode: dto.calmMode, targets: targets,
             weightTracking: dto.weightTracking ?? false,
-            weightUnit: dto.weightUnit.flatMap(WeightUnit.init(rawValue:)) ?? .kg)
+            weightUnit: dto.weightUnit.flatMap(WeightUnit.init(rawValue:)) ?? .kg,
+            referenceGroup: dto.referenceGroup.flatMap(ReferenceGroup.init(rawValue:)),
+            micronutrientReferences: micronutrients(dto.micronutrientReferences ?? [:])
+                .mapValues { ReferenceRange(min: $0.min, max: $0.max) })
     }
 }

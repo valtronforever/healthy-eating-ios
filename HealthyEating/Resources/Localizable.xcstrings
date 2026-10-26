@@ -171,6 +171,26 @@
     "%@, no target" : {
 
     },
+    "%@, reference %@ to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, reference %2$@ to %3$@"
+          }
+        }
+      }
+    },
+    "%@, reference at least %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, reference at least %2$@"
+          }
+        }
+      }
+    },
     "%@, target %@ to %@" : {
       "localizations" : {
         "en" : {
@@ -354,6 +374,12 @@
 
     },
     "Address" : {
+
+    },
+    "Adult men" : {
+
+    },
+    "Adult women" : {
 
     },
     "Ask it to log a meal." : {
@@ -1028,6 +1054,25 @@
     "Read the self-hosting guide" : {
 
     },
+    "Reference %@–%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reference %1$@–%2$@"
+          }
+        }
+      }
+    },
+    "Reference at least %@" : {
+
+    },
+    "References show US Dietary Reference Intakes for adults 19 to 50 next to vitamins and minerals. They are reference values, not targets." : {
+
+    },
+    "References: US Dietary Reference Intakes (%@, 19 to 50). Reference values, not targets." : {
+
+    },
     "Retry" : {
 
     },
@@ -1330,6 +1375,9 @@
 
     },
     "Vitamin K" : {
+
+    },
+    "Vitamin and mineral references" : {
 
     },
     "Vitamins" : {

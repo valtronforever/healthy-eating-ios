@@ -195,8 +195,22 @@ struct SettingsView: View {
                 }
             }
             .accessibilityIdentifier("targetRanges")
+            Picker(selection: Binding(
+                get: { snapshot.settings.referenceGroup },
+                set: { group in Task { await update(.init(referenceGroup: .some(group))) } })) {
+                Text("Off").tag(ReferenceGroup?.none)
+                ForEach(ReferenceGroup.allCases, id: \.self) { group in
+                    Text(verbatim: group.name).tag(ReferenceGroup?.some(group))
+                }
+            } label: {
+                Text("Vitamin and mineral references").foregroundStyle(.ink)
+            }
+            .accessibilityIdentifier("referenceGroup")
         } header: {
             Text("Units and targets").sectionTextStyle()
+        } footer: {
+            Text("References show US Dietary Reference Intakes for adults 19 to 50 next to vitamins and minerals. They are reference values, not targets.")
+                .sectionTextStyle()
         }
         .listRowBackground(Color.surface)
 

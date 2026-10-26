@@ -5,6 +5,8 @@ nonisolated struct MicronutrientValue: Hashable, Sendable {
     var amount: Double
     /// "2 of 3 meals", "on 4 of 7 counted days"; nil when it covers everything.
     var note: String? = nil
+    /// The reference group's value, when one is chosen in Settings.
+    var reference: ReferenceRange? = nil
 }
 
 /// Vitamins, then minerals, as list sections, showing only the nutrients that have a value.
@@ -40,6 +42,21 @@ struct MicronutrientRow: View {
     let value: MicronutrientValue
 
     var body: some View {
+        VStack(alignment: .leading, spacing: Spacing.s2) {
+            amountLine
+            if let reference = value.reference {
+                // The same neutral band as targets: no colors or words for over or under.
+                RangeBand(
+                    label: nutrient.name, value: value.amount, min: reference.min, max: reference.max,
+                    unit: nutrient.unit, compact: true,
+                    caption: NutritionFormat.reference(reference, nutrient.unit),
+                    spokenValue: NutritionFormat.spokenReference(value: value.amount, reference, nutrient.unit))
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private var amountLine: some View {
         LabeledContent {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(verbatim: NutritionFormat.micronutrient(value.amount, nutrient.unit))
@@ -54,7 +71,6 @@ struct MicronutrientRow: View {
         } label: {
             Text(verbatim: nutrient.name).foregroundStyle(.ink)
         }
-        .accessibilityElement(children: .combine)
     }
 }
 
@@ -84,9 +100,9 @@ struct MicronutrientRow: View {
 enum MicronutrientGallery {
     static let values: [Micronutrient: MicronutrientValue] = [
         .vitaminC: .init(amount: 62, note: nil),
-        .thiamin: .init(amount: 0.84, note: "2 of 3 meals"),
+        .thiamin: .init(amount: 0.84, note: "2 of 3 meals", reference: ReferenceRange(min: 1.1, max: nil)),
         .vitaminB12: .init(amount: 2.4, note: nil),
-        .iron: .init(amount: 11.6, note: nil),
+        .iron: .init(amount: 11.6, note: nil, reference: ReferenceRange(min: 18, max: 45)),
         .calcium: .init(amount: 640, note: "2 of 3 meals"),
         .selenium: .init(amount: 48, note: nil),
     ]

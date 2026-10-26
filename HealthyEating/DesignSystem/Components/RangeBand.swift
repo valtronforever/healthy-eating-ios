@@ -16,6 +16,9 @@ struct RangeBand: View {
     var scaleMax: Double?
     /// Hides the label and value line (used under the hero number of the summary card).
     var compact = false
+    /// Replaces the "Target ..." line and its spoken value, e.g. for reference values.
+    var caption: String?
+    var spokenValue: String?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .body) private var trackHeight: CGFloat = 10
@@ -29,7 +32,7 @@ struct RangeBand: View {
             track
                 .frame(height: trackHeight)
                 .accessibilityHidden(true)
-            Text(NutritionFormat.target(min: min, max: max, unit))
+            Text(caption ?? NutritionFormat.target(min: min, max: max, unit))
                 .font(.footnote)
                 .foregroundStyle(.inkMuted)
                 .fixedSize(horizontal: false, vertical: true)
@@ -37,7 +40,7 @@ struct RangeBand: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
-        .accessibilityValue(NutritionFormat.spokenTarget(value: value, min: min, max: max, unit: unit))
+        .accessibilityValue(spokenValue ?? NutritionFormat.spokenTarget(value: value, min: min, max: max, unit: unit))
     }
 
     private var head: some View {

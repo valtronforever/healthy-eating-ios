@@ -43,6 +43,32 @@ final class MicronutrientsUITests: XCTestCase {
         keepScreenshot(named: "Trends vitamins and minerals")
     }
 
+    /// References are off until a group is chosen in Settings; then the day's list shows them.
+    @MainActor
+    func testReferencesAppearAfterChoosingAGroup() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "settings", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
+        let picker = app.buttons["referenceGroup"]
+        XCTAssertTrue(app.scrollTo(picker))
+        picker.tap()
+        let women = app.buttons["Adult women"]
+        XCTAssertTrue(women.waitForExistence(timeout: 5))
+        women.tap()
+
+        app.tabBars.buttons["Today"].tap()
+        XCTAssertTrue(app.staticTexts["Chicken with rice and salad"].waitForExistence(timeout: 10))
+        let link = app.buttons["micronutrients"]
+        XCTAssertTrue(app.scrollTo(link))
+        link.tap()
+        XCTAssertTrue(app.navigationBars["Vitamins and minerals"].waitForExistence(timeout: 5))
+        let iron = app.staticTexts["Reference 18–45 mg"]
+        XCTAssertTrue(app.scrollTo(iron))
+        keepScreenshot(named: "Vitamins and minerals with references")
+    }
+
     @MainActor
     private func keepScreenshot(named name: String) {
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
