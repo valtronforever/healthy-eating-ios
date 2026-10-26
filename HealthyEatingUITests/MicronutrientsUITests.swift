@@ -41,6 +41,20 @@ final class MicronutrientsUITests: XCTestCase {
         trendsLink.tap()
         XCTAssertTrue(app.staticTexts["Vitamin B12"].waitForExistence(timeout: 5))
         keepScreenshot(named: "Trends vitamins and minerals")
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+
+        // The weekly review, opened from Trends, has the same row.
+        let review = app.buttons["weeklyReview"]
+        XCTAssertTrue(app.scrollTo(review))
+        review.tap()
+        // Last week: early in a week this one may have no counted day yet.
+        let previous = app.buttons["previousWeek"]
+        XCTAssertTrue(previous.waitForExistence(timeout: 5))
+        previous.tap()
+        let weekLink = app.buttons["micronutrients"]
+        XCTAssertTrue(app.scrollTo(weekLink))
+        weekLink.tap()
+        XCTAssertTrue(app.staticTexts["Iron"].waitForExistence(timeout: 5))
     }
 
     /// References are off until a group is chosen in Settings; then the day's list shows them.
@@ -54,8 +68,9 @@ final class MicronutrientsUITests: XCTestCase {
         let picker = app.buttons["referenceGroup"]
         XCTAssertTrue(app.scrollTo(picker))
         picker.tap()
+        // The menu can take a moment to open on a busy simulator.
         let women = app.buttons["Adult women"]
-        XCTAssertTrue(women.waitForExistence(timeout: 5))
+        XCTAssertTrue(women.waitForExistence(timeout: 10))
         women.tap()
 
         app.tabBars.buttons["Today"].tap()

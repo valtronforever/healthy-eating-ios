@@ -170,7 +170,11 @@ actor SampleDataSource: NutritionDataSource {
             mealCount: 17, proteinPerMealG: 31,
             proteinBuckets: [.init(minG: 0, maxG: 10, meals: 1), .init(minG: 10, maxG: 20, meals: 3), .init(minG: 20, maxG: 30, meals: 4),
                              .init(minG: 30, maxG: 40, meals: 5), .init(minG: 40, maxG: nil, meals: 4)],
-            lateMeals: 2, estimatedValuesShare: 0.64, lowConfidenceMeals: 3)
+            lateMeals: 2, estimatedValuesShare: 0.64, lowConfidenceMeals: 3,
+            micronutrientAverages: counted > 0 ? [
+                .iron: OptionalAverage(average: 10.4, days: min(2, counted)),
+                .vitaminC: OptionalAverage(average: 58, days: min(2, counted)),
+            ] : [:])
     }
 
     func account() -> Account {

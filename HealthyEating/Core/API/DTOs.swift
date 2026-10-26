@@ -290,6 +290,8 @@ nonisolated struct WeeklyReviewDTO: Decodable, Sendable {
     let lateMeals: Int
     let estimatedValuesShare: Double?
     let lowConfidenceMeals: Int
+    /// Missing on servers from before vitamins and minerals (backend #25).
+    let micronutrientAverages: [String: OptionalAverageDTO]?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case firstDay = "first_day"
@@ -307,6 +309,7 @@ nonisolated struct WeeklyReviewDTO: Decodable, Sendable {
         case lateMeals = "late_meals"
         case estimatedValuesShare = "estimated_values_share"
         case lowConfidenceMeals = "low_confidence_meals"
+        case micronutrientAverages = "micronutrient_averages"
     }
 }
 

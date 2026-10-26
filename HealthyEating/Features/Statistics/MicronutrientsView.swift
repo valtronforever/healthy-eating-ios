@@ -47,9 +47,16 @@ struct MicronutrientsView: View {
     nonisolated static func periodValues(
         _ period: TrendPeriod, references: [Micronutrient: ReferenceRange] = [:]
     ) -> [Micronutrient: MicronutrientValue] {
-        Dictionary(uniqueKeysWithValues: period.micronutrientAverages.map { nutrient, average in
+        averageValues(period.micronutrientAverages, countedDays: period.countedDays, references: references)
+    }
+
+    /// Averages of Trends or a weekly review, each with the days it uses.
+    nonisolated static func averageValues(
+        _ averages: [Micronutrient: OptionalAverage], countedDays: Int, references: [Micronutrient: ReferenceRange] = [:]
+    ) -> [Micronutrient: MicronutrientValue] {
+        Dictionary(uniqueKeysWithValues: averages.map { nutrient, average in
             (nutrient, MicronutrientValue(
-                amount: average.average, note: OptionalAveragesCard.daysLine(average, countedDays: period.countedDays),
+                amount: average.average, note: OptionalAveragesCard.daysLine(average, countedDays: countedDays),
                 reference: references[nutrient]))
         })
     }

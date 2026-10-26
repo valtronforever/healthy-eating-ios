@@ -198,6 +198,8 @@ nonisolated struct WeeklyReview: Sendable, Equatable {
     /// Share of the meals' values the assistant estimated (0 to 1); the rest are the person's own.
     var estimatedValuesShare: Double?
     var lowConfidenceMeals: Int
+    /// Vitamins and minerals over the counted days on which every meal has a value.
+    var micronutrientAverages: [Micronutrient: OptionalAverage] = [:]
 }
 
 /// A target range; either bound may be open. Targets are ranges, never limits.

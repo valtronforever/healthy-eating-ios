@@ -152,7 +152,9 @@ nonisolated extension APIClient {
             proteinBuckets: dto.proteinBuckets.map { .init(minG: $0.minG, maxG: $0.maxG, meals: $0.meals) },
             lateMeals: dto.lateMeals,
             estimatedValuesShare: dto.estimatedValuesShare,
-            lowConfidenceMeals: dto.lowConfidenceMeals)
+            lowConfidenceMeals: dto.lowConfidenceMeals,
+            micronutrientAverages: Self.micronutrients(dto.micronutrientAverages ?? [:])
+                .mapValues { OptionalAverage(average: $0.average, days: $0.days) })
     }
 
     // MARK: Weight
