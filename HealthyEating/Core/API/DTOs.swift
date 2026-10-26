@@ -43,6 +43,7 @@ nonisolated struct MealDTO: Decodable, Sendable {
     /// Missing on servers from before vitamins and minerals (backend #25).
     let micronutrients: [String: Double]?
     let items: [MealItemDTO]?
+    let labelItems: [LabelItemDTO]?
     let estimatedFields: [String]
     let confidence: String
     let clientName: String?
@@ -68,6 +69,7 @@ nonisolated struct MealDTO: Decodable, Sendable {
         case importedFrom = "imported_from"
         case micronutrients
         case items
+        case labelItems = "label_items"
         case estimatedFields = "estimated_fields"
         case confidence
         case clientName = "client_name"
@@ -87,6 +89,16 @@ nonisolated struct MealItemDTO: Decodable, Sendable {
         case grams
         case status
         case foodDescription = "food_description"
+    }
+}
+
+nonisolated struct LabelItemDTO: Decodable, Sendable {
+    let name: String
+    let grams: Double?
+    let values: [String: Double]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case name, grams, values
     }
 }
 

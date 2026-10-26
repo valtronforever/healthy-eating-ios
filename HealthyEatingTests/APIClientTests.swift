@@ -231,6 +231,7 @@ struct APIContractTests {
         ("WidgetTodayResponse", WidgetTodayDTO.CodingKeys.allCases.map(\.stringValue)),
         ("Login", LoginDTO.CodingKeys.allCases.map(\.stringValue)),
         ("MealItemResponse", MealItemDTO.CodingKeys.allCases.map(\.stringValue)),
+        ("LabelItemResponse", LabelItemDTO.CodingKeys.allCases.map(\.stringValue)),
         ("ReferenceRangeModel", ReferenceRangeDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LoginList", LoginListDTO.CodingKeys.allCases.map(\.stringValue)),
         ("LinkStartResponse", LinkStartDTO.CodingKeys.allCases.map(\.stringValue)),

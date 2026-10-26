@@ -87,15 +87,18 @@ struct MealDetailView: View {
             if let micronutrients = meal.micronutrients, !micronutrients.isEmpty {
                 MicronutrientSections(values: micronutrients.mapValues { MicronutrientValue(amount: $0) })
             }
-            if !meal.items.isEmpty {
+            if !meal.items.isEmpty || !meal.labelItems.isEmpty {
                 Section {
                     ForEach(Array(meal.items.enumerated()), id: \.offset) { _, item in
                         itemRow(item)
                     }
+                    ForEach(Array(meal.labelItems.enumerated()), id: \.offset) { _, item in
+                        labelRow(item)
+                    }
                 } header: {
                     Text("Food items").sectionTextStyle()
                 } footer: {
-                    Text("Vitamins and minerals come from USDA FoodData Central for these items. Calories and macronutrients are not changed by them.")
+                    Text(verbatim: Self.itemsFooter(hasLabels: !meal.labelItems.isEmpty))
                         .sectionTextStyle()
                 }
                 .listRowBackground(Color.surface)
@@ -226,6 +229,39 @@ struct MealDetailView: View {
                 .foregroundStyle(.inkMuted)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private func labelRow(_ item: LabelItem) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(verbatim: item.name).foregroundStyle(.ink)
+                Spacer(minLength: Spacing.s3)
+                if let grams = item.grams {
+                    Text(verbatim: NutritionFormat.value(grams, .grams))
+                        .metricFont(.small)
+                        .foregroundStyle(.inkMuted)
+                }
+            }
+            Text(verbatim: Self.labelLine(item))
+                .font(.footnote)
+                .foregroundStyle(.inkMuted)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "From label: Vitamin D 50 µg, Zinc 15 mg".
+    nonisolated static func labelLine(_ item: LabelItem) -> String {
+        let values = Micronutrient.allCases.compactMap { nutrient -> String? in
+            guard let amount = item.values[nutrient] else { return nil }
+            return "\(nutrient.name) \(NutritionFormat.micronutrient(amount, nutrient.unit))"
+        }
+        return String(localized: "From label: \(values.joined(separator: ", "))")
+    }
+
+    nonisolated static func itemsFooter(hasLabels: Bool) -> String {
+        hasLabels
+            ? String(localized: "Vitamins and minerals come from USDA FoodData Central for these items, and from the label for supplements. Calories and macronutrients are not changed by them.")
+            : String(localized: "Vitamins and minerals come from USDA FoodData Central for these items. Calories and macronutrients are not changed by them.")
     }
 
     /// The USDA food used, or that the item has no values.

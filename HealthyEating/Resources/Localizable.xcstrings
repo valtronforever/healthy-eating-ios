@@ -706,6 +706,9 @@
     "From USDA FoodData Central, for the food items your assistant listed with each meal. Calories and macronutrients are not changed by them." : {
 
     },
+    "From label: %@" : {
+
+    },
     "From your assistant" : {
 
     },
@@ -1384,6 +1387,9 @@
 
     },
     "Vitamins and minerals" : {
+
+    },
+    "Vitamins and minerals come from USDA FoodData Central for these items, and from the label for supplements. Calories and macronutrients are not changed by them." : {
 
     },
     "Vitamins and minerals come from USDA FoodData Central for these items. Calories and macronutrients are not changed by them." : {

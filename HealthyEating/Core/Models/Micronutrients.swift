@@ -91,6 +91,15 @@ nonisolated struct MealItem: Hashable, Sendable {
     var foodDescription: String?
 }
 
+/// A supplement or packaged food whose vitamins and minerals come from its label or the person,
+/// never estimated (server status `label`).
+nonisolated struct LabelItem: Hashable, Sendable {
+    var name: String
+    /// Weight, when known (a capsule has none).
+    var grams: Double?
+    var values: [Micronutrient: Double]
+}
+
 nonisolated extension NutritionFormat {
     /// "Reference 8–45 mg", "Reference at least 1.1 mg": never "target", never judged.
     static func reference(_ range: ReferenceRange, _ unit: NutrientUnit, locale: Locale = .current) -> String {

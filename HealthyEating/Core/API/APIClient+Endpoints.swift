@@ -385,6 +385,9 @@ nonisolated extension APIClient {
             items: (dto.items ?? []).map {
                 MealItem(name: $0.name, grams: $0.grams, status: MealItem.Status(rawValue: $0.status) ?? .none,
                          foodDescription: $0.foodDescription)
+            },
+            labelItems: (dto.labelItems ?? []).map {
+                LabelItem(name: $0.name, grams: $0.grams, values: micronutrients($0.values))
             })
     }
 

@@ -94,6 +94,8 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var micronutrients: [Micronutrient: Double]?
     /// The food items the assistant listed, in order.
     var items: [MealItem] = []
+    /// Supplements and packaged foods with values from their label.
+    var labelItems: [LabelItem] = []
     /// Fiber, sugar and sodium, when the meal has them.
     var optional: [OptionalNutrient: Double] = [:]
     /// Which of them the assistant estimated.
@@ -110,8 +112,9 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
         confidence: Confidence?, assistant: String, sourceNote: String?,
         optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = [],
         updatedAt: Date? = nil, importedFrom: String? = nil,
-        micronutrients: [Micronutrient: Double]? = nil, items: [MealItem] = []
+        micronutrients: [Micronutrient: Double]? = nil, items: [MealItem] = [], labelItems: [LabelItem] = []
     ) {
+        self.labelItems = labelItems
         self.updatedAt = updatedAt
         self.importedFrom = importedFrom
         self.micronutrients = micronutrients

@@ -49,6 +49,12 @@ struct MicronutrientFormatTests {
         #expect(values[.vitaminK]?.reference == nil)
     }
 
+    @Test func labelItemsListTheirValues() {
+        let item = LabelItem(name: "Vitamin D3 capsule", grams: nil, values: [.zinc: 15, .vitaminD: 50])
+        #expect(MealDetailView.labelLine(item) == "From label: Vitamin D 50 µg, Zinc 15 mg")
+        #expect(MealDetailView.itemsFooter(hasLabels: true).contains("from the label"))
+    }
+
     @Test func itemSourcesAreNamed() {
         let matched = MealItem(name: "boiled rice", grams: 150, status: .matched, foodDescription: "Rice, cooked, NFS")
         let weak = MealItem(name: "house salad", grams: 50, status: .weak, foodDescription: nil)

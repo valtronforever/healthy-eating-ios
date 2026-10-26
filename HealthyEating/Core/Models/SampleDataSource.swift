@@ -77,7 +77,7 @@ actor SampleDataSource: NutritionDataSource {
             portionGrams: meal.portionGrams, estimatedFields: meal.estimatedFields, confidence: meal.confidence,
             assistant: String(localized: "Healthy Eating for iOS"), sourceNote: meal.sourceNote,
             optional: meal.optional, estimatedOptional: meal.estimatedOptional, updatedAt: .now,
-            micronutrients: meal.micronutrients, items: meal.items)
+            micronutrients: meal.micronutrients, items: meal.items, labelItems: meal.labelItems)
         todayMeals.append(meal)
         return meal
     }
