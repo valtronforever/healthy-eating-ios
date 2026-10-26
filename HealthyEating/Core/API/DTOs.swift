@@ -38,6 +38,8 @@ nonisolated struct MealDTO: Decodable, Sendable {
     let sodiumMg: Double?
     let source: String
     let sourceNote: String?
+    /// Set for meals imported from earlier tracking; missing on servers from before the import.
+    let importedFrom: String?
     let estimatedFields: [String]
     let confidence: String
     let clientName: String?
@@ -60,6 +62,7 @@ nonisolated struct MealDTO: Decodable, Sendable {
         case sodiumMg = "sodium_mg"
         case source
         case sourceNote = "source_note"
+        case importedFrom = "imported_from"
         case estimatedFields = "estimated_fields"
         case confidence
         case clientName = "client_name"

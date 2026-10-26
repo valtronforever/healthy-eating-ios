@@ -44,10 +44,16 @@ struct MealDetailView: View {
                             ConfidenceIndicator(level: confidence)
                         }
                     }
-                    if let note = meal.sourceNote {
+                    if let note = Self.shownNote(meal) {
                         Text(verbatim: note)
                             .font(.subheadline)
                             .foregroundStyle(.ink)
+                    }
+                    if let imported = Self.importedLine(meal) {
+                        Text(verbatim: imported)
+                            .font(.subheadline)
+                            .foregroundStyle(.inkMuted)
+                            .accessibilityIdentifier("importedFrom")
                     }
                 }
                 .cardStyle()
@@ -188,6 +194,18 @@ struct MealDetailView: View {
             app.handle(error)
         }
     }
+
+    /// "Imported from ChatGPT project" for meals from earlier tracking (backend #27).
+    nonisolated static func importedLine(_ meal: Meal) -> String? {
+        guard let source = meal.importedFrom, !source.isEmpty else { return nil }
+        return String(localized: "Imported from \(source)")
+    }
+
+    /// The source note, unless it only repeats where an imported meal came from.
+    nonisolated static func shownNote(_ meal: Meal) -> String? {
+        guard let note = meal.sourceNote, !note.isEmpty, note != meal.importedFrom else { return nil }
+        return note
+    }
 }
 
 #Preview("Light") {
@@ -199,6 +217,14 @@ struct MealDetailView: View {
     NavigationStack { MealDetailView(meal: SampleData.meals[1]) }
         .environment(AppModel(defaults: .preview, arguments: [AppModel.LaunchArgument.skipOnboarding]))
         .preferredColorScheme(.dark)
+}
+
+#Preview("Imported") {
+    var meal = SampleData.meals[0]
+    meal.importedFrom = "ChatGPT project"
+    meal.sourceNote = "ChatGPT project"
+    return NavigationStack { MealDetailView(meal: meal) }
+        .environment(AppModel(defaults: .preview, arguments: [AppModel.LaunchArgument.skipOnboarding]))
 }
 
 #Preview("AX5") {

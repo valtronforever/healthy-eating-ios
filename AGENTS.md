@@ -169,6 +169,8 @@ Notes:
 - "Today" and daily charts use the user's local calendar day; send the IANA timezone to the backend where the API asks for it.
 - **Neutral feedback is a hard rule.** Never use red, warnings or pop-ups for being over or under a target; show targets as ranges; no streaks, badges or gamification; no "good/bad food", "cheat" or "you went over" wording. Over and under are styled the same way.
 - Show data provenance: values the user calculated vs values the assistant estimated, and the confidence.
+  Meals imported from earlier tracking (backend #27, `Meal.importedFrom`) say "Imported from
+  ChatGPT project" on meal detail; the source note is hidden when it only repeats that source.
 - Calm mode (Settings, stored on the server and adopted from it with `AppModel.adopt(_:)` whenever
   settings load, never echoed back) hides calories everywhere: Today's hero number (G3 shows
   "Logged N of the last 7 days." instead, a plain count, never a streak), meal rows, meal detail

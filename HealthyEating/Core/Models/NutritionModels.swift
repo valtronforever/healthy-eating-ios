@@ -88,6 +88,8 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var assistant: String
     /// Where existing numbers came from, or a one-line explanation of an estimate.
     var sourceNote: String?
+    /// Where an imported meal came from ("ChatGPT project"); nil for meals logged as eaten.
+    var importedFrom: String?
     /// Fiber, sugar and sodium, when the meal has them.
     var optional: [OptionalNutrient: Double] = [:]
     /// Which of them the assistant estimated.
@@ -103,9 +105,10 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
         carbohydratesG: Double, portionGrams: Double?, estimatedFields: Set<NutrientField>,
         confidence: Confidence?, assistant: String, sourceNote: String?,
         optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = [],
-        updatedAt: Date? = nil
+        updatedAt: Date? = nil, importedFrom: String? = nil
     ) {
         self.updatedAt = updatedAt
+        self.importedFrom = importedFrom
         self.optional = optional
         self.estimatedOptional = estimatedOptional
         self.id = id

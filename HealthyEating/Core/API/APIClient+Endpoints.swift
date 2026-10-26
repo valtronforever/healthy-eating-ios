@@ -371,7 +371,7 @@ nonisolated extension APIClient {
             sourceNote: dto.sourceNote,
             optional: compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg]),
             estimatedOptional: Set(dto.estimatedFields.compactMap(OptionalNutrient.init(rawValue:))),
-            updatedAt: dto.updatedAt)
+            updatedAt: dto.updatedAt, importedFrom: dto.importedFrom)
     }
 
     /// Keeps the nutrients that have a value.
