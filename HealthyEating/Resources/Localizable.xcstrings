@@ -75,6 +75,9 @@
     "%@ lower" : {
 
     },
+    "%@ micrograms" : {
+
+    },
     "%@ milligrams" : {
 
     },
@@ -230,6 +233,16 @@
     "%lld min ago" : {
 
     },
+    "%lld of %lld meals" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld meals"
+          }
+        }
+      }
+    },
     "%lld of %lld meals after %@" : {
       "localizations" : {
         "en" : {
@@ -256,6 +269,9 @@
     "%lld times in the last 90 days" : {
 
     },
+    "%lld values" : {
+
+    },
     "%lld weigh-ins deleted." : {
 
     },
@@ -266,6 +282,9 @@
 
     },
     "1 meal" : {
+
+    },
+    "1 value" : {
 
     },
     "1 weigh-in deleted." : {
@@ -364,6 +383,9 @@
     "Averages appear here once meals arrive from your assistant." : {
 
     },
+    "Averages of the counted days on which every meal has food items, from USDA FoodData Central." : {
+
+    },
     "Averages use %lld of %lld days (%lld partial or not logged days left out). Today counts once you mark it complete." : {
       "localizations" : {
         "en" : {
@@ -403,6 +425,9 @@
 
     },
     "CSV (ZIP)" : {
+
+    },
+    "Calcium" : {
 
     },
     "Calm mode" : {
@@ -634,6 +659,12 @@
     "First meal received from %@" : {
 
     },
+    "Folate" : {
+
+    },
+    "Food items" : {
+
+    },
     "For example" : {
 
     },
@@ -644,6 +675,9 @@
 
     },
     "From Apple Health" : {
+
+    },
+    "From USDA FoodData Central, for the food items your assistant listed with each meal. Calories and macronutrients are not changed by them." : {
 
     },
     "From your assistant" : {
@@ -703,6 +737,9 @@
     "In a new chat, type @, choose Healthy Eating and send your meal." : {
 
     },
+    "Iron" : {
+
+    },
     "It" : {
 
     },
@@ -719,6 +756,9 @@
 
     },
     "JSON, CSV" : {
+
+    },
+    "Last %lld days" : {
 
     },
     "Last meal saved %@" : {
@@ -788,6 +828,9 @@
     "MIT License. The source code and the license text are on GitHub." : {
 
     },
+    "Magnesium" : {
+
+    },
     "Mark day as complete" : {
 
     },
@@ -815,10 +858,16 @@
     "Medium confidence" : {
 
     },
+    "Minerals" : {
+
+    },
     "Next month" : {
 
     },
     "Next week" : {
+
+    },
+    "Niacin (B3)" : {
 
     },
     "No day counts for the averages yet." : {
@@ -864,6 +913,9 @@
 
     },
     "Not enough weigh-ins yet: the estimate needs weigh-ins on 6 days spread over 2 weeks." : {
+
+    },
+    "Not found in USDA data, no values" : {
 
     },
     "Not logged" : {
@@ -952,7 +1004,13 @@
     "Period" : {
 
     },
+    "Phosphorus" : {
+
+    },
     "Portion" : {
+
+    },
+    "Potassium" : {
 
     },
     "Previous month" : {
@@ -980,6 +1038,9 @@
 
     },
     "Revoking signs that assistant out of your server. Meals it already saved stay, and you can connect it again at any time." : {
+
+    },
+    "Riboflavin (B2)" : {
 
     },
     "Running your own?" : {
@@ -1011,6 +1072,9 @@
 
     },
     "Selected" : {
+
+    },
+    "Selenium" : {
 
     },
     "Send a meal to your assistant. It appears here a few seconds after the assistant saves it." : {
@@ -1145,6 +1209,9 @@
     "The start of a range can’t be above its end." : {
 
     },
+    "Thiamin (B1)" : {
+
+    },
     "This account already signs in to another Healthy Eating account, so it was not linked. Healthy Eating accounts are never merged." : {
 
     },
@@ -1211,6 +1278,9 @@
     "Type DELETE to confirm" : {
 
     },
+    "USDA: %@" : {
+
+    },
     "Undo" : {
 
     },
@@ -1239,6 +1309,36 @@
 
     },
     "Values you change are saved as your numbers." : {
+
+    },
+    "Vitamin A" : {
+
+    },
+    "Vitamin B12" : {
+
+    },
+    "Vitamin B6" : {
+
+    },
+    "Vitamin C" : {
+
+    },
+    "Vitamin D" : {
+
+    },
+    "Vitamin E" : {
+
+    },
+    "Vitamin K" : {
+
+    },
+    "Vitamins" : {
+
+    },
+    "Vitamins and minerals" : {
+
+    },
+    "Vitamins and minerals come from USDA FoodData Central for these items. Calories and macronutrients are not changed by them." : {
 
     },
     "Waiting for your first meal" : {
@@ -1338,6 +1438,9 @@
     "Zero" : {
 
     },
+    "Zinc" : {
+
+    },
     "at least %@" : {
 
     },
@@ -1428,6 +1531,9 @@
     },
     "± marks values %@ estimated. Values you edit become your numbers." : {
 
+    },
+    "µg" : {
+      "comment" : "Unit symbol for micrograms"
     },
     "“Log my breakfast: oatmeal with berries”" : {
 

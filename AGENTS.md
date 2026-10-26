@@ -181,6 +181,17 @@ Notes:
   History days) and a Trends card. A value only some meals or days have says so ("2 of 3 meals",
   "on 9 of 18 counted days"). Servers without them decode as none. The edit sheet does not change
   them yet; `APIClient.MealEdit.optional` can.
+- Vitamins and minerals (backend #25, `Core/Models/Micronutrients.swift`, 18 nutrients with the
+  API's codes; the unit is the code's suffix, `NutrientUnit.micrograms` for µg): the server computes
+  them from USDA FoodData Central for the food items the assistant listed; the app only shows them,
+  as plain amounts (`NutritionFormat.micronutrient`: two decimals below 1, one below 10), never
+  colors or judgments. Meal detail has "Vitamins" and "Minerals" sections and "Food items" (each
+  item's grams and the USDA food used, or "Not found in USDA data, no values"). Today and a past
+  day show a "Vitamins and minerals" row (`MicronutrientsLink`) when the day has values, opening
+  `MicronutrientsView` with "2 of 3 meals" when only some meals have a value; Trends shows the same
+  row with averages over the counted days on which every meal has a value ("on 4 of 7 counted
+  days"). Calm mode does not hide them. Servers without them decode as none. Reference ranges
+  (an optional reference group) are not built yet.
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

@@ -90,6 +90,10 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     var sourceNote: String?
     /// Where an imported meal came from ("ChatGPT project"); nil for meals logged as eaten.
     var importedFrom: String?
+    /// Vitamins and minerals of the matched food items; nil when the meal has no items.
+    var micronutrients: [Micronutrient: Double]?
+    /// The food items the assistant listed, in order.
+    var items: [MealItem] = []
     /// Fiber, sugar and sodium, when the meal has them.
     var optional: [OptionalNutrient: Double] = [:]
     /// Which of them the assistant estimated.
@@ -105,10 +109,13 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
         carbohydratesG: Double, portionGrams: Double?, estimatedFields: Set<NutrientField>,
         confidence: Confidence?, assistant: String, sourceNote: String?,
         optional: [OptionalNutrient: Double] = [:], estimatedOptional: Set<OptionalNutrient> = [],
-        updatedAt: Date? = nil, importedFrom: String? = nil
+        updatedAt: Date? = nil, importedFrom: String? = nil,
+        micronutrients: [Micronutrient: Double]? = nil, items: [MealItem] = []
     ) {
         self.updatedAt = updatedAt
         self.importedFrom = importedFrom
+        self.micronutrients = micronutrients
+        self.items = items
         self.optional = optional
         self.estimatedOptional = estimatedOptional
         self.id = id
@@ -129,14 +136,16 @@ nonisolated struct Meal: Identifiable, Hashable, Sendable {
     init(
         id: UUID, eatenAt: Date, dishName: String, caloriesKcal: Double, proteinG: Double, fatG: Double,
         carbohydratesG: Double, portionGrams: Double?, provenance: Provenance, confidence: Confidence?,
-        assistant: String, sourceNote: String?, optional: [OptionalNutrient: Double] = [:]
+        assistant: String, sourceNote: String?, optional: [OptionalNutrient: Double] = [:],
+        micronutrients: [Micronutrient: Double]? = nil, items: [MealItem] = []
     ) {
         self.init(
             id: id, eatenAt: eatenAt, dishName: dishName, caloriesKcal: caloriesKcal, proteinG: proteinG,
             fatG: fatG, carbohydratesG: carbohydratesG, portionGrams: portionGrams,
             estimatedFields: provenance == .estimated ? Set(NutrientField.allCases) : [],
             confidence: confidence, assistant: assistant, sourceNote: sourceNote,
-            optional: optional, estimatedOptional: provenance == .estimated ? Set(optional.keys) : [])
+            optional: optional, estimatedOptional: provenance == .estimated ? Set(optional.keys) : [],
+            micronutrients: micronutrients, items: items)
     }
 
     func grams(of macro: Macro) -> Double {

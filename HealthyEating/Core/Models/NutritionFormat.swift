@@ -2,7 +2,7 @@ import Foundation
 
 /// Canonical units the backend returns. The app formats them, it never converts or recomputes them.
 nonisolated enum NutrientUnit: Sendable {
-    case kcal, kilojoules, grams, milligrams
+    case kcal, kilojoules, grams, milligrams, micrograms
 
     var symbol: String {
         switch self {
@@ -10,6 +10,7 @@ nonisolated enum NutrientUnit: Sendable {
         case .kilojoules: String(localized: "kJ", comment: "Unit symbol for kilojoules")
         case .grams: String(localized: "g", comment: "Unit symbol for grams")
         case .milligrams: String(localized: "mg", comment: "Unit symbol for milligrams")
+        case .micrograms: String(localized: "µg", comment: "Unit symbol for micrograms")
         }
     }
 
@@ -19,6 +20,7 @@ nonisolated enum NutrientUnit: Sendable {
         case .kilojoules: String(localized: "\(formattedNumber) kilojoules")
         case .grams: String(localized: "\(formattedNumber) grams")
         case .milligrams: String(localized: "\(formattedNumber) milligrams")
+        case .micrograms: String(localized: "\(formattedNumber) micrograms")
         }
     }
 }

@@ -84,6 +84,23 @@ struct MealDetailView: View {
             }
             .listRowBackground(Color.surface)
 
+            if let micronutrients = meal.micronutrients, !micronutrients.isEmpty {
+                MicronutrientSections(values: micronutrients.mapValues { MicronutrientValue(amount: $0) })
+            }
+            if !meal.items.isEmpty {
+                Section {
+                    ForEach(Array(meal.items.enumerated()), id: \.offset) { _, item in
+                        itemRow(item)
+                    }
+                } header: {
+                    Text("Food items").sectionTextStyle()
+                } footer: {
+                    Text("Vitamins and minerals come from USDA FoodData Central for these items. Calories and macronutrients are not changed by them.")
+                        .sectionTextStyle()
+                }
+                .listRowBackground(Color.surface)
+            }
+
             Section {
                 LabeledContent("Saved by") { Text(verbatim: meal.assistant).foregroundStyle(.inkMuted) }
             } header: {
@@ -193,6 +210,30 @@ struct MealDetailView: View {
             self.error = error
             app.handle(error)
         }
+    }
+
+    private func itemRow(_ item: MealItem) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(verbatim: item.name).foregroundStyle(.ink)
+                Spacer(minLength: Spacing.s3)
+                Text(verbatim: NutritionFormat.value(item.grams, .grams))
+                    .metricFont(.small)
+                    .foregroundStyle(.inkMuted)
+            }
+            Text(verbatim: Self.itemSource(item))
+                .font(.footnote)
+                .foregroundStyle(.inkMuted)
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// The USDA food used, or that the item has no values.
+    nonisolated static func itemSource(_ item: MealItem) -> String {
+        if item.status == .matched, let food = item.foodDescription {
+            return String(localized: "USDA: \(food)")
+        }
+        return String(localized: "Not found in USDA data, no values")
     }
 
     /// "Imported from ChatGPT project" for meals from earlier tracking (backend #27).

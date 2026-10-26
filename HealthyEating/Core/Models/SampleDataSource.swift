@@ -76,7 +76,8 @@ actor SampleDataSource: NutritionDataSource {
             proteinG: meal.proteinG, fatG: meal.fatG, carbohydratesG: meal.carbohydratesG,
             portionGrams: meal.portionGrams, estimatedFields: meal.estimatedFields, confidence: meal.confidence,
             assistant: String(localized: "Healthy Eating for iOS"), sourceNote: meal.sourceNote,
-            optional: meal.optional, estimatedOptional: meal.estimatedOptional, updatedAt: .now)
+            optional: meal.optional, estimatedOptional: meal.estimatedOptional, updatedAt: .now,
+            micronutrients: meal.micronutrients, items: meal.items)
         todayMeals.append(meal)
         return meal
     }
@@ -117,6 +118,12 @@ actor SampleDataSource: NutritionDataSource {
                                      .fiber: OptionalAverage(average: 21, days: sample.completeDays),
                                      .sugar: OptionalAverage(average: 38, days: sample.completeDays),
                                      .sodium: OptionalAverage(average: 2100, days: max(1, sample.completeDays / 2)),
+                                 ],
+                                 micronutrientAverages: [
+                                     .iron: OptionalAverage(average: 11.6, days: max(1, sample.completeDays / 2)),
+                                     .calcium: OptionalAverage(average: 640, days: max(1, sample.completeDays / 2)),
+                                     .vitaminC: OptionalAverage(average: 62, days: max(1, sample.completeDays / 2)),
+                                     .vitaminB12: OptionalAverage(average: 2.4, days: max(1, sample.completeDays / 3)),
                                  ]),
             previous: TrendPeriod(firstDay: previousFirst, lastDay: previousLast, countedDays: sample.completeDays, loggedDays: logged,
                                   averages: NutrientValues(caloriesKcal: averages.caloriesKcal + 70, proteinG: averages.proteinG - 6,
@@ -373,6 +380,10 @@ actor SampleDataSource: NutritionDataSource {
             counted: mark == .complete && !meals.isEmpty,
             optional: Dictionary(uniqueKeysWithValues: OptionalNutrient.allCases.compactMap { nutrient in
                 let amounts = meals.compactMap { $0.optional[nutrient] }
+                return amounts.isEmpty ? nil : (nutrient, OptionalTotal(amount: amounts.reduce(0, +), mealCount: amounts.count))
+            }),
+            micronutrients: Dictionary(uniqueKeysWithValues: Micronutrient.allCases.compactMap { nutrient in
+                let amounts = meals.compactMap { $0.micronutrients?[nutrient] }
                 return amounts.isEmpty ? nil : (nutrient, OptionalTotal(amount: amounts.reduce(0, +), mealCount: amounts.count))
             }))
     }

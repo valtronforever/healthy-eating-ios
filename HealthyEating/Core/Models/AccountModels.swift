@@ -66,6 +66,8 @@ nonisolated struct DayTotals: Identifiable, Hashable, Sendable {
     var counted: Bool
     /// Fiber, sugar and sodium over the meals of the day that have them.
     var optional: [OptionalNutrient: OptionalTotal] = [:]
+    /// Vitamins and minerals over the meals of the day that have them.
+    var micronutrients: [Micronutrient: OptionalTotal] = [:]
 
     var id: Date { date }
 
@@ -121,6 +123,8 @@ nonisolated struct TrendPeriod: Sendable, Equatable {
     var averages: NutrientValues?
     var estimatedCaloriesShare: Double?
     var optionalAverages: [OptionalNutrient: OptionalAverage] = [:]
+    /// Vitamins and minerals over the counted days on which every meal has a value.
+    var micronutrientAverages: [Micronutrient: OptionalAverage] = [:]
 }
 
 nonisolated struct NutrientValues: Sendable, Equatable {

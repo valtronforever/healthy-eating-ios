@@ -73,6 +73,15 @@ struct DayView: View {
                     .listRowBackground(Color.surface)
                 }
 
+                if let day = snapshot.day, !day.micronutrients.isEmpty {
+                    Section {
+                        MicronutrientsLink(
+                            subtitle: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()),
+                            values: MicronutrientsView.dayValues(day), footer: MicronutrientsView.dayFooter)
+                    }
+                    .listRowBackground(Color.surface)
+                }
+
                 Section {
                     Picker("This day", selection: markBinding(snapshot.day?.status)) {
                         Text("Complete").tag(DayMark?.some(.complete))

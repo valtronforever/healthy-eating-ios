@@ -89,6 +89,16 @@ struct TrendsView: View {
                 }
                 .listSectionSpacing(Spacing.s4)
 
+                if let snapshot = model.state.value, !snapshot.trends.current.micronutrientAverages.isEmpty {
+                    Section {
+                        MicronutrientsLink(
+                            subtitle: String(localized: "Last \(period.rawValue) days"),
+                            values: MicronutrientsView.periodValues(snapshot.trends.current),
+                            footer: MicronutrientsView.periodFooter)
+                    }
+                    .listRowBackground(Color.surface)
+                }
+
                 if let snapshot = model.state.value, snapshot.trends.current.loggedDays > 0 {
                     comparisonSection(snapshot)
                 }

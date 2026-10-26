@@ -88,6 +88,8 @@ nonisolated extension APIClient {
                 status: dto.status.flatMap(DayMark.init(rawValue:)), markedBy: dto.statusSetBy.flatMap(MarkSetter.init(rawValue:)),
                 counted: dto.counted,
                 optional: Self.compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg])
+                    .mapValues { OptionalTotal(amount: $0.amount, mealCount: $0.mealCount) },
+                micronutrients: Self.micronutrients(dto.micronutrients ?? [:])
                     .mapValues { OptionalTotal(amount: $0.amount, mealCount: $0.mealCount) })
         }
         return DayRange(days: days, countingRule: CountingRule(rawValue: response.countingRule) ?? .loggedDays)
@@ -120,6 +122,8 @@ nonisolated extension APIClient {
             firstDay: first, lastDay: last, countedDays: dto.countedDays, loggedDays: dto.loggedDays,
             averages: dto.averages.map(Self.nutrients), estimatedCaloriesShare: dto.estimatedCaloriesShare,
             optionalAverages: Self.compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg])
+                .mapValues { OptionalAverage(average: $0.average, days: $0.days) },
+            micronutrientAverages: Self.micronutrients(dto.micronutrientAverages ?? [:])
                 .mapValues { OptionalAverage(average: $0.average, days: $0.days) })
     }
 
@@ -371,7 +375,19 @@ nonisolated extension APIClient {
             sourceNote: dto.sourceNote,
             optional: compact([.fiber: dto.fiberG, .sugar: dto.sugarG, .sodium: dto.sodiumMg]),
             estimatedOptional: Set(dto.estimatedFields.compactMap(OptionalNutrient.init(rawValue:))),
-            updatedAt: dto.updatedAt, importedFrom: dto.importedFrom)
+            updatedAt: dto.updatedAt, importedFrom: dto.importedFrom,
+            micronutrients: dto.micronutrients.map { micronutrients($0) },
+            items: (dto.items ?? []).map {
+                MealItem(name: $0.name, grams: $0.grams, status: MealItem.Status(rawValue: $0.status) ?? .none,
+                         foodDescription: $0.foodDescription)
+            })
+    }
+
+    /// Vitamins and minerals by code; codes this app version does not know are skipped.
+    static func micronutrients<Value>(_ values: [String: Value]) -> [Micronutrient: Value] {
+        Dictionary(uniqueKeysWithValues: values.compactMap { code, value in
+            Micronutrient(rawValue: code).map { ($0, value) }
+        })
     }
 
     /// Keeps the nutrients that have a value.

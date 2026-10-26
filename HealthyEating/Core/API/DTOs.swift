@@ -40,6 +40,9 @@ nonisolated struct MealDTO: Decodable, Sendable {
     let sourceNote: String?
     /// Set for meals imported from earlier tracking; missing on servers from before the import.
     let importedFrom: String?
+    /// Missing on servers from before vitamins and minerals (backend #25).
+    let micronutrients: [String: Double]?
+    let items: [MealItemDTO]?
     let estimatedFields: [String]
     let confidence: String
     let clientName: String?
@@ -63,11 +66,27 @@ nonisolated struct MealDTO: Decodable, Sendable {
         case source
         case sourceNote = "source_note"
         case importedFrom = "imported_from"
+        case micronutrients
+        case items
         case estimatedFields = "estimated_fields"
         case confidence
         case clientName = "client_name"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+    }
+}
+
+nonisolated struct MealItemDTO: Decodable, Sendable {
+    let name: String
+    let grams: Double
+    let status: String
+    let foodDescription: String?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case name
+        case grams
+        case status
+        case foodDescription = "food_description"
     }
 }
 
@@ -119,6 +138,8 @@ nonisolated struct DaySummaryDTO: Decodable, Sendable {
     let fiberG: NutrientTotalDTO?
     let sugarG: NutrientTotalDTO?
     let sodiumMg: NutrientTotalDTO?
+    /// Missing on servers from before vitamins and minerals (backend #25).
+    let micronutrients: [String: NutrientTotalDTO]?
     let estimatedCaloriesShare: Double?
     let status: String?
     let statusSetBy: String?
@@ -134,6 +155,7 @@ nonisolated struct DaySummaryDTO: Decodable, Sendable {
         case fiberG = "fiber_g"
         case sugarG = "sugar_g"
         case sodiumMg = "sodium_mg"
+        case micronutrients
         case estimatedCaloriesShare = "estimated_calories_share"
         case status
         case statusSetBy = "status_set_by"
@@ -188,6 +210,8 @@ nonisolated struct PeriodDTO: Decodable, Sendable {
     let fiberG: OptionalAverageDTO?
     let sugarG: OptionalAverageDTO?
     let sodiumMg: OptionalAverageDTO?
+    /// Missing on servers from before vitamins and minerals (backend #25).
+    let micronutrientAverages: [String: OptionalAverageDTO]?
 
     enum CodingKeys: String, CodingKey, CaseIterable {
         case firstDay = "first_day"
@@ -199,6 +223,7 @@ nonisolated struct PeriodDTO: Decodable, Sendable {
         case fiberG = "fiber_g"
         case sugarG = "sugar_g"
         case sodiumMg = "sodium_mg"
+        case micronutrientAverages = "micronutrient_averages"
     }
 }
 
