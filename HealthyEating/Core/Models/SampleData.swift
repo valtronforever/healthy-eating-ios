@@ -48,10 +48,10 @@ nonisolated enum SampleData {
             optional: [.sugar: 22]),
     ]
 
-    /// Reference values as the server sends them (US DRI, adults 19 to 50), for the sample
-    /// nutrients only; the server owns the full table.
+    /// Reference values as the server sends them (US DRI, ages 31 to 50), for the sample
+    /// nutrients only; the server owns the full table for every life stage.
     static func references(for group: ReferenceGroup) -> [Micronutrient: ReferenceRange] {
-        let women = group == .adultWomen
+        let women = group.stage != .men
         return [
             .vitaminA: ReferenceRange(min: women ? 700 : 900, max: nil),
             .vitaminC: ReferenceRange(min: women ? 75 : 90, max: 2000),

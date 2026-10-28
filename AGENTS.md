@@ -190,12 +190,20 @@ Notes:
   day show a "Vitamins and minerals" row (`MicronutrientsLink`) when the day has values, opening
   `MicronutrientsView` with "2 of 3 meals" when only some meals have a value; Trends shows the same
   row with averages over the counted days on which every meal has a value ("on 4 of 7 counted
-  days"), and so does the weekly review (`MicronutrientsView.averageValues`). Calm mode does not hide them. Servers without them decode as none. An optional reference
-  group (Settings, "Vitamin and mineral references": Off, Adult women, Adult men; a server setting)
-  adds the server's reference values (`UserSettings.micronutrientReferences`) to day and Trends
-  values as a compact `RangeBand` captioned "Reference 8–45 mg" or "Reference at least 320 mg"
-  (`NutritionFormat.reference`), never "target" and never judged; meal detail has no bands (a
-  daily reference does not fit one meal).
+  days"), and so does the weekly review (`MicronutrientsView.averageValues`). Calm mode does not hide them. Servers without them decode as none. An optional life stage
+  (backend #34, Settings › "Life stage for references": Off, or Women or Men 19–30, 31–50, 51–70,
+  71 and older, Pregnancy or Breastfeeding 19–30, 31–50, in sections; a server setting,
+  `ReferenceGroup`, read with `init(serverName:)`, which maps the old `adult_women`/`adult_men` to
+  31–50) gives the server's reference values (`UserSettings.micronutrientReferences`). Settings ›
+  "Vitamin and mineral goals" (ios#45, backend #35, `Features/Settings/MicronutrientGoalsView.swift`)
+  lists the 18 nutrients with the range that applies ("Reference 18–45 mg", "Your goal at least
+  50 µg" or "Not set"); a nutrient opens `MicronutrientGoalEditor` (From and To like the target
+  ranges, either may stay empty, never reversed or a single number; "Use the reference instead"
+  removes the goal). Day, Trends and weekly review values show the server's
+  `UserSettings.micronutrientRanges` (the goal, else the reference; servers before #35 send none,
+  so their references apply) as a compact `RangeBand` captioned by `NutritionFormat.range`
+  ("Reference 8–45 mg", "Your goal 10–20 mg"), never "target" and never judged; meal detail has no
+  bands (a daily range does not fit one meal).
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

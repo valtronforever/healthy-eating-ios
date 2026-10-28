@@ -24,6 +24,16 @@
         }
       }
     },
+    "%@ (%@)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)."
+          }
+        }
+      }
+    },
     "%@ (%lld of %lld meals)" : {
       "localizations" : {
         "en" : {
@@ -201,6 +211,16 @@
         }
       }
     },
+    "%@, reference up to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, reference up to %2$@"
+          }
+        }
+      }
+    },
     "%@, target %@ to %@" : {
       "localizations" : {
         "en" : {
@@ -227,6 +247,36 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@, target up to %2$@"
+          }
+        }
+      }
+    },
+    "%@, your goal %@ to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, your goal %2$@ to %3$@"
+          }
+        }
+      }
+    },
+    "%@, your goal at least %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, your goal at least %2$@"
+          }
+        }
+      }
+    },
+    "%@, your goal up to %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, your goal up to %2$@"
           }
         }
       }
@@ -326,7 +376,16 @@
     "11 g lower" : {
 
     },
+    "19–30" : {
+
+    },
     "30 days" : {
+
+    },
+    "31–50" : {
+
+    },
+    "51–70" : {
 
     },
     "6 g higher" : {
@@ -338,7 +397,13 @@
     "70 kcal lower" : {
 
     },
+    "71 and older" : {
+
+    },
     "90 days" : {
+
+    },
+    "A goal is a range. Leave one field empty or use two different numbers." : {
 
     },
     "A private dashboard for the meals you already log by talking to your AI assistant." : {
@@ -390,12 +455,6 @@
 
     },
     "Address" : {
-
-    },
-    "Adult men" : {
-
-    },
-    "Adult women" : {
 
     },
     "Ask it to log a meal." : {
@@ -466,6 +525,9 @@
     "Baseline" : {
 
     },
+    "Breastfeeding" : {
+
+    },
     "CSV (ZIP)" : {
 
     },
@@ -521,6 +583,9 @@
 
     },
     "Choose Add custom connector and paste the URL." : {
+
+    },
+    "Choose a life stage in Settings to see reference values." : {
 
     },
     "Choose another file" : {
@@ -858,7 +923,13 @@
     "Leave a field empty for an open range. Your days are shown against these ranges, never judged by them." : {
 
     },
+    "Leave a field empty for an open range. Your days are shown against this range, never judged by it." : {
+
+    },
     "Left out" : {
+
+    },
+    "Life stage for references" : {
 
     },
     "Link an account" : {
@@ -946,6 +1017,9 @@
     "Medium confidence" : {
 
     },
+    "Men" : {
+
+    },
     "Minerals" : {
 
     },
@@ -992,6 +1066,9 @@
 
     },
     "No weigh-ins yet. Tell your assistant your weight, or add one here." : {
+
+    },
+    "None" : {
 
     },
     "Not enough counted days in the previous %lld days to compare." : {
@@ -1104,6 +1181,9 @@
     "Potassium" : {
 
     },
+    "Pregnancy" : {
+
+    },
     "Previous month" : {
 
     },
@@ -1132,10 +1212,19 @@
     "Reference at least %@" : {
 
     },
-    "References show US Dietary Reference Intakes for adults 19 to 50 next to vitamins and minerals. They are reference values, not targets." : {
+    "Reference up to %@" : {
 
     },
-    "References: US Dietary Reference Intakes (%@, 19 to 50). Reference values, not targets." : {
+    "References are the US Dietary Reference Intakes for %@, from the NIH Office of Dietary Supplements." : {
+
+    },
+    "References show US Dietary Reference Intakes for your life stage next to vitamins and minerals. Your own goals replace them. Reference values are not targets, and a doctor’s advice comes first." : {
+
+    },
+    "References: US Dietary Reference Intakes (%@). Reference values, not targets." : {
+
+    },
+    "Remove your goal" : {
 
     },
     "Retry" : {
@@ -1415,6 +1504,9 @@
     "Use an https address" : {
 
     },
+    "Use the reference instead" : {
+
+    },
     "Use this iPhone’s time zone" : {
 
     },
@@ -1448,7 +1540,7 @@
     "Vitamin K" : {
 
     },
-    "Vitamin and mineral references" : {
+    "Vitamin and mineral goals" : {
 
     },
     "Vitamins" : {
@@ -1515,6 +1607,9 @@
     "Where values came from" : {
 
     },
+    "Women" : {
+
+    },
     "Yesterday, %@" : {
 
     },
@@ -1537,6 +1632,28 @@
 
     },
     "Your data stays on your server" : {
+
+    },
+    "Your goal %@–%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your goal %1$@–%2$@"
+          }
+        }
+      }
+    },
+    "Your goal at least %@" : {
+
+    },
+    "Your goal replaces the reference for its nutrient. A doctor’s advice comes first." : {
+
+    },
+    "Your goal up to %@" : {
+
+    },
+    "Your goals are the ranges you set." : {
 
     },
     "Your numbers" : {

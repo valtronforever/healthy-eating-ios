@@ -299,6 +299,8 @@ nonisolated extension APIClient {
         var weightUnit: WeightUnit?
         /// `.some(nil)` turns the reference values off.
         var referenceGroup: ReferenceGroup??
+        /// A nil range removes that goal, so the reference applies again.
+        var micronutrientGoals: [Micronutrient: TargetRange?] = [:]
     }
 
     func updateSettings(_ change: SettingsChange) async throws(APIError) -> UserSettings {
@@ -319,6 +321,17 @@ nonisolated extension APIClient {
                 }
             }
             fields["targets"] = targets
+        }
+        if !change.micronutrientGoals.isEmpty {
+            var goals: [String: Any] = [:]
+            for (nutrient, range) in change.micronutrientGoals {
+                if let range {
+                    goals[nutrient.rawValue] = ["min": range.min as Any? ?? NSNull(), "max": range.max as Any? ?? NSNull()]
+                } else {
+                    goals[nutrient.rawValue] = NSNull()
+                }
+            }
+            fields["micronutrient_goals"] = goals
         }
         let request = Request(method: "PATCH", path: "me/settings", body: Self.json(fields))
         return Self.settings(try await send(request, as: SettingsDTO.self))
@@ -415,6 +428,18 @@ nonisolated extension APIClient {
     }
 
     /// Vitamins and minerals by code; codes this app version does not know are skipped.
+    /// Servers from before backend #35 send no ranges: their references apply.
+    static func micronutrientRanges(_ dto: SettingsDTO) -> [Micronutrient: MicronutrientRange] {
+        guard let ranges = dto.micronutrientRanges else {
+            return micronutrients(dto.micronutrientReferences ?? [:])
+                .mapValues { MicronutrientRange(min: $0.min, max: $0.max, source: .reference) }
+        }
+        return micronutrients(ranges).compactMapValues { range in
+            MicronutrientRange.Source(rawValue: range.source)
+                .map { MicronutrientRange(min: range.min, max: range.max, source: $0) }
+        }
+    }
+
     static func micronutrients<Value>(_ values: [String: Value]) -> [Micronutrient: Value] {
         Dictionary(uniqueKeysWithValues: values.compactMap { code, value in
             Micronutrient(rawValue: code).map { ($0, value) }
@@ -444,8 +469,11 @@ nonisolated extension APIClient {
             calmMode: dto.calmMode, targets: targets,
             weightTracking: dto.weightTracking ?? false,
             weightUnit: dto.weightUnit.flatMap(WeightUnit.init(rawValue:)) ?? .kg,
-            referenceGroup: dto.referenceGroup.flatMap(ReferenceGroup.init(rawValue:)),
+            referenceGroup: dto.referenceGroup.flatMap(ReferenceGroup.init(serverName:)),
             micronutrientReferences: micronutrients(dto.micronutrientReferences ?? [:])
-                .mapValues { ReferenceRange(min: $0.min, max: $0.max) })
+                .mapValues { ReferenceRange(min: $0.min, max: $0.max) },
+            micronutrientGoals: micronutrients(dto.micronutrientGoals ?? [:])
+                .mapValues { TargetRange(min: $0.min, max: $0.max) },
+            micronutrientRanges: micronutrientRanges(dto))
     }
 }

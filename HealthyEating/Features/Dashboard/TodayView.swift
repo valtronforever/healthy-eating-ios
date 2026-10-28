@@ -166,8 +166,8 @@ struct TodayView: View {
                     Section {
                         MicronutrientsLink(
                             subtitle: String(localized: "Today"),
-                            values: MicronutrientsView.dayValues(day, references: snapshot.settings.micronutrientReferences),
-                            footer: MicronutrientsView.dayFooter(snapshot.settings.referenceGroup))
+                            values: MicronutrientsView.dayValues(day, ranges: snapshot.settings.micronutrientRanges),
+                            footer: MicronutrientsView.dayFooter(snapshot.settings))
                     }
                     .listRowBackground(Color.surface)
                 }

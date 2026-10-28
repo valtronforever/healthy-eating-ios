@@ -199,17 +199,31 @@ struct SettingsView: View {
                 get: { snapshot.settings.referenceGroup },
                 set: { group in Task { await update(.init(referenceGroup: .some(group))) } })) {
                 Text("Off").tag(ReferenceGroup?.none)
-                ForEach(ReferenceGroup.allCases, id: \.self) { group in
-                    Text(verbatim: group.name).tag(ReferenceGroup?.some(group))
+                ForEach(ReferenceGroup.Stage.allCases, id: \.self) { stage in
+                    Section(stage.name) {
+                        ForEach(stage.groups, id: \.self) { group in
+                            Text(verbatim: group.name).tag(ReferenceGroup?.some(group))
+                        }
+                    }
                 }
             } label: {
-                Text("Vitamin and mineral references").foregroundStyle(.ink)
+                Text("Life stage for references").foregroundStyle(.ink)
             }
             .accessibilityIdentifier("referenceGroup")
+            NavigationLink {
+                MicronutrientGoalsView(settings: snapshot.settings) { change in
+                    await update(change)
+                }
+            } label: {
+                LabeledContent("Vitamin and mineral goals") {
+                    Text(verbatim: Self.goalSummary(snapshot.settings)).foregroundStyle(.inkMuted)
+                }
+            }
+            .accessibilityIdentifier("micronutrientGoals")
         } header: {
             Text("Units and targets").sectionTextStyle()
         } footer: {
-            Text("References show US Dietary Reference Intakes for adults 19 to 50 next to vitamins and minerals. They are reference values, not targets.")
+            Text("References show US Dietary Reference Intakes for your life stage next to vitamins and minerals. Your own goals replace them. Reference values are not targets, and a doctor’s advice comes first.")
                 .sectionTextStyle()
         }
         .listRowBackground(Color.surface)
@@ -369,6 +383,11 @@ struct SettingsView: View {
     }
 
     /// The calorie range, or in Calm mode the protein range (Calm mode shows no calories).
+    /// How many vitamins and minerals have the person's own goal; "None" without any.
+    nonisolated static func goalSummary(_ settings: UserSettings) -> String {
+        settings.micronutrientGoals.isEmpty ? String(localized: "None") : "\(settings.micronutrientGoals.count)"
+    }
+
     nonisolated static func targetSummary(_ settings: UserSettings, calm: Bool) -> String {
         let field: NutrientField = calm ? .protein : .calories
         guard let target = settings.targets[field], target.min != nil || target.max != nil else {

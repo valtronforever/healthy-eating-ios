@@ -221,6 +221,10 @@ nonisolated struct UserSettings: Sendable, Equatable {
     var referenceGroup: ReferenceGroup?
     /// The group's reference values from the server; empty when the group is off.
     var micronutrientReferences: [Micronutrient: ReferenceRange] = [:]
+    /// The person's own vitamin and mineral ranges (backend #35); only nutrients with one.
+    var micronutrientGoals: [Micronutrient: TargetRange] = [:]
+    /// The range that applies per nutrient: the goal, else the reference; from the server.
+    var micronutrientRanges: [Micronutrient: MicronutrientRange] = [:]
 }
 
 /// The unit the person wants weight shown in (a server setting). Values always arrive in kg.

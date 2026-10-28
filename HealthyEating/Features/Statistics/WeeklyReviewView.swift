@@ -53,8 +53,8 @@ struct WeeklyReviewView: View {
                                 subtitle: Self.weekTitle(first: snapshot.review.firstDay, last: snapshot.review.lastDay),
                                 values: MicronutrientsView.averageValues(
                                     snapshot.review.micronutrientAverages, countedDays: snapshot.review.countedDays,
-                                    references: snapshot.settings.micronutrientReferences),
-                                footer: MicronutrientsView.periodFooter(snapshot.settings.referenceGroup))
+                                    ranges: snapshot.settings.micronutrientRanges),
+                                footer: MicronutrientsView.periodFooter(snapshot.settings))
                         }
                         .listRowBackground(Color.surface)
                     }

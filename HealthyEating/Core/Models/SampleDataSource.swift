@@ -215,6 +215,14 @@ actor SampleDataSource: NutritionDataSource {
             userSettings.micronutrientReferences = group.map(SampleData.references(for:)) ?? [:]
         }
         for (field, range) in change.targets { userSettings.targets[field] = range }
+        for (nutrient, range) in change.micronutrientGoals { userSettings.micronutrientGoals[nutrient] = range }
+        // As the server does: the goal, else the reference.
+        var ranges = userSettings.micronutrientReferences
+            .mapValues { MicronutrientRange(min: $0.min, max: $0.max, source: .reference) }
+        for (nutrient, goal) in userSettings.micronutrientGoals {
+            ranges[nutrient] = MicronutrientRange(min: goal.min, max: goal.max, source: .personal)
+        }
+        userSettings.micronutrientRanges = ranges
         return userSettings
     }
 

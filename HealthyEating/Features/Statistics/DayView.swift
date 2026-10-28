@@ -77,8 +77,8 @@ struct DayView: View {
                     Section {
                         MicronutrientsLink(
                             subtitle: date.formatted(.dateTime.weekday(.wide).month(.abbreviated).day()),
-                            values: MicronutrientsView.dayValues(day, references: snapshot.settings.micronutrientReferences),
-                            footer: MicronutrientsView.dayFooter(snapshot.settings.referenceGroup))
+                            values: MicronutrientsView.dayValues(day, ranges: snapshot.settings.micronutrientRanges),
+                            footer: MicronutrientsView.dayFooter(snapshot.settings))
                     }
                     .listRowBackground(Color.surface)
                 }

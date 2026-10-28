@@ -69,7 +69,7 @@ final class MicronutrientsUITests: XCTestCase {
         XCTAssertTrue(app.scrollTo(picker))
         picker.tap()
         // The menu can take a moment to open on a busy simulator.
-        let women = app.buttons["Adult women"]
+        let women = app.buttons["Women 31–50"]
         XCTAssertTrue(women.waitForExistence(timeout: 10))
         women.tap()
 
@@ -82,6 +82,54 @@ final class MicronutrientsUITests: XCTestCase {
         let iron = app.staticTexts["Reference 18–45 mg"]
         XCTAssertTrue(app.scrollTo(iron))
         keepScreenshot(named: "Vitamins and minerals with references")
+    }
+
+    /// A goal of the person's own replaces the reference for its nutrient; removing it brings the
+    /// reference back.
+    @MainActor
+    func testSettingAndRemovingAGoal() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "settings", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Alex Kim"].waitForExistence(timeout: 10))
+        let picker = app.buttons["referenceGroup"]
+        XCTAssertTrue(app.scrollTo(picker))
+        picker.tap()
+        let women = app.buttons["Women 31–50"]
+        XCTAssertTrue(women.waitForExistence(timeout: 10))
+        women.tap()
+
+        let goals = app.buttons["micronutrientGoals"]
+        XCTAssertTrue(app.scrollTo(goals))
+        goals.tap()
+        XCTAssertTrue(app.navigationBars["Vitamin and mineral goals"].waitForExistence(timeout: 5))
+        let iron = app.buttons["goal.iron_mg"]
+        XCTAssertTrue(app.scrollTo(iron))
+        XCTAssertTrue(iron.label.contains("Reference 18–45 mg"), iron.label)
+        iron.tap()
+
+        let from = app.textFields["From"]
+        XCTAssertTrue(from.waitForExistence(timeout: 5))
+        from.tap()
+        from.typeText("10")
+        let to = app.textFields["To"]
+        to.tap()
+        to.typeText("20")
+        app.navigationBars["Iron"].buttons["Save"].tap()
+
+        XCTAssertTrue(app.navigationBars["Vitamin and mineral goals"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollTo(iron))
+        XCTAssertTrue(iron.label.contains("Your goal 10–20 mg"), iron.label)
+        keepScreenshot(named: "Vitamin and mineral goals")
+
+        iron.tap()
+        let remove = app.buttons["removeGoal"]
+        XCTAssertTrue(remove.waitForExistence(timeout: 5))
+        remove.tap()
+        XCTAssertTrue(app.navigationBars["Vitamin and mineral goals"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollTo(iron))
+        XCTAssertTrue(iron.label.contains("Reference 18–45 mg"), iron.label)
     }
 
     @MainActor

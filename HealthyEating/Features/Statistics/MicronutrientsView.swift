@@ -33,48 +33,55 @@ struct MicronutrientsView: View {
 
     /// A day's values; "2 of 3 meals" when not every meal has one.
     nonisolated static func dayValues(
-        _ day: DayTotals, references: [Micronutrient: ReferenceRange] = [:]
+        _ day: DayTotals, ranges: [Micronutrient: MicronutrientRange] = [:]
     ) -> [Micronutrient: MicronutrientValue] {
         Dictionary(uniqueKeysWithValues: day.micronutrients.map { nutrient, total in
             (nutrient, MicronutrientValue(
                 amount: total.amount,
                 note: total.mealCount < day.mealCount ? String(localized: "\(total.mealCount) of \(day.mealCount) meals") : nil,
-                reference: references[nutrient]))
+                range: ranges[nutrient]))
         })
     }
 
     /// A period's averages; "on 4 of 7 counted days" when not every counted day has one.
     nonisolated static func periodValues(
-        _ period: TrendPeriod, references: [Micronutrient: ReferenceRange] = [:]
+        _ period: TrendPeriod, ranges: [Micronutrient: MicronutrientRange] = [:]
     ) -> [Micronutrient: MicronutrientValue] {
-        averageValues(period.micronutrientAverages, countedDays: period.countedDays, references: references)
+        averageValues(period.micronutrientAverages, countedDays: period.countedDays, ranges: ranges)
     }
 
     /// Averages of Trends or a weekly review, each with the days it uses.
     nonisolated static func averageValues(
-        _ averages: [Micronutrient: OptionalAverage], countedDays: Int, references: [Micronutrient: ReferenceRange] = [:]
+        _ averages: [Micronutrient: OptionalAverage], countedDays: Int, ranges: [Micronutrient: MicronutrientRange] = [:]
     ) -> [Micronutrient: MicronutrientValue] {
         Dictionary(uniqueKeysWithValues: averages.map { nutrient, average in
             (nutrient, MicronutrientValue(
                 amount: average.average, note: OptionalAveragesCard.daysLine(average, countedDays: countedDays),
-                reference: references[nutrient]))
+                range: ranges[nutrient]))
         })
     }
 
-    nonisolated static func dayFooter(_ group: ReferenceGroup? = nil) -> String {
+    nonisolated static func dayFooter(_ settings: UserSettings? = nil) -> String {
         String(localized: "From USDA FoodData Central, for the food items your assistant listed with each meal. Calories and macronutrients are not changed by them.")
-            + referenceNote(group)
+            + rangeNote(settings)
     }
 
-    nonisolated static func periodFooter(_ group: ReferenceGroup? = nil) -> String {
+    nonisolated static func periodFooter(_ settings: UserSettings? = nil) -> String {
         String(localized: "Averages of the counted days on which every meal has food items, from USDA FoodData Central.")
-            + referenceNote(group)
+            + rangeNote(settings)
     }
 
-    /// Where the reference values come from, when a group is chosen in Settings.
-    nonisolated static func referenceNote(_ group: ReferenceGroup?) -> String {
-        guard let group else { return "" }
-        return " " + String(localized: "References: US Dietary Reference Intakes (\(group.name), 19 to 50). Reference values, not targets.")
+    /// Where the ranges come from: the life stage chosen in Settings, and the person's goals.
+    nonisolated static func rangeNote(_ settings: UserSettings?) -> String {
+        guard let settings else { return "" }
+        var note = ""
+        if let group = settings.referenceGroup {
+            note += " " + String(localized: "References: US Dietary Reference Intakes (\(group.name)). Reference values, not targets.")
+        }
+        if !settings.micronutrientGoals.isEmpty {
+            note += " " + String(localized: "Your goals are the ranges you set.")
+        }
+        return note
     }
 }
 
