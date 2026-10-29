@@ -57,6 +57,36 @@ final class MicronutrientsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Iron"].waitForExistence(timeout: 5))
     }
 
+    /// A nutrient in Trends' list opens its weeks, range days, sources and coverage (ios#46).
+    @MainActor
+    func testANutrientOpensItsInsights() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-skipOnboarding", "-initialTab", "trends", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.navigationBars["Trends"].waitForExistence(timeout: 10))
+        let link = app.buttons["micronutrients"]
+        XCTAssertTrue(app.scrollTo(link))
+        link.tap()
+        let iron = app.buttons["insights.iron_mg"]
+        XCTAssertTrue(iron.waitForExistence(timeout: 5))
+        iron.tap()
+        XCTAssertTrue(app.navigationBars["Iron"].waitForExistence(timeout: 5))
+        let average = app.descendants(matching: .any)["insightsAverage"]
+        XCTAssertTrue(average.waitForExistence(timeout: 5))
+        XCTAssertTrue(average.label.contains("Previous 4 weeks: "), average.label)
+        let foods = app.staticTexts["Lentil soup"]
+        XCTAssertTrue(app.scrollTo(foods))
+        keepScreenshot(named: "Nutrient insights 4 weeks")
+
+        app.buttons["12 weeks"].firstMatch.tap()
+        let updated = NSPredicate(format: "label CONTAINS 'Previous 12 weeks: '")
+        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "insightsAverage").element(matching: updated).waitForExistence(timeout: 5))
+        let coverage = app.staticTexts.containing(NSPredicate(format: "label BEGINSWITH 'Values for '")).firstMatch
+        XCTAssertTrue(app.scrollTo(coverage))
+        keepScreenshot(named: "Nutrient insights 12 weeks")
+    }
+
     /// References are off until a group is chosen in Settings; then the day's list shows them.
     @MainActor
     func testReferencesAppearAfterChoosingAGroup() throws {

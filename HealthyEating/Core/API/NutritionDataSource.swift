@@ -16,6 +16,8 @@ nonisolated protocol NutritionDataSource: Sendable {
     func trends(window: Int) async throws(APIError) -> Trends
     /// The local week, Monday to Sunday, that contains `week`.
     func weeklyReview(week: Date) async throws(APIError) -> WeeklyReview
+    /// One vitamin or mineral for local days `from` to `to` and the period of the same length before.
+    func nutrientInsights(_ nutrient: Micronutrient, from: Date, to: Date) async throws(APIError) -> NutrientInsights
     func account() async throws(APIError) -> Account
     /// The social logins that sign in to this account, oldest first.
     func logins() async throws(APIError) -> [Login]

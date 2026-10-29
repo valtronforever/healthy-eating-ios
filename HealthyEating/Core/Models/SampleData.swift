@@ -50,6 +50,12 @@ nonisolated enum SampleData {
 
     /// Reference values as the server sends them (US DRI, ages 31 to 50), for the sample
     /// nutrients only; the server owns the full table for every life stage.
+    /// Typical daily amounts for the insights sample (`SampleDataSource.nutrientInsights`).
+    static let insightAmounts: [Micronutrient: Double] = [
+        .iron: 11.6, .calcium: 640, .vitaminC: 62, .vitaminB12: 2.4, .vitaminD: 6.5,
+        .magnesium: 290, .zinc: 9.2, .selenium: 48, .thiamin: 1.1,
+    ]
+
     static func references(for group: ReferenceGroup) -> [Micronutrient: ReferenceRange] {
         let women = group.stage != .men
         return [

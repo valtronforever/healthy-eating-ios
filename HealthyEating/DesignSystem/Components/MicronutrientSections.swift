@@ -13,6 +13,8 @@ nonisolated struct MicronutrientValue: Hashable, Sendable {
 /// Plain amounts, never colors or judgments (neutral feedback rule).
 struct MicronutrientSections: View {
     let values: [Micronutrient: MicronutrientValue]
+    /// Each nutrient opens its insights over weeks (ios#46); not for a single meal.
+    var linksToInsights = false
 
     var body: some View {
         section("Vitamins", Micronutrient.vitamins)
@@ -26,7 +28,16 @@ struct MicronutrientSections: View {
             Section {
                 ForEach(present) { nutrient in
                     if let value = values[nutrient] {
-                        MicronutrientRow(nutrient: nutrient, value: value)
+                        if linksToInsights {
+                            NavigationLink {
+                                NutrientInsightsView(nutrient: nutrient)
+                            } label: {
+                                MicronutrientRow(nutrient: nutrient, value: value)
+                            }
+                            .accessibilityIdentifier("insights.\(nutrient.rawValue)")
+                        } else {
+                            MicronutrientRow(nutrient: nutrient, value: value)
+                        }
                     }
                 }
             } header: {

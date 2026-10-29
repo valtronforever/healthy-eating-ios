@@ -177,6 +177,59 @@ actor SampleDataSource: NutritionDataSource {
             ] : [:])
     }
 
+    /// Sample weeks for any nutrient: the amounts of the Trends sample, fewer days in the
+    /// current week and the oldest one, and a multivitamin among the vitamins' sources.
+    func nutrientInsights(_ nutrient: Micronutrient, from: Date, to: Date) -> NutrientInsights {
+        let base = SampleData.insightAmounts[nutrient] ?? 10
+        let range = userSettings.micronutrientRanges[nutrient]
+        func period(first: Date, last: Date, scale: Double) -> NutrientInsights.Period {
+            var weeks: [NutrientInsights.Week] = []
+            var start = first
+            while start <= last {
+                let sinceMonday = (calendar.component(.weekday, from: start) + 5) % 7
+                let end = min(calendar.date(byAdding: .day, value: 6 - sinceMonday, to: start) ?? start, last)
+                let length = (calendar.dateComponents([.day], from: start, to: end).day ?? 0) + 1
+                let index = weeks.count
+                let pattern: [Int] = [5, 6, 3, 4]
+                let factors: [Double] = [0.85, 1.1, 0.95, 1.2]
+                let days: Int = index == 0 ? min(2, length) : max(0, min(length - 1, pattern[index % 4]))
+                let amount: Double = (base * scale * factors[index % 4] * 10).rounded() / 10
+                let average: Double? = days == 0 ? nil : amount
+                weeks.append(.init(firstDay: start, lastDay: end, average: average, days: days))
+                start = calendar.date(byAdding: .day, value: 1, to: end) ?? last.addingTimeInterval(86_400)
+            }
+            let used = weeks.filter { $0.average != nil }
+            let total = used.reduce(0) { $0 + $1.days }
+            let sum = used.reduce(0.0) { $0 + ($1.average ?? 0) * Double($1.days) }
+            let average: OptionalAverage? = total > 0 ? OptionalAverage(average: (sum / Double(total) * 10).rounded() / 10, days: total) : nil
+            let below = range?.min == nil ? 0 : total / 2
+            let above = range?.max == nil ? 0 : total / 10
+            let rangeDays: NutrientInsights.RangeDays? = range.map { _ in .init(below: below, within: total - below - above, above: above) }
+            let isVitamin = Micronutrient.vitamins.contains(nutrient)
+            let foodShare = isVitamin ? 0.8 : 1.0
+            let foods: [(String, Double)] = [("Lentil soup", 0.31), ("Oatmeal with berries", 0.22), ("Chicken salad", 0.14)]
+            var foodSources: [NutrientInsights.Source] = []
+            for (name, share) in foods {
+                let amount = (base * Double(total) * share * foodShare * 10).rounded() / 10
+                foodSources.append(.init(name: name, amount: amount, share: share * foodShare, meals: max(1, Int(Double(total) * share * 2))))
+            }
+            var labelSources: [NutrientInsights.Source] = []
+            if isVitamin {
+                labelSources.append(.init(name: "Daily multivitamin", amount: (base * Double(total) * 2).rounded() / 10, share: 0.2, meals: total))
+            }
+            return NutrientInsights.Period(
+                firstDay: first, lastDay: last, countedDays: total + total / 4, mealCount: total * 3, mealsWithValues: total * 2,
+                average: average, rangeDays: rangeDays, weeks: weeks, foodSources: foodSources, labelSources: labelSources)
+        }
+        let length = (calendar.dateComponents([.day], from: from, to: to).day ?? 0) + 1
+        let previousLast = calendar.date(byAdding: .day, value: -1, to: from) ?? from
+        let previousFirst = calendar.date(byAdding: .day, value: -length, to: from) ?? from
+        return NutrientInsights(
+            nutrient: nutrient, range: range,
+            current: period(first: from, last: to, scale: 1),
+            previous: period(first: previousFirst, last: previousLast, scale: 0.9))
+    }
+
     func account() -> Account {
         Account(displayName: "Alex Kim", email: "alex@example.com", linkedLogins: sampleLogins.map(\.provider))
     }

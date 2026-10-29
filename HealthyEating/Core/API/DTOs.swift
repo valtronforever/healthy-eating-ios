@@ -387,6 +387,87 @@ nonisolated struct MicronutrientRangeDTO: Decodable, Sendable {
     }
 }
 
+/// `GET /api/v1/micronutrients/insights` (backend #36).
+nonisolated struct MicronutrientInsightsDTO: Decodable, Sendable {
+    let countingRule: String
+    let ranges: [String: MicronutrientRangeDTO]
+    let current: InsightsPeriodDTO
+    let previous: InsightsPeriodDTO
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case countingRule = "counting_rule"
+        case ranges, current, previous
+    }
+}
+
+nonisolated struct InsightsPeriodDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let countedDays: Int
+    let mealCount: Int
+    let mealsWithValues: Int
+    let nutrients: [String: NutrientInsightDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case countedDays = "counted_days"
+        case mealCount = "meal_count"
+        case mealsWithValues = "meals_with_values"
+        case nutrients
+    }
+}
+
+nonisolated struct NutrientInsightDTO: Decodable, Sendable {
+    let average: OptionalAverageDTO?
+    let rangeDays: RangeDaysDTO?
+    let weeks: [WeekAverageDTO]
+    let foodSources: [SourceDTO]
+    let labelSources: [SourceDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case average
+        case rangeDays = "range_days"
+        case weeks
+        case foodSources = "food_sources"
+        case labelSources = "label_sources"
+    }
+}
+
+nonisolated struct WeekAverageDTO: Decodable, Sendable {
+    let firstDay: String
+    let lastDay: String
+    let average: Double?
+    let days: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case firstDay = "first_day"
+        case lastDay = "last_day"
+        case average, days
+    }
+}
+
+nonisolated struct RangeDaysDTO: Decodable, Sendable {
+    let below: Int
+    let within: Int
+    let above: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case below, within, above
+    }
+}
+
+nonisolated struct SourceDTO: Decodable, Sendable {
+    let name: String
+    let amount: Double
+    let share: Double
+    let meals: Int
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case name, amount, share, meals
+    }
+}
+
 nonisolated struct ReferenceRangeDTO: Decodable, Sendable {
     let min: Double
     let max: Double?

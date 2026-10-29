@@ -44,6 +44,9 @@
         }
       }
     },
+    "%@ a day" : {
+
+    },
     "%@ account linked. You can sign in with it from now on." : {
 
     },
@@ -71,6 +74,19 @@
 
     },
     "%@ higher" : {
+
+    },
+    "%@ in %lld meals" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ in %2$lld meals"
+          }
+        }
+      }
+    },
+    "%@ in 1 meal" : {
 
     },
     "%@ kilocalories" : {
@@ -113,6 +129,9 @@
           }
         }
       }
+    },
+    "%@ per day, week by week" : {
+
     },
     "%@ pounds" : {
 
@@ -281,6 +300,19 @@
         }
       }
     },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "%@: no values" : {
+
+    },
     "%lld changes synced %@" : {
       "localizations" : {
         "en" : {
@@ -315,6 +347,16 @@
     },
     "%lld new" : {
 
+    },
+    "%lld of %lld days" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld days"
+          }
+        }
+      }
     },
     "%lld of %lld meals" : {
       "localizations" : {
@@ -376,6 +418,9 @@
     "11 g lower" : {
 
     },
+    "12 weeks" : {
+
+    },
     "19–30" : {
 
     },
@@ -383,6 +428,9 @@
 
     },
     "31–50" : {
+
+    },
+    "4 weeks" : {
 
     },
     "51–70" : {
@@ -416,6 +464,9 @@
 
     },
     "About the same over the last week" : {
+
+    },
+    "Above the range" : {
 
     },
     "Accept the risk warning and select Create as a plugin." : {
@@ -523,6 +574,9 @@
 
     },
     "Baseline" : {
+
+    },
+    "Below the range" : {
 
     },
     "Breastfeeding" : {
@@ -669,6 +723,9 @@
     "Days" : {
 
     },
+    "Days on which every meal has values." : {
+
+    },
     "Days on your server are counted in this time zone." : {
 
     },
@@ -772,6 +829,9 @@
     "Fat" : {
 
     },
+    "Fewer than half the days" : {
+
+    },
     "Fiber" : {
 
     },
@@ -790,6 +850,9 @@
     "Food items" : {
 
     },
+    "Foods" : {
+
+    },
     "For example" : {
 
     },
@@ -800,6 +863,9 @@
 
     },
     "From Apple Health" : {
+
+    },
+    "From USDA FoodData Central for each food's weight. Shares are of all the %@ your items had in these weeks." : {
 
     },
     "From USDA FoodData Central, for the food items your assistant listed with each meal. Calories and macronutrients are not changed by them." : {
@@ -884,6 +950,9 @@
 
     },
     "It is removed from your history and averages. This can’t be undone." : {
+
+    },
+    "Items with values from their label, as your assistant saved them." : {
 
     },
     "I’ve connected it" : {
@@ -1002,6 +1071,9 @@
     "Meals and body weight, when the app opens" : {
 
     },
+    "Meals without food items have no vitamin or mineral values." : {
+
+    },
     "Meals you log at least twice within 90 days appear here, ready to log again." : {
 
     },
@@ -1038,6 +1110,9 @@
     "No days to show yet" : {
 
     },
+    "No meals in these weeks." : {
+
+    },
     "No meals logged on this day." : {
 
     },
@@ -1060,6 +1135,12 @@
 
     },
     "No usual meals yet" : {
+
+    },
+    "No values" : {
+
+    },
+    "No values in these weeks" : {
 
     },
     "No weigh-ins in the last 4 weeks" : {
@@ -1184,16 +1265,31 @@
     "Pregnancy" : {
 
     },
+    "Previous 12 weeks" : {
+
+    },
+    "Previous 4 weeks" : {
+
+    },
     "Previous month" : {
 
     },
     "Previous week" : {
 
     },
+    "Previous year" : {
+
+    },
     "Protein" : {
 
     },
     "Protein per meal" : {
+
+    },
+    "Range high" : {
+
+    },
+    "Range low" : {
 
     },
     "Read the self-hosting guide" : {
@@ -1363,6 +1459,9 @@
     "Sugar" : {
 
     },
+    "Supplements and labels" : {
+
+    },
     "Sync with Apple Health" : {
 
     },
@@ -1516,6 +1615,19 @@
     "Values" : {
 
     },
+    "Values come from the food items your assistant lists with each meal." : {
+
+    },
+    "Values for %lld of %lld meals." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Values for %1$lld of %2$lld meals."
+          }
+        }
+      }
+    },
     "Values you change are saved as your numbers." : {
 
     },
@@ -1558,6 +1670,18 @@
     "Waiting for your first meal" : {
 
     },
+    "Week" : {
+
+    },
+    "Week average" : {
+
+    },
+    "Week by week" : {
+
+    },
+    "Week of %@" : {
+
+    },
     "Weekdays and weekend" : {
 
     },
@@ -1565,6 +1689,9 @@
 
     },
     "Weekly review" : {
+
+    },
+    "Weeks" : {
 
     },
     "Weigh-in" : {
@@ -1607,7 +1734,13 @@
     "Where values came from" : {
 
     },
+    "Within the range" : {
+
+    },
     "Women" : {
+
+    },
+    "Year" : {
 
     },
     "Yesterday, %@" : {
@@ -1737,6 +1870,9 @@
     },
     "mg" : {
       "comment" : "Unit symbol for milligrams"
+    },
+    "no values" : {
+
     },
     "not logged" : {
 

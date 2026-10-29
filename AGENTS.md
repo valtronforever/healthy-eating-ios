@@ -203,7 +203,16 @@ Notes:
   `UserSettings.micronutrientRanges` (the goal, else the reference; servers before #35 send none,
   so their references apply) as a compact `RangeBand` captioned by `NutritionFormat.range`
   ("Reference 8–45 mg", "Your goal 10–20 mg"), never "target" and never judged; meal detail has no
-  bands (a daily range does not fit one meal).
+  bands (a daily range does not fit one meal). In `MicronutrientsView` (not meal detail) each
+  nutrient opens `NutrientInsightsView` (ios#46, backend #36, `GET /api/v1/micronutrients/insights`
+  for one nutrient, `NutrientInsights`): a period picker (4 weeks, 12 weeks, Year; `InsightsPeriod`,
+  each starting on a Monday and ending today), the average per day with its days and the period
+  before as a plain line, `WeeklyNutrientChart` (week averages over the range band; a week whose
+  average uses fewer than half its days up to today is `chart-faded`, a week without values a dot),
+  below, within and above the range as rows in the same words (a row only where the range has
+  that bound), the top foods and supplements (label items) with their share, every week with
+  "3 of 7 days", and the coverage line ("Values for 34 of 52 meals. ..."). Calm mode does not
+  change it.
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

@@ -157,6 +157,47 @@ nonisolated extension APIClient {
                 .mapValues { OptionalAverage(average: $0.average, days: $0.days) })
     }
 
+    /// One vitamin or mineral for local days `from` to `to` and the period before (backend #36).
+    func nutrientInsights(_ nutrient: Micronutrient, from: Date, to: Date) async throws(APIError) -> NutrientInsights {
+        let query = [
+            URLQueryItem(name: "from", value: APIDate.dayString(from, calendar: calendar)),
+            URLQueryItem(name: "to", value: APIDate.dayString(to, calendar: calendar)),
+            URLQueryItem(name: "nutrient", value: nutrient.rawValue),
+        ]
+        let dto = try await send(Request(path: "micronutrients/insights", query: query), as: MicronutrientInsightsDTO.self)
+        let range = dto.ranges[nutrient.rawValue].flatMap { range in
+            MicronutrientRange.Source(rawValue: range.source).map { MicronutrientRange(min: range.min, max: range.max, source: $0) }
+        }
+        return NutrientInsights(
+            nutrient: nutrient, range: range,
+            current: try insightsPeriod(dto.current, nutrient),
+            previous: try insightsPeriod(dto.previous, nutrient))
+    }
+
+    private func insightsPeriod(_ dto: InsightsPeriodDTO, _ nutrient: Micronutrient) throws(APIError) -> NutrientInsights.Period {
+        guard let first = APIDate.day(dto.firstDay, calendar: calendar), let last = APIDate.day(dto.lastDay, calendar: calendar) else {
+            throw .unexpectedResponse("period \(dto.firstDay)")
+        }
+        let insight = dto.nutrients[nutrient.rawValue]
+        let weeks = try (insight?.weeks ?? []).map { (week) throws(APIError) -> NutrientInsights.Week in
+            guard let start = APIDate.day(week.firstDay, calendar: calendar), let end = APIDate.day(week.lastDay, calendar: calendar) else {
+                throw .unexpectedResponse("week \(week.firstDay)")
+            }
+            return .init(firstDay: start, lastDay: end, average: week.average, days: week.days)
+        }
+        let sources = { (list: [SourceDTO]?) in
+            (list ?? []).map { NutrientInsights.Source(name: $0.name, amount: $0.amount, share: $0.share, meals: $0.meals) }
+        }
+        return NutrientInsights.Period(
+            firstDay: first, lastDay: last, countedDays: dto.countedDays, mealCount: dto.mealCount,
+            mealsWithValues: dto.mealsWithValues,
+            average: insight?.average.map { OptionalAverage(average: $0.average, days: $0.days) },
+            rangeDays: insight?.rangeDays.map { .init(below: $0.below, within: $0.within, above: $0.above) },
+            weeks: weeks,
+            foodSources: sources(insight?.foodSources),
+            labelSources: sources(insight?.labelSources))
+    }
+
     // MARK: Weight
 
     /// Weigh-ins and the smoothed trend for local days `from` to `to`.

@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Vitamins and minerals of a day or a Trends period (backend #25), opened from Today, a past
 /// day or Trends. The server computes them from USDA reference data for the food items the
-/// assistant listed; a value that covers only part of the day or period says so.
+/// assistant listed; a value that covers only part of the day or period says so. Each nutrient
+/// opens its insights over weeks (`NutrientInsightsView`).
 struct MicronutrientsView: View {
     /// "Today", "Tue, Oct 21" or "Last 7 days".
     let subtitle: String
@@ -17,7 +18,7 @@ struct MicronutrientsView: View {
                     .foregroundStyle(.inkMuted)
                     .plainListRow()
             }
-            MicronutrientSections(values: values)
+            MicronutrientSections(values: values, linksToInsights: true)
             Section {
                 EmptyView()
             } footer: {
