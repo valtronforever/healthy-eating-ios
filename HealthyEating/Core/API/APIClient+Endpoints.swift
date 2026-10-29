@@ -282,6 +282,38 @@ nonisolated extension APIClient {
                 updatedAt: dto.updatedAt)
     }
 
+    // MARK: Lab results
+
+    /// Every lab report, newest sample first (backend #37). Lab results are saved from the chat only.
+    func labReports() async throws(APIError) -> [LabReport] {
+        let dto = try await send(Request(path: "lab-results"), as: LabResultsDTO.self)
+        return try dto.reports.map { (report) throws(APIError) -> LabReport in
+            guard let day = APIDate.day(report.takenOn, calendar: calendar) else {
+                throw .unexpectedResponse("lab report \(report.takenOn)")
+            }
+            return LabReport(id: report.reportID, takenOn: day, results: report.results.map(Self.labResult))
+        }
+    }
+
+    func deleteLabReport(_ id: UUID) async throws(APIError) {
+        _ = try await data(for: Request(method: "DELETE", path: "lab-results/reports/\(id.uuidString.lowercased())"))
+    }
+
+    func deleteLabResult(_ id: UUID) async throws(APIError) {
+        _ = try await data(for: Request(method: "DELETE", path: "lab-results/\(id.uuidString.lowercased())"))
+    }
+
+    static func labResult(_ dto: LabResultDTO) -> LabResult {
+        LabResult(
+            id: dto.id, name: dto.name, analyte: dto.analyte.flatMap(LabAnalyte.init(rawValue:)), value: dto.value,
+            comparator: dto.comparator.flatMap(LabResult.Comparator.init(rawValue:)), unit: dto.unit,
+            referenceLow: dto.referenceLow, referenceHigh: dto.referenceHigh,
+            canonical: dto.canonical.map {
+                LabResult.Canonical(value: $0.value, unit: $0.unit, referenceLow: $0.referenceLow, referenceHigh: $0.referenceHigh)
+            },
+            relatedNutrient: dto.relatedNutrient.flatMap(Micronutrient.init(rawValue:)))
+    }
+
     // MARK: Account
 
     func account() async throws(APIError) -> Account {
@@ -431,6 +463,7 @@ nonisolated extension APIClient {
             exportedAt: dto.exportedAt,
             newMeals: dto.meals.imported, knownMeals: dto.meals.skippedDuplicates,
             newWeights: dto.weights.imported, knownWeights: dto.weights.skippedDuplicates,
+            newLabResults: dto.labResults?.imported ?? 0, knownLabResults: dto.labResults?.skippedDuplicates ?? 0,
             daysMarked: dto.daysMarked,
             firstDay: dto.firstDay.flatMap { APIDate.day($0, calendar: calendar) },
             lastDay: dto.lastDay.flatMap { APIDate.day($0, calendar: calendar) },

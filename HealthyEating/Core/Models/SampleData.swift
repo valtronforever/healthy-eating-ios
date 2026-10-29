@@ -48,14 +48,54 @@ nonisolated enum SampleData {
             optional: [.sugar: 22]),
     ]
 
-    /// Reference values as the server sends them (US DRI, ages 31 to 50), for the sample
-    /// nutrients only; the server owns the full table for every life stage.
     /// Typical daily amounts for the insights sample (`SampleDataSource.nutrientInsights`).
     static let insightAmounts: [Micronutrient: Double] = [
         .iron: 11.6, .calcium: 640, .vitaminC: 62, .vitaminB12: 2.4, .vitaminD: 6.5,
         .magnesium: 290, .zinc: 9.2, .selenium: 48, .thiamin: 1.1,
     ]
 
+    /// Lab reports from 14, 120 and 300 days before `today`, newest first, with the canonical
+    /// values the server would compute. Vitamin D is printed in ng/mL and once in nmol/L.
+    static func labReports(today: Date, calendar: Calendar) -> [LabReport] {
+        let day = { (daysAgo: Int) in calendar.date(byAdding: .day, value: -daysAgo, to: today) ?? today }
+        func result(
+            _ name: String, _ analyte: LabAnalyte?, _ value: Double, _ unit: String, low: Double? = nil, high: Double? = nil,
+            comparator: LabResult.Comparator? = nil, canonical: (factor: Double, unit: String)? = nil, related: Micronutrient? = nil
+        ) -> LabResult {
+            let converted = canonical.map { how in
+                let convert = { (amount: Double) in (amount * how.factor * 1000).rounded() / 1000 }
+                return LabResult.Canonical(value: convert(value), unit: how.unit, referenceLow: low.map(convert), referenceHigh: high.map(convert))
+            }
+            return LabResult(
+                id: UUID(), name: name, analyte: analyte, value: value, comparator: comparator, unit: unit,
+                referenceLow: low, referenceHigh: high, canonical: converted, relatedNutrient: related)
+        }
+        let vitaminD = (factor: 2.496, unit: "nmol/L")
+        let same = { (unit: String) in (factor: 1.0, unit: unit) }
+        return [
+            LabReport(id: UUID(), takenOn: day(14), results: [
+                result("25-OH-Vitamin D", .vitaminD, 18, "ng/mL", low: 30, high: 100, canonical: vitaminD, related: .vitaminD),
+                result("Ferritin", .ferritin, 22, "µg/L", low: 15, high: 150, canonical: same("µg/L"), related: .iron),
+                result("Hemoglobin", .hemoglobin, 13.1, "g/dL", low: 12, high: 16, canonical: (10, "g/L")),
+                result("Vitamin B12", .vitaminB12, 310, "pg/mL", low: 197, high: 771, canonical: (0.7378, "pmol/L"), related: .vitaminB12),
+                result("LDL cholesterol", .ldlCholesterol, 3.1, "mmol/L", high: 3, canonical: same("mmol/L")),
+                result("CRP", nil, 0.5, "mg/dL", high: 0.5, comparator: .below),
+            ]),
+            LabReport(id: UUID(), takenOn: day(120), results: [
+                result("Vitamin D (25-OH)", .vitaminD, 52, "nmol/L", low: 50, high: 125, canonical: same("nmol/L"), related: .vitaminD),
+                result("Ferritin", .ferritin, 15, "ng/mL", low: 15, high: 150, canonical: same("µg/L"), related: .iron),
+                result("Hemoglobin", .hemoglobin, 12.8, "g/dL", low: 12, high: 16, canonical: (10, "g/L")),
+            ]),
+            LabReport(id: UUID(), takenOn: day(300), results: [
+                result("25-OH-Vitamin D", .vitaminD, 14, "ng/mL", low: 30, high: 100, canonical: vitaminD, related: .vitaminD),
+                result("Ferritin", .ferritin, 12, "µg/L", low: 15, high: 150, canonical: same("µg/L"), related: .iron),
+                result("LDL cholesterol", .ldlCholesterol, 3.4, "mmol/L", high: 3, canonical: same("mmol/L")),
+            ]),
+        ]
+    }
+
+    /// Reference values as the server sends them (US DRI, ages 31 to 50), for the sample
+    /// nutrients only; the server owns the full table for every life stage.
     static func references(for group: ReferenceGroup) -> [Micronutrient: ReferenceRange] {
         let women = group.stage != .men
         return [

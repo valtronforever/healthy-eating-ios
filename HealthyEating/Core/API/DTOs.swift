@@ -468,6 +468,65 @@ nonisolated struct SourceDTO: Decodable, Sendable {
     }
 }
 
+/// `GET /api/v1/lab-results` (backend #37).
+nonisolated struct LabResultsDTO: Decodable, Sendable {
+    let reports: [LabReportDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case reports
+    }
+}
+
+nonisolated struct LabReportDTO: Decodable, Sendable {
+    let reportID: UUID
+    let takenOn: String
+    let results: [LabResultDTO]
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case reportID = "report_id"
+        case takenOn = "taken_on"
+        case results
+    }
+}
+
+nonisolated struct LabResultDTO: Decodable, Sendable {
+    let id: UUID
+    let name: String
+    let analyte: String?
+    let value: Double
+    let comparator: String?
+    let unit: String?
+    let referenceLow: Double?
+    let referenceHigh: Double?
+    let canonical: CanonicalValueDTO?
+    let relatedNutrient: String?
+    let createdAt: Date
+    let updatedAt: Date
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case id, name, analyte, value, comparator, unit
+        case referenceLow = "reference_low"
+        case referenceHigh = "reference_high"
+        case canonical
+        case relatedNutrient = "related_nutrient"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+nonisolated struct CanonicalValueDTO: Decodable, Sendable {
+    let value: Double
+    let unit: String
+    let referenceLow: Double?
+    let referenceHigh: Double?
+
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case value, unit
+        case referenceLow = "reference_low"
+        case referenceHigh = "reference_high"
+    }
+}
+
 nonisolated struct ReferenceRangeDTO: Decodable, Sendable {
     let min: Double
     let max: Double?
@@ -742,6 +801,8 @@ nonisolated struct ImportResponseDTO: Decodable, Sendable {
     let exportedAt: Date?
     let meals: ImportCountsDTO
     let weights: ImportCountsDTO
+    /// Servers before backend #37 send none.
+    let labResults: ImportCountsDTO?
     let daysMarked: Int
     let firstDay: String?
     let lastDay: String?
@@ -753,6 +814,7 @@ nonisolated struct ImportResponseDTO: Decodable, Sendable {
         case format
         case exportedAt = "exported_at"
         case meals, weights
+        case labResults = "lab_results"
         case daysMarked = "days_marked"
         case firstDay = "first_day"
         case lastDay = "last_day"

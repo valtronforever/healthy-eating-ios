@@ -89,6 +89,9 @@
     "%@ in 1 meal" : {
 
     },
+    "%@ intake from logged meals" : {
+
+    },
     "%@ kilocalories" : {
 
     },
@@ -129,6 +132,9 @@
           }
         }
       }
+    },
+    "%@ over time" : {
+
     },
     "%@ per day, week by week" : {
 
@@ -391,10 +397,16 @@
         }
       }
     },
+    "%lld results" : {
+
+    },
     "%lld times in the last 90 days" : {
 
     },
     "%lld values" : {
+
+    },
+    "%lld values in other units are not in the chart." : {
 
     },
     "%lld weigh-ins deleted." : {
@@ -409,7 +421,13 @@
     "1 meal" : {
 
     },
+    "1 result" : {
+
+    },
     "1 value" : {
+
+    },
+    "1 value in another unit is not in the chart." : {
 
     },
     "1 weigh-in deleted." : {
@@ -422,6 +440,9 @@
 
     },
     "19–30" : {
+
+    },
+    "25-OH vitamin D" : {
 
     },
     "30 days" : {
@@ -508,6 +529,19 @@
     "Address" : {
 
     },
+    "All %lld results from %@ are deleted. This can’t be undone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "All %1$lld results from %2$@ are deleted. This can’t be undone."
+          }
+        }
+      }
+    },
+    "All values" : {
+
+    },
     "Ask it to log a meal." : {
 
     },
@@ -527,6 +561,12 @@
 
     },
     "Average per day" : {
+
+    },
+    "Average per day, week by week, over the last %lld weeks." : {
+
+    },
+    "Average per day, week by week, over the last year." : {
 
     },
     "Averages" : {
@@ -744,6 +784,12 @@
     "Delete meal" : {
 
     },
+    "Delete report" : {
+
+    },
+    "Delete this lab report?" : {
+
+    },
     "Delete this meal?" : {
 
     },
@@ -829,6 +875,9 @@
     "Fat" : {
 
     },
+    "Ferritin" : {
+
+    },
     "Fewer than half the days" : {
 
     },
@@ -880,7 +929,16 @@
     "Get started" : {
 
     },
+    "Glucose" : {
+
+    },
     "Go to Today" : {
+
+    },
+    "HDL cholesterol" : {
+
+    },
+    "HbA1c" : {
 
     },
     "Healthy Eating" : {
@@ -905,6 +963,9 @@
 
     },
     "Healthy Eating is the app plus a PostgreSQL database on any server you control. Setup takes about 15 minutes." : {
+
+    },
+    "Hemoglobin" : {
 
     },
     "Hide calories everywhere" : {
@@ -964,6 +1025,55 @@
     "JSON, CSV" : {
 
     },
+    "LDL cholesterol" : {
+
+    },
+    "Lab range" : {
+
+    },
+    "Lab range %@–%@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lab range %1$@–%2$@%3$@"
+          }
+        }
+      }
+    },
+    "Lab range at least %@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lab range at least %1$@%2$@"
+          }
+        }
+      }
+    },
+    "Lab range up to %@%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lab range up to %1$@%2$@"
+          }
+        }
+      }
+    },
+    "Lab result %lld: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Lab result %1$lld: %2$@"
+          }
+        }
+      }
+    },
+    "Lab results" : {
+
+    },
     "Last %lld days" : {
 
     },
@@ -987,6 +1097,12 @@
 
     },
     "Late meals" : {
+
+    },
+    "Latest value" : {
+
+    },
+    "Latest values" : {
 
     },
     "Leave a field empty for an open range. Your days are shown against these ranges, never judged by them." : {
@@ -1080,7 +1196,7 @@
     "Meals you log in Claude or ChatGPT appear here." : {
 
     },
-    "Meals, weigh-ins and day marks are added. Anything already here is skipped, so importing a file twice adds nothing. Your account and settings stay as they are." : {
+    "Meals, weigh-ins, day marks and lab results are added. Anything already here is skipped, so importing a file twice adds nothing. Your account and settings stay as they are." : {
 
     },
     "Medium" : {
@@ -1093,6 +1209,9 @@
 
     },
     "Minerals" : {
+
+    },
+    "More about %@" : {
 
     },
     "Next month" : {
@@ -1108,6 +1227,9 @@
 
     },
     "No days to show yet" : {
+
+    },
+    "No lab results yet" : {
 
     },
     "No meals in these weeks." : {
@@ -1138,6 +1260,9 @@
 
     },
     "No values" : {
+
+    },
+    "No values from logged meals in these weeks." : {
 
     },
     "No values in these weeks" : {
@@ -1230,6 +1355,9 @@
     "Other" : {
 
     },
+    "Over time" : {
+
+    },
     "P %@ · F %@ · C %@" : {
       "comment" : "Macro line: protein, fat, carbohydrates",
       "localizations" : {
@@ -1286,6 +1414,9 @@
     "Protein per meal" : {
 
     },
+    "Range" : {
+
+    },
     "Range high" : {
 
     },
@@ -1323,6 +1454,9 @@
     "Remove your goal" : {
 
     },
+    "Reports" : {
+
+    },
     "Retry" : {
 
     },
@@ -1339,6 +1473,9 @@
 
     },
     "Running your own?" : {
+
+    },
+    "Sample day" : {
 
     },
     "Save" : {
@@ -1381,6 +1518,9 @@
     "Series" : {
 
     },
+    "Serum iron" : {
+
+    },
     "Server" : {
 
     },
@@ -1391,6 +1531,9 @@
 
     },
     "Settings" : {
+
+    },
+    "Share a photo of your lab report with your assistant to add results here." : {
 
     },
     "Share setup link" : {
@@ -1409,6 +1552,9 @@
 
     },
     "Showing data from 09:42. It updates when you are back online." : {
+
+    },
+    "Shown in %@, converted from the units on your reports." : {
 
     },
     "Shown once both weekdays and the weekend have counted days" : {
@@ -1465,6 +1611,9 @@
     "Sync with Apple Health" : {
 
     },
+    "TSH" : {
+
+    },
     "Target %@" : {
 
     },
@@ -1504,7 +1653,13 @@
     "The file is larger than 50 MB." : {
 
     },
+    "The intake could not be loaded." : {
+
+    },
     "The rest of the week is still ahead." : {
+
+    },
+    "The result from %@ is deleted. This can’t be undone." : {
 
     },
     "The review fills in as meals arrive from your assistant." : {
@@ -1564,6 +1719,12 @@
     "Today, %@" : {
 
     },
+    "Total cholesterol" : {
+
+    },
+    "Transferrin saturation" : {
+
+    },
     "Trend" : {
 
     },
@@ -1571,6 +1732,9 @@
 
     },
     "Trends" : {
+
+    },
+    "Triglycerides" : {
 
     },
     "Try this first message" : {
@@ -1612,7 +1776,13 @@
     "Usual meals" : {
 
     },
+    "Value" : {
+
+    },
     "Values" : {
+
+    },
+    "Values and ranges as printed on your reports. Your assistant saves them when you share a report in the chat." : {
 
     },
     "Values come from the food items your assistant lists with each meal." : {
@@ -1629,6 +1799,12 @@
       }
     },
     "Values you change are saved as your numbers." : {
+
+    },
+    "Values, units and ranges as printed on the report." : {
+
+    },
+    "Values, units and ranges as printed on your reports." : {
 
     },
     "Vitamin A" : {
@@ -1815,6 +1991,12 @@
 
     },
     "Your session ended. Sign in again to see your data." : {
+
+    },
+    "Your values" : {
+
+    },
+    "Your values in %@" : {
 
     },
     "Zero" : {

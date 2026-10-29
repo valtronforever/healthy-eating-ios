@@ -11,10 +11,11 @@ nonisolated struct ImportSummary: Equatable, Sendable {
     nonisolated struct Rejected: Equatable, Sendable {
         nonisolated enum Kind: String, Sendable {
             case meal, weight
+            case labResult = "lab_result"
         }
 
         let kind: Kind
-        /// Position among the file's meals or weigh-ins, from 1 (the server counts from 0).
+        /// Position among the file's meals, weigh-ins or lab results, from 1 (the server counts from 0).
         let position: Int
         let reason: String
     }
@@ -26,6 +27,8 @@ nonisolated struct ImportSummary: Equatable, Sendable {
     let knownMeals: Int
     let newWeights: Int
     let knownWeights: Int
+    let newLabResults: Int
+    let knownLabResults: Int
     let daysMarked: Int
     /// Local days of the earliest and latest new meal.
     let firstDay: Date?
@@ -34,5 +37,5 @@ nonisolated struct ImportSummary: Equatable, Sendable {
     /// The first entries left out (the server names at most 50).
     let rejected: [Rejected]
 
-    var addsNothing: Bool { newMeals == 0 && newWeights == 0 }
+    var addsNothing: Bool { newMeals == 0 && newWeights == 0 && newLabResults == 0 }
 }

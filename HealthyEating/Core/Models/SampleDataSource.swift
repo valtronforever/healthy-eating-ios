@@ -51,6 +51,9 @@ actor SampleDataSource: NutritionDataSource {
               createdAt: .now.addingTimeInterval(-30 * 86_400), lastLoginAt: nil),
     ]
     private let calendar = Calendar.current
+    /// Three sample lab reports (ios#47): vitamin D printed in two units, a value with "<" and
+    /// one analyte the server does not know.
+    private lazy var labReportsList: [LabReport] = newAccount ? [] : SampleData.labReports(today: calendar.startOfDay(for: .now), calendar: calendar)
 
     func meals(on day: Date) -> [Meal] {
         if calendar.isDateInToday(day) { return todayMeals.sorted { $0.eatenAt > $1.eatenAt } }
@@ -337,6 +340,21 @@ actor SampleDataSource: NutritionDataSource {
     }
 
     /// Sample data has no server; the widgets keep using the snapshot.
+    // MARK: Lab results
+
+    func labReports() -> [LabReport] { labReportsList }
+
+    func deleteLabReport(_ id: UUID) throws(APIError) {
+        guard labReportsList.contains(where: { $0.id == id }) else { throw .notFound }
+        labReportsList.removeAll { $0.id == id }
+    }
+
+    func deleteLabResult(_ id: UUID) throws(APIError) {
+        guard let index = labReportsList.firstIndex(where: { $0.results.contains { $0.id == id } }) else { throw .notFound }
+        labReportsList[index].results.removeAll { $0.id == id }
+        if labReportsList[index].results.isEmpty { labReportsList.remove(at: index) }
+    }
+
     func createWidgetToken() -> String { "sample" }
 
     func deleteAllWeights() -> Int {
@@ -429,7 +447,7 @@ actor SampleDataSource: NutritionDataSource {
         let today = calendar.startOfDay(for: .now)
         return ImportSummary(
             isPreview: preview, format: isZip ? .csv : .json, exportedAt: today.addingTimeInterval(-3_600),
-            newMeals: 42, knownMeals: 3, newWeights: 5, knownWeights: 0, daysMarked: 14,
+            newMeals: 42, knownMeals: 3, newWeights: 5, knownWeights: 0, newLabResults: 6, knownLabResults: 0, daysMarked: 14,
             firstDay: calendar.date(byAdding: .day, value: -60, to: today),
             lastDay: calendar.date(byAdding: .day, value: -40, to: today),
             rejectedCount: 1,

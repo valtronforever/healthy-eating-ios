@@ -65,6 +65,7 @@ HealthyEating/
     Settings/        # server, connection URL, Calm mode, weight tracking, export and import, sign out; Linked accounts (link, unlink);
                      # Connected assistants with the connection guide (the A4 steps, to read again)
     Weight/          # D3 Weight and energy (opened from Trends), weigh-ins list and form
+    LabResults/      # lab results (opened from Trends): analytes, analyte detail, report detail
   Core/
     Auth/            # ServerAddress, OAuthRedirect, PKCE, OAuthClient (discovery, DCR, token, revoke),
                      # WebAuthenticator (ASWebAuthenticationSession), OAuthSignIn, AuthSession (tokens, refresh),
@@ -213,6 +214,22 @@ Notes:
   that bound), the top foods and supplements (label items) with their share, every week with
   "3 of 7 days", and the coverage line ("Values for 34 of 52 meals. ..."). Calm mode does not
   change it.
+- Lab results (ios#47, backend #37, `Features/LabResults`, `GET /api/v1/lab-results`,
+  `DELETE /api/v1/lab-results/{id}` and `/reports/{id}`): the assistant saves them from a report
+  shared in the chat; the app only shows and deletes them, and keeps them out of widgets and Apple
+  Health. Trends › "Lab results" lists each analyte with its latest value and date (a known
+  analyte, `LabAnalyte`, by its code and the app's name; any other by its printed name), then the
+  reports; empty: "Share a photo of your lab report with your assistant to add results here."
+  An analyte (`LabAnalyteView`) shows the latest value, `LabValuesChart` (values over time with the
+  lab's printed range as a neutral band: one band when every report printed the same range, else
+  one behind each value; `LabChartSeries` charts printed values when all share a unit, else the
+  server's canonical values with "Shown in nmol/L, converted from the units on your reports.", and
+  says how many values are left out), and, where there is a related nutrient, its weekly intake as
+  a separate `WeeklyNutrientChart` below ("Vitamin D intake from logged meals", 12 weeks or a year,
+  linking to `NutrientInsightsView`), never on top of the lab values and never worded as a cause.
+  A report (`LabReportView`) lists its values in the report's order with unit and range as printed;
+  swipe deletes a result, "Delete report" (confirmed) deletes all of them. Values outside the
+  lab's range look like any other: no colors, arrows or words such as low, high or normal.
 - The weekly review (`Features/Statistics/WeeklyReviewView.swift`) shows `GET /api/v1/weekly-review`
   as facts: its footnote names the days the averages use and why others are left out; Calm mode
   hides calories (weekdays and weekend then compare protein). Week titles use the locale's order

@@ -134,7 +134,7 @@ struct ImportDataView: View {
     }
 
     private var note: some View {
-        Text("Meals, weigh-ins and day marks are added. Anything already here is skipped, so importing a file twice adds nothing. Your account and settings stay as they are.")
+        Text("Meals, weigh-ins, day marks and lab results are added. Anything already here is skipped, so importing a file twice adds nothing. Your account and settings stay as they are.")
             .font(.subheadline)
             .foregroundStyle(.inkMuted)
     }
@@ -149,6 +149,9 @@ struct ImportDataView: View {
         VStack(alignment: .leading, spacing: 0) {
             row("Meals", ImportFormat.counts(new: summary.newMeals, known: summary.knownMeals))
             row("Weigh-ins", ImportFormat.counts(new: summary.newWeights, known: summary.knownWeights))
+            if summary.newLabResults + summary.knownLabResults > 0 {
+                row("Lab results", ImportFormat.counts(new: summary.newLabResults, known: summary.knownLabResults))
+            }
             if let days = ImportFormat.days(summary) {
                 row("Days", days)
             }
@@ -228,6 +231,7 @@ nonisolated enum ImportFormat {
         switch entry.kind {
         case .meal: String(localized: "Meal \(entry.position): \(entry.reason)")
         case .weight: String(localized: "Weigh-in \(entry.position): \(entry.reason)")
+        case .labResult: String(localized: "Lab result \(entry.position): \(entry.reason)")
         }
     }
 

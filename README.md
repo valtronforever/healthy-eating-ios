@@ -13,6 +13,10 @@ server. What it does:
 - **Today, History, Trends:** daily totals against your target ranges, meals with provenance
   (your numbers or estimated, with confidence), meal edit and delete, complete and partial days,
   7, 30 and 90 day trends, fiber, sugar and sodium when meals have them, and a weekly review.
+- **Vitamins, minerals and lab results:** vitamins and minerals from the food items your assistant
+  lists, with goals or reference ranges and weeks of insights; lab results your assistant saves
+  from a report, shown over time next to the intake of the related nutrient, as printed and never
+  judged.
 - **Weight and energy (opt-in):** weigh-ins from the chat, the app or Apple Health, a smoothed
   trend and an estimate of how many calories you maintain at, from your own log.
 - **Apple Health (opt-in):** meals and weigh-ins go to Apple Health; weigh-ins from scales and the

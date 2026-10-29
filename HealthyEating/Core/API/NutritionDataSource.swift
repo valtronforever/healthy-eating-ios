@@ -42,6 +42,12 @@ nonisolated protocol NutritionDataSource: Sendable {
     /// at most `APIClient.maxWeightBatch`); unknown ids are ignored. Returns how many it deleted.
     func deleteAppleHealthWeights(_ sampleIDs: [UUID]) async throws(APIError) -> Int
     func energyEstimate() async throws(APIError) -> EnergyEstimate
+    /// Every lab report, newest sample first. The app shows and deletes them, never adds any.
+    func labReports() async throws(APIError) -> [LabReport]
+    /// Deletes a lab report with all of its results.
+    func deleteLabReport(_ id: UUID) async throws(APIError)
+    /// Deletes one result; a report without results is gone.
+    func deleteLabResult(_ id: UUID) async throws(APIError)
     /// A read-only token for the widgets, tied to this sign-in (`WidgetAccess`).
     func createWidgetToken() async throws(APIError) -> String
     func connections() async throws(APIError) -> [Connection]

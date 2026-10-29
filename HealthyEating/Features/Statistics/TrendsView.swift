@@ -127,6 +127,15 @@ struct TrendsView: View {
                         }
                     }
                     .accessibilityIdentifier("weightAndEnergy")
+                    NavigationLink {
+                        LabResultsView()
+                    } label: {
+                        HStack(spacing: Spacing.s3) {
+                            SymbolTile(systemName: "testtube.2", small: true)
+                            Text("Lab results").foregroundStyle(.ink)
+                        }
+                    }
+                    .accessibilityIdentifier("labResults")
                 }
                 .listRowBackground(Color.surface)
             }
